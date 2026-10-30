@@ -1,0 +1,6 @@
+{
+    "name": "Master",
+    "enabled": true,
+    "namespace": "Modules\\Master",
+    "provider": "Modules\\Master\\Providers\\MasterServiceProvider"
+}

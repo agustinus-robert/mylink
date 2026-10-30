@@ -1,0 +1,6 @@
+{
+    "name": "Transaction",
+    "enabled": true,
+    "namespace": "Modules\\Transaction",
+    "provider": "Modules\\Transaction\\Providers\\TransactionServiceProvider"
+}

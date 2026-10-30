@@ -1,0 +1,6 @@
+{
+    "name": "{{Module}}",
+    "enabled": true,
+    "namespace": "{{NamespaceJson}}",
+    "provider": "{{NamespaceJson}}\\Providers\\{{Module}}ServiceProvider"
+}

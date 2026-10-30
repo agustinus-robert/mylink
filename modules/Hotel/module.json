@@ -1,0 +1,6 @@
+{
+    "name": "Hotel",
+    "enabled": true,
+    "namespace": "Modules\\Hotel",
+    "provider": "Modules\\Hotel\\Providers\\HotelServiceProvider"
+}

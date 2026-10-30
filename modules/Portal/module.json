@@ -1,0 +1,6 @@
+{
+    "name": "Portal",
+    "enabled": true,
+    "namespace": "Modules\\Portal",
+    "provider": "Modules\\Portal\\Providers\\PortalServiceProvider"
+}

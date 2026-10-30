@@ -1,0 +1,6 @@
+{
+    "name": "Front",
+    "enabled": true,
+    "namespace": "Modules\\Front",
+    "provider": "Modules\\Front\\Providers\\FrontServiceProvider"
+}

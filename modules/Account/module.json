@@ -1,0 +1,6 @@
+{
+    "name": "Account",
+    "enabled": true,
+    "namespace": "Modules\\Account",
+    "provider": "Modules\\Account\\Providers\\AccountServiceProvider"
+}
