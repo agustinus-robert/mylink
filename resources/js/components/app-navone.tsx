@@ -9,11 +9,12 @@ import {
     Bell,
     ListFilter,
     ShoppingBasket,
+    Send,
 } from 'lucide-react';
 
 const centerMenus = [
     { label: 'Topik', icon: ListFilter, link: 'topik' },
-    { label: 'Item', icon: ShoppingBasket, link: 'item' },
+    { label: 'Ajukan Barang', icon: Send, link: 'pengajuan' },
     { label: 'Note', icon: FileText, link: 'note' },
 ];
 
