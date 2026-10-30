@@ -15,7 +15,7 @@ import {
 const centerMenus = [
     { label: 'Topik', icon: ListFilter, link: 'topik' },
     { label: 'Ajukan Barang', icon: Send, link: 'pengajuan' },
-    { label: 'Note', icon: FileText, link: 'note' },
+    { label: 'Note', icon: FileText, link: 'catatan' },
 ];
 
 function NavigationCenter({ showNav }: { showNav: boolean }) {
