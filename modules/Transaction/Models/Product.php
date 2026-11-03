@@ -58,6 +58,11 @@ class Product extends Model
         return $this->belongsTo(Category::class, 'category_id', 'id');
     }
 
+    public function topics(): HasMany
+    {
+        return $this->hasMany(Topics::class, 'product_id', 'id');
+    }
+
     public function subCategory(): BelongsTo
     {
         return $this->belongsTo(SubCategory::class, 'sub_category_id', 'id');

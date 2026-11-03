@@ -7,7 +7,16 @@ const items = [
     { id: 4, name: 'Monitor', price: 'Rp 1.500.000', image: '' },
 ];
 
-export default function Items() {
+type Products = {
+    id: number;
+    name: string;
+};
+
+type Props = {
+    products: Products[];
+};
+
+export default function Items({ products }: Props) {
     return (
         <div className="m-2 flex h-[600px] max-w-100 flex-col border border-gray-300 p-2">
             <div className="mb-3 flex shrink-0 items-center gap-1 border-b border-gray-200 pb-2">

@@ -9,14 +9,26 @@ import { initializeTheme } from '@/hooks/use-appearance';
 import AppLayout from '@/layouts/app-layout';
 import AuthLayout from '@/layouts/auth-layout';
 import SettingsLayout from '@/layouts/settings/layout';
+
 import NavOne from '@/components/app-navone';
 import Brands from '@/components/app-brand';
+
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 const pages = {
     ...import.meta.glob('./pages/**/*.tsx'),
     ...import.meta.glob('../../modules/**/resources/js/pages/**/*.tsx'),
 };
+
+const FrontLayout = ({ children }: { children: React.ReactNode }) => (
+    <>
+        <Brands />
+        {children}
+        <NavOne />
+    </>
+);
+
+const frontPages = ['home', 'topik', 'sender', 'note', 'notification'];
 
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
@@ -26,7 +38,6 @@ createInertiaApp({
 
         if (!loader) {
             const parts = name.split('/');
-
             const module = parts.shift();
 
             if (module) {
@@ -46,7 +57,6 @@ createInertiaApp({
         }
 
         if (!loader) {
-            // console.log('AVAILABLE PAGES:', Object.keys(pages));
             throw new Error(`Page not found: ${name}`);
         }
 
@@ -59,6 +69,9 @@ createInertiaApp({
         switch (true) {
             case name === 'welcome':
                 return null;
+
+            case frontPages.some((page) => name === `front/${page}`):
+                return FrontLayout;
 
             case name.startsWith('front/'):
                 return null;
@@ -79,12 +92,8 @@ createInertiaApp({
     withApp(app) {
         return (
             <TooltipProvider>
-                <Brands />
-
                 {app}
-
                 <Toaster />
-                <NavOne />
             </TooltipProvider>
         );
     },

@@ -43,7 +43,16 @@
         </x-inertia::head>
     </head>
     <body class="font-sans antialiased">
-        <div class="mx-auto min-h-200 w-full max-w-[400px] border border-gray-300 rounded">
+        <div @class([
+            'mx-auto min-h-200 w-full border border-gray-300 rounded',
+            'max-w-[400px]' => request()->routeIs(
+                'home',
+                'topik',
+                'sender',
+                'note',
+                'notification'
+            ),
+        ])>
             <x-inertia::app />
         </div>
     </body>

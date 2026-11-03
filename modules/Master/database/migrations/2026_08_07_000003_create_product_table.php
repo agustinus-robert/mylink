@@ -45,6 +45,16 @@ return new class extends Migration
             $table->timestamps();
         });
 
+        Schema::create('mst_topics', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('product_id')
+                ->constrained('mst_products')
+                ->cascadeOnDelete();
+            $table->string('name');
+            $table->timestamps();
+            $table->softDeletes();
+        });
+
         Schema::create('mst_locations', function (Blueprint $table) {
             $table->id();
 

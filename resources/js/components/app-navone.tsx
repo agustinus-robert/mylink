@@ -79,13 +79,13 @@ export default function NavOne() {
                         )}
                     </button>
 
-                    <button
-                        type="button"
+                    <Link
+                        href={'notifikasi'}
                         className="flex h-full items-center justify-center text-gray-700 hover:bg-gray-100"
                         aria-label="Item"
                     >
                         <Bell className="size-6" />
-                    </button>
+                    </Link>
                 </div>
             </div>
         </nav>
