@@ -28,7 +28,13 @@ const FrontLayout = ({ children }: { children: React.ReactNode }) => (
     </>
 );
 
-const frontPages = ['home', 'topik', 'sender', 'note', 'notification'];
+const frontUrls = [
+    '/beranda',
+    '/topik',
+    '/pengajuan',
+    '/catatan',
+    '/notifikasi',
+];
 
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
@@ -66,15 +72,14 @@ createInertiaApp({
     },
 
     layout: (name) => {
+        const currentUrl = window.location.pathname;
+
         switch (true) {
             case name === 'welcome':
                 return null;
 
-            case frontPages.some((page) => name === `front/${page}`):
+            case frontUrls.includes(currentUrl):
                 return FrontLayout;
-
-            case name.startsWith('front/'):
-                return null;
 
             case name.startsWith('auth/'):
                 return AuthLayout;

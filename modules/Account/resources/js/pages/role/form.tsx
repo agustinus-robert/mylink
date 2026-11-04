@@ -17,11 +17,13 @@ interface FormData {
     name: string;
 }
 
+const inputClass =
+    'w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50';
+
 export default function RoleForm({ role, onClose }: Props) {
-    const { data, setData, post, put, processing, errors } =
-        useForm<FormData>({
-            name: role?.name ?? '',
-        });
+    const { data, setData, post, put, processing, errors } = useForm<FormData>({
+        name: role?.name ?? '',
+    });
 
     function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -87,11 +89,9 @@ export default function RoleForm({ role, onClose }: Props) {
                             id="name"
                             name="name"
                             value={data.name}
-                            onChange={(e) =>
-                                setData('name', e.target.value)
-                            }
+                            onChange={(e) => setData('name', e.target.value)}
                             placeholder="Masukkan nama role"
-                            className="w-full rounded-md border border-slate-700 bg-background px-3 py-2 text-sm text-slate-100 outline-none focus:border-primary"
+                            className={inputClass}
                         />
 
                         {errors.name && (

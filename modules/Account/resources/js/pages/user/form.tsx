@@ -29,19 +29,17 @@ interface FormData {
     retype_password: string;
 }
 
-export default function UserForm({
-    roles,
-    user,
-    onClose,
-}: Props) {
-    const { data, setData, post, put, processing, errors } =
-        useForm<FormData>({
-            role_id: user?.role_id ?? 0,
-            name: user?.name ?? '',
-            email: user?.email ?? '',
-            password: '',
-            retype_password: '',
-        });
+const inputClass =
+    'w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50';
+
+export default function UserForm({ roles, user, onClose }: Props) {
+    const { data, setData, post, put, processing, errors } = useForm<FormData>({
+        role_id: user?.role_id ?? 0,
+        name: user?.name ?? '',
+        email: user?.email ?? '',
+        password: '',
+        retype_password: '',
+    });
 
     function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -145,11 +143,9 @@ export default function UserForm({
                             id="name"
                             name="name"
                             value={data.name}
-                            onChange={(e) =>
-                                setData('name', e.target.value)
-                            }
+                            onChange={(e) => setData('name', e.target.value)}
                             placeholder="Masukkan nama pengguna"
-                            className="w-full rounded-md border border-slate-700 bg-background px-3 py-2 text-sm text-slate-100 outline-none focus:border-primary"
+                            className={inputClass}
                         />
 
                         {errors.name && (
@@ -172,11 +168,9 @@ export default function UserForm({
                             id="email"
                             name="email"
                             value={data.email}
-                            onChange={(e) =>
-                                setData('email', e.target.value)
-                            }
+                            onChange={(e) => setData('email', e.target.value)}
                             placeholder="Masukkan email pengguna"
-                            className="w-full rounded-md border border-slate-700 bg-background px-3 py-2 text-sm text-slate-100 outline-none focus:border-primary"
+                            className={inputClass}
                         />
 
                         {errors.email && (
@@ -208,7 +202,7 @@ export default function UserForm({
                                     : 'Masukkan kata sandi'
                             }
                             autoComplete="new-password"
-                            className="w-full rounded-md border border-slate-700 bg-background px-3 py-2 text-sm text-slate-100 outline-none focus:border-primary"
+                            className={inputClass}
                         />
 
                         {errors.password && (
@@ -236,7 +230,7 @@ export default function UserForm({
                             }
                             placeholder="Ulangi kata sandi"
                             autoComplete="new-password"
-                            className="w-full rounded-md border border-slate-700 bg-background px-3 py-2 text-sm text-slate-100 outline-none focus:border-primary"
+                            className={inputClass}
                         />
 
                         {data.retype_password &&

@@ -1,15 +1,11 @@
 import { Hand } from 'lucide-react';
 
-const items = [
-    { id: 1, name: 'Laptop', price: 'Rp 5.000.000', image: '' },
-    { id: 2, name: 'Keyboard', price: 'Rp 250.000', image: '' },
-    { id: 3, name: 'Mouse', price: 'Rp 150.000', image: '' },
-    { id: 4, name: 'Monitor', price: 'Rp 1.500.000', image: '' },
-];
-
 type Products = {
     id: number;
     name: string;
+    link: string;
+    affiliate_link: string;
+    price: number;
 };
 
 type Props = {
@@ -25,14 +21,15 @@ export default function Items({ products }: Props) {
             </div>
 
             <div className="grid min-h-0 flex-1 grid-cols-2 content-start gap-3 overflow-y-auto">
-                {items.map((item) => (
-                    <div
+                {products.map((item) => (
+                    <a
+                        href={item.affiliate_link}
                         key={item.id}
                         className="min-w-0 overflow-hidden rounded-lg border border-gray-200 transition hover:border-gray-400"
                     >
                         <div className="h-40 w-full bg-gray-100">
                             <img
-                                src={item.image || undefined}
+                                src={item.link || undefined}
                                 alt={item.name}
                                 className="h-full w-full object-cover"
                             />
@@ -47,7 +44,7 @@ export default function Items({ products }: Props) {
                                 {item.name}
                             </h4>
                         </div>
-                    </div>
+                    </a>
                 ))}
             </div>
         </div>

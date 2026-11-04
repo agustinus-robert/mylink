@@ -39,8 +39,7 @@ export function AppSidebar() {
 
         default:
             navGroups = mainNavGroups.filter(
-                (group) =>
-                    group.title !== 'Manajemen User' || isAdmin,
+                (group) => group.title !== 'Manajemen User' || isAdmin,
             );
             break;
     }

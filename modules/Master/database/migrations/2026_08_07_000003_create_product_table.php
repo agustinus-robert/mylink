@@ -18,6 +18,7 @@ return new class extends Migration
             $table->text('name');
             $table->text('slug');
             $table->string('link');
+            $table->string('affiliate_link');
             
             $table->foreignId('category_id')
                 ->nullable()

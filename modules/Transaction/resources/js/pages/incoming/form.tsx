@@ -9,6 +9,7 @@ import IncomingFormGeneral, {
 
 import IncomingFormRegion, { type Province, type District } from './region';
 import IncomingFormPricing from './pricing';
+import IncomingFormHash from './hash';
 
 interface Incoming {
     id: number;
@@ -31,6 +32,7 @@ interface Incoming {
         };
     };
     link: string;
+    link_affiliate: string;
     address: string;
     province_id: number;
     district_id: number;
@@ -38,6 +40,7 @@ interface Incoming {
     sub_category_id: number;
     prices: number;
     recorded_at: string;
+    topic: string;
 }
 
 interface Props {
@@ -63,6 +66,7 @@ export default function Form({
             name: incoming?.name ?? '',
             slug: incoming?.slug ?? '',
             link: incoming?.link ?? '',
+            link_affiliate: incoming?.link_affiliate ?? '',
             category_id: incoming?.category_id ?? 0,
             sub_category_id: incoming?.sub_category_id ?? 0,
             address: incoming?.detail?.location?.address ?? '',
@@ -70,6 +74,7 @@ export default function Form({
             district_id: incoming?.detail?.location?.district?.id ?? 0,
             prices: incoming?.detail?.prices ?? 0,
             recorded_at: incoming?.detail?.recorded_at ?? '',
+            topic: incoming?.name ?? '',
         });
 
     function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -124,6 +129,12 @@ export default function Form({
                 />
 
                 <IncomingFormPricing
+                    data={data}
+                    setData={setData}
+                    errors={errors}
+                />
+
+                <IncomingFormHash
                     data={data}
                     setData={setData}
                     errors={errors}

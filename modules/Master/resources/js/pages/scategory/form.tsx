@@ -27,17 +27,19 @@ interface FormData {
     price: string;
 }
 
+const inputClass =
+    'w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50';
+
 export default function SubCategoryForm({
     categories,
     category,
     onClose,
 }: Props) {
-    const { data, setData, post, put, processing, errors } =
-        useForm<FormData>({
-            category_id: category?.category_id ?? 0,
-            name: category?.name ?? '',
-            price: category?.price ?? '',
-        });
+    const { data, setData, post, put, processing, errors } = useForm<FormData>({
+        category_id: category?.category_id ?? 0,
+        name: category?.name ?? '',
+        price: category?.price ?? '',
+    });
 
     function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -75,9 +77,7 @@ export default function SubCategoryForm({
                 <div className="border-b border-slate-800 px-6 py-4">
                     <h2 className="flex items-center gap-3 text-lg font-semibold text-slate-100">
                         <ListTree />
-                        {category
-                            ? 'Edit Sub Kategori'
-                            : 'Tambah Sub Kategori'}
+                        {category ? 'Edit Sub Kategori' : 'Tambah Sub Kategori'}
                     </h2>
 
                     <p className="mt-1 text-sm text-slate-400">
@@ -101,12 +101,9 @@ export default function SubCategoryForm({
                             name="category_id"
                             value={data.category_id || ''}
                             onChange={(e) =>
-                                setData(
-                                    'category_id',
-                                    Number(e.target.value),
-                                )
+                                setData('category_id', Number(e.target.value))
                             }
-                            className="w-full rounded-md border border-slate-700 bg-background px-3 py-2 text-sm text-slate-100 outline-none focus:border-primary"
+                            className={inputClass}
                         >
                             <option value="">Pilih Kategori</option>
 
@@ -137,45 +134,14 @@ export default function SubCategoryForm({
                             id="name"
                             name="name"
                             value={data.name}
-                            onChange={(e) =>
-                                setData('name', e.target.value)
-                            }
+                            onChange={(e) => setData('name', e.target.value)}
                             placeholder="Masukkan nama sub kategori"
-                            className="w-full rounded-md border border-slate-700 bg-background px-3 py-2 text-sm text-slate-100 outline-none focus:border-primary"
+                            className={inputClass}
                         />
 
                         {errors.name && (
                             <p className="mt-1 text-sm text-red-400">
                                 {errors.name}
-                            </p>
-                        )}
-                    </div>
-
-                    <div>
-                        <label
-                            htmlFor="price"
-                            className="mb-1 block text-sm font-medium"
-                        >
-                            Harga
-                        </label>
-
-                        <input
-                            type="number"
-                            id="price"
-                            name="price"
-                            min="0"
-                            step="0.01"
-                            value={data.price}
-                            onChange={(e) =>
-                                setData('price', e.target.value)
-                            }
-                            placeholder="Masukkan harga"
-                            className="w-full rounded-md border border-slate-700 bg-background px-3 py-2 text-sm text-slate-100 outline-none focus:border-primary"
-                        />
-
-                        {errors.price && (
-                            <p className="mt-1 text-sm text-red-400">
-                                {errors.price}
                             </p>
                         )}
                     </div>

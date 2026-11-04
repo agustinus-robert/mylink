@@ -24,7 +24,11 @@ interface Props {
 }
 
 const inputClass =
-    'w-full rounded-md border border-slate-700 bg-background px-3 py-2 text-sm text-slate-100 outline-none focus:border-primary disabled:cursor-not-allowed disabled:opacity-50';
+    'w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-primary disabled:cursor-not-allowed disabled:opacity-50';
+
+const labelClass = 'mb-1 block text-sm font-medium text-foreground';
+
+const errorClass = 'mt-1 text-sm text-destructive';
 
 export default function IncomingFormRegion({
     data,
@@ -38,18 +42,15 @@ export default function IncomingFormRegion({
     );
 
     return (
-        <section className="border-b border-slate-800 p-6">
-            <h3 className="mb-4 text-base font-semibold text-slate-100">
+        <section className="border-b border-border p-6">
+            <h3 className="mb-4 text-base font-semibold text-foreground">
                 Informasi Wilayah
             </h3>
 
             <div className="grid gap-4">
                 <div className="grid gap-2 md:grid-cols-2">
                     <div>
-                        <label
-                            htmlFor="province_id"
-                            className="mb-1 block text-sm"
-                        >
+                        <label htmlFor="province_id" className={labelClass}>
                             Provinsi
                         </label>
 
@@ -72,17 +73,12 @@ export default function IncomingFormRegion({
                         </select>
 
                         {errors.province_id && (
-                            <p className="mt-1 text-sm text-red-400">
-                                {errors.province_id}
-                            </p>
+                            <p className={errorClass}>{errors.province_id}</p>
                         )}
                     </div>
 
                     <div>
-                        <label
-                            htmlFor="district_id"
-                            className="mb-1 block text-sm"
-                        >
+                        <label htmlFor="district_id" className={labelClass}>
                             Distrik
                         </label>
 
@@ -109,15 +105,13 @@ export default function IncomingFormRegion({
                         </select>
 
                         {errors.district_id && (
-                            <p className="mt-1 text-sm text-red-400">
-                                {errors.district_id}
-                            </p>
+                            <p className={errorClass}>{errors.district_id}</p>
                         )}
                     </div>
                 </div>
 
                 <div className="grid md:grid-cols-1">
-                    <label htmlFor="address" className="mb-1 block text-sm">
+                    <label htmlFor="address" className={labelClass}>
                         Alamat
                     </label>
 
@@ -126,17 +120,14 @@ export default function IncomingFormRegion({
                         name="address"
                         value={data.address}
                         onChange={(e) => {
-                            const address = e.target.value;
-                            setData('address', address);
+                            setData('address', e.target.value);
                         }}
                         placeholder="Masukkan Alamat"
-                        className="w-full rounded-md border border-slate-700 bg-background px-3 py-2 text-sm text-slate-100 outline-none focus:border-primary"
+                        className={inputClass}
                     />
 
                     {errors.address && (
-                        <p className="mt-1 text-sm text-red-400">
-                            {errors.address}
-                        </p>
+                        <p className={errorClass}>{errors.address}</p>
                     )}
                 </div>
             </div>

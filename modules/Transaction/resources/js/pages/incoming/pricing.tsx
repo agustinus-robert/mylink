@@ -1,4 +1,4 @@
-import { FormDataConvertible } from '@inertiajs/core';
+import type { FormDataConvertible } from '@inertiajs/core';
 import dayjs from 'dayjs';
 
 export interface Pricing {
@@ -17,18 +17,22 @@ interface Props {
 }
 
 const inputClass =
-    'w-full rounded-md border border-slate-700 bg-background px-3 py-2 text-sm text-slate-100 outline-none focus:border-primary disabled:cursor-not-allowed disabled:opacity-50';
+    'w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary disabled:cursor-not-allowed disabled:opacity-50';
+
+const labelClass = 'mb-1 block text-sm font-medium text-foreground';
+
+const errorClass = 'mt-1 text-sm text-destructive';
 
 export default function IncomingFormPricing({ data, setData, errors }: Props) {
     return (
-        <section className="border-b border-slate-800 p-6">
-            <h3 className="mb-4 text-base font-semibold text-slate-100">
+        <section className="border-b border-border p-6">
+            <h3 className="mb-4 text-base font-semibold text-foreground">
                 Informasi Harga Barang
             </h3>
 
             <div className="grid gap-4 md:grid-cols-2">
                 <div>
-                    <label htmlFor="prices" className="mb-1 block text-sm">
+                    <label htmlFor="prices" className={labelClass}>
                         Harga Barang
                     </label>
 
@@ -40,47 +44,30 @@ export default function IncomingFormPricing({ data, setData, errors }: Props) {
                         className={inputClass}
                     />
 
-                    {errors.incoming_from && (
-                        <p className="mt-1 text-sm text-red-400">
-                            {errors.incoming_from}
-                        </p>
+                    {errors.prices && (
+                        <p className={errorClass}>{errors.prices}</p>
                     )}
                 </div>
 
                 <div>
-                    <label
-                        htmlFor="incoming_from"
-                        className="mb-1 block text-sm"
-                    >
+                    <label htmlFor="recorded_at" className={labelClass}>
                         Perubahan Tanggal Affiliasi
                     </label>
 
                     <input
-                        type="text"
-                        id="incoming_from"
-                        value={
-                            data.recorded_at
-                                ? dayjs(data.recorded_at).format('DD/MM/YYYY')
-                                : ''
-                        }
+                        type="date"
+                        id="recorded_at"
+                        value={data.recorded_at ? data.recorded_at : ''}
                         onChange={(e) => {
                             const value = e.target.value;
-                            setData(
-                                'recorded_at',
-                                value
-                                    ? dayjs(value, 'DD/MM/YYYY').format(
-                                          'YYYY-MM-DD',
-                                      )
-                                    : '',
-                            );
+                            setData('recorded_at', value);
                         }}
                         placeholder="DD/MM/YYYY"
                         className={inputClass}
                     />
-                    {errors.incoming_from && (
-                        <p className="mt-1 text-sm text-red-400">
-                            {errors.incoming_from}
-                        </p>
+
+                    {errors.recorded_at && (
+                        <p className={errorClass}>{errors.recorded_at}</p>
                     )}
                 </div>
             </div>

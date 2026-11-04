@@ -25,6 +25,7 @@ class Product extends Model
         'name',
         'slug',
         'link',
+        'affiliate_link',
         'category_id',
         'sub_category_id',
         'created_by',
@@ -58,9 +59,9 @@ class Product extends Model
         return $this->belongsTo(Category::class, 'category_id', 'id');
     }
 
-    public function topics(): HasMany
+    public function topics(): HasOne
     {
-        return $this->hasMany(Topics::class, 'product_id', 'id');
+        return $this->hasOne(Topics::class, 'product_id', 'id');
     }
 
     public function subCategory(): BelongsTo

@@ -28,6 +28,7 @@ return new class extends Migration
                 ->cascadeOnDelete();
 
             $table->text('link')->nullable();
+            $table->text('link_affiliate')->nullable();
             $table->decimal('grand_total', 15, 2);
 
             $table->foreignId('created_by')

@@ -10,8 +10,7 @@ class SubCategoryRequests extends FormRequest
     {
         return [
             'category_id' => ['required', 'integer', 'exists:mst_categories,id'],
-            'name' => ['required', 'string', 'max:255'],
-            'price' => ['required', 'numeric', 'min:0'],
+            'name' => ['required', 'string', 'max:255']
         ];
     }
 }

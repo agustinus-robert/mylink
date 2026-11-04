@@ -21,6 +21,7 @@ class IncomingRequests extends FormRequest
                 'integer',
                 'exists:mst_sub_categories,id',
             ],
+            'affiliate_link' => ['required', 'string'],
             'link' => ['required', 'string', 'max:5120'],
             'address' => ['required', 'string'],
             'province_id' => ['required', 'integer', 'exists:ref_provinces,id'],
@@ -53,6 +54,7 @@ class IncomingRequests extends FormRequest
                 'category_id',
                 'sub_category_id',
                 'link',
+                'affiliate_link'
             ]),
             'location' => [ 
                'address' => $data['address'],

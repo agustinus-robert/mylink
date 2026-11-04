@@ -41,9 +41,7 @@ return new class extends Migration
                 ->constrained('mst_categories')
                 ->cascadeOnDelete();
 
-            $table->string('name');
-            $table->decimal('price');
-            
+            $table->string('name');            
             $table->foreignId('created_by')
                 ->nullable()
                 ->constrained('users');

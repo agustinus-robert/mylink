@@ -1,4 +1,3 @@
-
 import { useForm } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { toast } from 'sonner';
@@ -20,12 +19,14 @@ interface FormData {
     code: string;
 }
 
+const inputClass =
+    'w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50';
+
 export default function CategoryForm({ category, onClose }: Props) {
-    const { setData, post, put, processing, errors } =
-        useForm<FormData>({
-            code: category?.code ?? '',
-            name: category?.name ?? '',
-        });
+    const { setData, post, put, processing, errors } = useForm<FormData>({
+        code: category?.code ?? '',
+        name: category?.name ?? '',
+    });
 
     function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -100,7 +101,8 @@ export default function CategoryForm({ category, onClose }: Props) {
                             id="code"
                             name="code"
                             defaultValue={category?.code ?? ''}
-                            className="w-full rounded-md border border-slate-700 bg-background px-3 py-2 text-sm text-slate-100 outline-none focus:border-primary"
+                            placeholder="Masukkan code"
+                            className={inputClass}
                         />
 
                         {errors.code && (
@@ -124,7 +126,7 @@ export default function CategoryForm({ category, onClose }: Props) {
                             name="name"
                             defaultValue={category?.name ?? ''}
                             placeholder="Masukkan nama kategori"
-                            className="w-full rounded-md border border-slate-700 bg-background px-3 py-2 text-sm text-slate-100 outline-none focus:border-primary"
+                            className={inputClass}
                         />
 
                         {errors.name && (

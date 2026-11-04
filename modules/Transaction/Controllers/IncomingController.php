@@ -78,7 +78,7 @@ class IncomingController extends Controller
 
     public function edit(Product $incoming)
     {
-        $incoming->load('detail.location.province', 'detail.location.district', 'category', 'subCategory');
+        $incoming->load('detail.location.province', 'topics', 'detail.location.district', 'category', 'subCategory');
  
         return Inertia::render('transaction/incoming/form', [
             'incoming' => $incoming,
@@ -250,7 +250,7 @@ class IncomingController extends Controller
     private function getSubCategories()
     {
         return SubCategory::query()
-            ->select('id', 'category_id', 'name', 'price')
+            ->select('id', 'category_id', 'name')
             ->orderBy('name')
             ->get();
     }

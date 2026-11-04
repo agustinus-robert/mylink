@@ -18,6 +18,9 @@ interface FormData {
     slug: string;
 }
 
+const inputClass =
+    'w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50';
+
 export default function PermissionForm({ permission }: Props) {
     const { data, setData, post, put, processing, errors } = useForm<FormData>({
         name: permission?.name ?? '',
@@ -95,7 +98,7 @@ export default function PermissionForm({ permission }: Props) {
                                 });
                             }}
                             placeholder="Masukkan nama permission"
-                            className="w-full rounded-md border border-slate-700 bg-background px-3 py-2 text-sm text-slate-100 outline-none focus:border-primary"
+                            className={inputClass}
                         />
 
                         {errors.name && (

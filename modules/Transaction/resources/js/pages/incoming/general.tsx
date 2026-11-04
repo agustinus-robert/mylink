@@ -18,6 +18,7 @@ interface Props {
         name: string;
         slug: string;
         link: string;
+        affiliate_link: string;
         category_id: number;
         sub_category_id: number;
     };
@@ -29,7 +30,11 @@ interface Props {
 }
 
 const inputClass =
-    'w-full rounded-md border border-slate-700 bg-background px-3 py-2 text-sm text-slate-100 outline-none focus:border-primary';
+    'w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50';
+
+const labelClass = 'mb-1 block text-sm font-medium text-foreground';
+
+const errorClass = 'mt-1 text-sm text-destructive';
 
 export default function IncomingFormGeneral({
     data,
@@ -48,46 +53,38 @@ export default function IncomingFormGeneral({
     );
 
     return (
-        <section className="border-b border-slate-800 p-6">
-            <h3 className="mb-4 text-base font-semibold text-slate-100">
+        <section className="border-b border-border p-6">
+            <h3 className="mb-4 text-base font-semibold text-foreground">
                 Informasi Transaksi
             </h3>
 
             <div className="grid gap-4">
                 <div>
-                    <label htmlFor="code" className="mb-1 block text-sm">
+                    <label htmlFor="code" className={labelClass}>
                         Code
                     </label>
 
                     <input
                         type="text"
-                        id="name"
+                        id="code"
+                        placeholder="isian code anda (eg: CDE-01)"
                         value={data.code}
-                        onChange={(e) => {
-                            const code = e.target.value;
-                            setData('code', code);
-                        }}
+                        onChange={(e) => setData('code', e.target.value)}
                         className={inputClass}
                     />
 
-                    {errors.code && (
-                        <p className="mt-1 text-sm text-red-400">
-                            {errors.code}
-                        </p>
-                    )}
+                    {errors.code && <p className={errorClass}>{errors.code}</p>}
                 </div>
 
                 <div>
-                    <label
-                        htmlFor="incoming_from"
-                        className="mb-1 block text-sm"
-                    >
+                    <label htmlFor="name" className={labelClass}>
                         Nama Barang
                     </label>
 
                     <input
                         type="text"
                         id="name"
+                        placeholder="isian nama barang (eg: Router, Kabel Belden, Switch & Hub)"
                         value={data.name}
                         onChange={(e) => {
                             const name = e.target.value;
@@ -106,21 +103,18 @@ export default function IncomingFormGeneral({
                         className={inputClass}
                     />
 
-                    {errors.name && (
-                        <p className="mt-1 text-sm text-red-400">
-                            {errors.name}
-                        </p>
-                    )}
+                    {errors.name && <p className={errorClass}>{errors.name}</p>}
                 </div>
 
                 <div>
-                    <label htmlFor="slug" className="mb-1 block text-sm">
+                    <label htmlFor="slug" className={labelClass}>
                         Slug
                     </label>
 
                     <input
                         type="text"
-                        id="incoming_from"
+                        id="slug"
+                        placeholder="Slug otomatis setelah mengisi nama barang"
                         disabled
                         value={data.slug}
                         className={inputClass}
@@ -129,10 +123,7 @@ export default function IncomingFormGeneral({
 
                 <div className="grid gap-4 md:grid-cols-2">
                     <div>
-                        <label
-                            htmlFor="category_id"
-                            className="mb-1 block text-sm"
-                        >
+                        <label htmlFor="category_id" className={labelClass}>
                             Kategori
                         </label>
 
@@ -155,17 +146,12 @@ export default function IncomingFormGeneral({
                         </select>
 
                         {errors.category_id && (
-                            <p className="mt-1 text-sm text-red-400">
-                                {errors.category_id}
-                            </p>
+                            <p className={errorClass}>{errors.category_id}</p>
                         )}
                     </div>
 
                     <div>
-                        <label
-                            htmlFor="sub_category_id"
-                            className="mb-1 block text-sm"
-                        >
+                        <label htmlFor="sub_category_id" className={labelClass}>
                             Subkategori
                         </label>
 
@@ -179,7 +165,7 @@ export default function IncomingFormGeneral({
                                 )
                             }
                             disabled={!data.category_id}
-                            className={`${inputClass} disabled:cursor-not-allowed disabled:opacity-50`}
+                            className={inputClass}
                         >
                             <option value={0}>
                                 {data.category_id
@@ -198,7 +184,7 @@ export default function IncomingFormGeneral({
                         </select>
 
                         {errors.sub_category_id && (
-                            <p className="mt-1 text-sm text-red-400">
+                            <p className={errorClass}>
                                 {errors.sub_category_id}
                             </p>
                         )}
@@ -206,28 +192,40 @@ export default function IncomingFormGeneral({
                 </div>
 
                 <div>
-                    <label
-                        htmlFor="incoming_from"
-                        className="mb-1 block text-sm"
-                    >
+                    <label htmlFor="link" className={labelClass}>
                         Tautan Gambar
                     </label>
 
                     <input
                         type="text"
-                        id="link_image"
+                        id="link"
+                        placeholder="tautan gambar dari afiliasi eg: shopee, tokopedia, lazada"
                         value={data.link}
-                        onChange={(e) => {
-                            let link = e.target.value;
-                            setData('link', link);
-                        }}
+                        onChange={(e) => setData('link', e.target.value)}
                         className={inputClass}
                     />
 
-                    {errors.link && (
-                        <p className="mt-1 text-sm text-red-400">
-                            {errors.link}
-                        </p>
+                    {errors.link && <p className={errorClass}>{errors.link}</p>}
+                </div>
+
+                <div>
+                    <label htmlFor="affiliate_link" className={labelClass}>
+                        Tautan Afiliasi
+                    </label>
+
+                    <input
+                        type="text"
+                        id="affiliate_link"
+                        placeholder="tautan dari afiliasi eg: shopee, tokopedia, lazada"
+                        value={data.affiliate_link}
+                        onChange={(e) =>
+                            setData('affiliate_link', e.target.value)
+                        }
+                        className={inputClass}
+                    />
+
+                    {errors.affiliate_link && (
+                        <p className={errorClass}>{errors.affiliate_link}</p>
                     )}
                 </div>
             </div>
