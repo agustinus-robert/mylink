@@ -28,12 +28,12 @@ function NavigationCenter({ showNav }: { showNav: boolean }) {
             }`}
         >
             <div className="mx-auto flex max-w-80 items-end justify-center gap-3">
-                {centerMenus.map(({ label, icon: Icon, link }, index) => (
-                    <Link
-                        href={link}
-                        key={label}
+                {centerMenus.map(({ label, icon: Icon }, index) => (
+                    <button
                         type="button"
-                        className={`flex min-w-0 flex-1 flex-col items-center justify-center rounded-2xl bg-gray-100 px-2 py-3 text-gray-700 shadow-md ${
+                        disabled
+                        key={label}
+                        className={`flex min-w-0 flex-1 flex-col items-center justify-center rounded-2xl bg-gray-100 px-2 py-3 text-gray-400 opacity-50 shadow-md ${
                             index === 1 ? '-translate-y-4' : ''
                         }`}
                     >
@@ -41,7 +41,7 @@ function NavigationCenter({ showNav }: { showNav: boolean }) {
                         <span className="mt-1 text-xs font-medium">
                             {label}
                         </span>
-                    </Link>
+                    </button>
                 ))}
             </div>
         </div>
