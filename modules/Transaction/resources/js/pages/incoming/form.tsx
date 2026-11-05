@@ -32,7 +32,7 @@ interface Incoming {
         };
     };
     link: string;
-    link_affiliate: string;
+    affiliate_link: string;
     address: string;
     province_id: number;
     district_id: number;
@@ -66,7 +66,7 @@ export default function Form({
             name: incoming?.name ?? '',
             slug: incoming?.slug ?? '',
             link: incoming?.link ?? '',
-            link_affiliate: incoming?.link_affiliate ?? '',
+            affiliate_link: incoming?.affiliate_link ?? '',
             category_id: incoming?.category_id ?? 0,
             sub_category_id: incoming?.sub_category_id ?? 0,
             address: incoming?.detail?.location?.address ?? '',

@@ -18,9 +18,9 @@ interface Props {
         name: string;
         slug: string;
         link: string;
-        affiliate_link: string;
         category_id: number;
         sub_category_id: number;
+        affiliate_link: string;
     };
     setData: (key: string, value: FormDataConvertible) => void;
     categories: Category[];

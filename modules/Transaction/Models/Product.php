@@ -51,7 +51,13 @@ class Product extends Model
 
     public function detail(): HasOne
     {
-        return $this->hasOne(ProductPrice::class, 'product_id')->latestOfMany();
+        return $this->hasOne(ProductPrice::class, 'product_id')
+            ->latestOfMany('id')
+            ->select([
+                'trx_product_prices.id',
+                'trx_product_prices.product_id',
+                'trx_product_prices.prices',
+            ]);
     }
 
     public function category(): BelongsTo

@@ -5,7 +5,9 @@ type Products = {
     name: string;
     link: string;
     affiliate_link: string;
-    price: number;
+    detail: {
+        prices: number;
+    } | null;
 };
 
 type Props = {
@@ -37,7 +39,7 @@ export default function Items({ products }: Props) {
 
                         <div className="space-y-1 p-2">
                             <p className="text-base font-bold text-gray-900">
-                                {item.price}
+                                {item.detail?.prices}
                             </p>
 
                             <h4 className="truncate text-sm text-gray-700">

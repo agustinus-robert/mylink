@@ -27,7 +27,8 @@ class IncomingRequests extends FormRequest
             'province_id' => ['required', 'integer', 'exists:ref_provinces,id'],
             'district_id' => ['required', 'integer', 'exists:ref_regencies,id'],
             'prices' => ['required', 'numeric'],
-            'recorded_at' => ['required', 'date']
+            'recorded_at' => ['required', 'date'],
+            'topic' => ['required', 'string']
         ];
     }
 
@@ -65,6 +66,9 @@ class IncomingRequests extends FormRequest
                 'prices',
                 'recorded_at'
             ]),
+            'topic' => Arr::only($data, [
+                'topic'
+            ])
         ];
     }
 }

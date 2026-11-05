@@ -47,7 +47,14 @@ class HomeController extends Controller
             );
 
         $products = (clone $query)
-            ->with('topics:id,product_id,name')
+            ->with([
+                'topics:id,product_id,name',
+                'detail' => fn ($query) => $query->select([
+                    'trx_product_prices.id',
+                    'trx_product_prices.product_id',
+                    'trx_product_prices.prices',
+                ]),
+            ])
             ->latest()
             ->get(['id', 'name']);
 
