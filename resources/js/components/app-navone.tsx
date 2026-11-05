@@ -1,16 +1,6 @@
 import { useState } from 'react';
 import { Link } from '@inertiajs/react';
-import {
-    Building2,
-    FileText,
-    Home,
-    Menu,
-    X,
-    Bell,
-    ListFilter,
-    ShoppingBasket,
-    Send,
-} from 'lucide-react';
+import { FileText, Home, Menu, X, Bell, ListFilter, Send } from 'lucide-react';
 
 const centerMenus = [
     { label: 'Topik', icon: ListFilter, link: 'topik' },
@@ -33,7 +23,7 @@ function NavigationCenter({ showNav }: { showNav: boolean }) {
                         type="button"
                         disabled
                         key={label}
-                        className={`flex min-w-0 flex-1 flex-col items-center justify-center rounded-2xl bg-gray-100 px-2 py-3 text-gray-400 opacity-50 shadow-md ${
+                        className={`flex min-w-0 flex-1 flex-col items-center justify-center rounded-sm border border-[#d4e0eb] bg-gradient-to-b from-white to-[#edf3f8] px-2 py-3 text-[#9aabba] opacity-60 shadow-[0_2px_6px_rgba(50,80,110,0.10)] ${
                             index === 1 ? '-translate-y-4' : ''
                         }`}
                     >
@@ -52,15 +42,15 @@ export default function NavOne() {
     const [showNav, setShowNav] = useState(false);
 
     return (
-        <nav className="fixed inset-x-0 bottom-0 z-50 mx-auto w-full max-w-[400px] border-t border-gray-300 bg-white">
+        <nav className="fixed inset-x-0 bottom-0 z-50 mx-auto w-full max-w-[400px] border-t border-[#c9dbea] bg-gradient-to-b from-[#fafdff] to-[#e8f0f7] shadow-[0_-2px_8px_rgba(50,80,110,0.08)]">
             <div className="relative">
                 <NavigationCenter showNav={showNav} />
 
                 <div className="grid h-16 grid-cols-3 items-center">
                     <Link
-                        href={'beranda'}
-                        className="flex h-full items-center justify-center text-gray-700 hover:bg-gray-100"
-                        aria-label="Topik"
+                        href="beranda"
+                        className="flex h-full items-center justify-center text-[#6487a5] transition hover:bg-[#e1edf6] hover:text-[#426f94]"
+                        aria-label="Beranda"
                     >
                         <Home className="size-6" />
                     </Link>
@@ -68,7 +58,11 @@ export default function NavOne() {
                     <button
                         type="button"
                         onClick={() => setShowNav((prev) => !prev)}
-                        className="mx-auto flex size-12 items-center justify-center rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        className={`mx-auto flex size-12 items-center justify-center rounded-full border shadow-sm transition ${
+                            showNav
+                                ? 'border-[#e6c99f] bg-gradient-to-b from-[#fff9ef] to-[#f8ead5] text-[#a77a45]'
+                                : 'border-[#c9dbea] bg-gradient-to-b from-white to-[#dfebf5] text-[#5286b1] hover:from-white hover:to-[#d5e6f3]'
+                        }`}
                         aria-label={showNav ? 'Tutup menu' : 'Buka menu'}
                         aria-expanded={showNav}
                     >
@@ -80,9 +74,9 @@ export default function NavOne() {
                     </button>
 
                     <Link
-                        href={'notifikasi'}
-                        className="flex h-full items-center justify-center text-gray-700 hover:bg-gray-100"
-                        aria-label="Item"
+                        href="notifikasi"
+                        className="flex h-full items-center justify-center text-[#6487a5] transition hover:bg-[#e1edf6] hover:text-[#426f94]"
+                        aria-label="Notifikasi"
                     >
                         <Bell className="size-6" />
                     </Link>

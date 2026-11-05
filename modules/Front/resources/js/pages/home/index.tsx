@@ -1,4 +1,4 @@
-import { router } from '@inertiajs/react';
+import { router, InfiniteScroll } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { useState, useEffect } from 'react';
 import Searching from './search';
@@ -20,6 +20,16 @@ type Product = {
     } | null;
 };
 
+type Pagination<T> = {
+    data: T[];
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+    next_page_url: string | null;
+    prev_page_url: string | null;
+};
+
 type Category = {
     id: number;
     name: string;
@@ -27,7 +37,7 @@ type Category = {
 
 type Props = {
     topics: Topic[];
-    products: Product[];
+    products: Pagination<Product>;
     categories: Category[];
 };
 
@@ -39,7 +49,7 @@ export default function Home({ topics, products, categories }: Props) {
     const [category, setCategory] = useState<number[]>([]);
     const [dateFrom, setDateFrom] = useState('');
     const [dateTo, setDateTo] = useState('');
-    const [selectedTopic, setSelectedTopic] = useState('');
+    const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -48,21 +58,30 @@ export default function Home({ topics, products, categories }: Props) {
                 ...(searchType === 'keyword' ? { keyword } : { category }),
                 dateFrom,
                 dateTo,
-                topic: selectedTopic,
+                topics: selectedTopics,
             };
 
             router.get(route('home'), params, {
                 preserveState: true,
                 preserveScroll: true,
                 replace: true,
+                reset: ['products'],
             });
         }, 500);
 
         return () => clearTimeout(timer);
-    }, [searchType, keyword, category, dateFrom, dateTo, selectedTopic]);
+    }, [searchType, keyword, category, dateFrom, dateTo, selectedTopics]);
 
     const handleTopicSelect = (name: string) => {
-        setSelectedTopic((current) => (current === name ? '' : name));
+        setSelectedTopics((current) =>
+            current.includes(name)
+                ? current.filter((topic) => topic !== name)
+                : [...current, name],
+        );
+    };
+
+    const handleClearTopics = () => {
+        setSelectedTopics([]);
     };
 
     return (
@@ -84,11 +103,14 @@ export default function Home({ topics, products, categories }: Props) {
 
                 <Topics
                     topics={topics}
-                    selectedTopic={selectedTopic}
+                    selectedTopics={selectedTopics}
                     onSelect={handleTopicSelect}
+                    onClear={handleClearTopics}
                 />
 
-                <Items products={products} />
+                <InfiniteScroll data="products">
+                    <Items products={products.data} />
+                </InfiniteScroll>
             </div>
         </div>
     );

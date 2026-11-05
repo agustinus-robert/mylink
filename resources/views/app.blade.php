@@ -44,7 +44,7 @@
     </head>
     <body class="font-sans antialiased">
         <div @class([
-            'mx-auto min-h-200 w-full border border-gray-300 rounded',
+            'mx-auto min-h-200 w-full rounded',
             'max-w-[400px]' => request()->routeIs(
                 'home',
                 'topik',

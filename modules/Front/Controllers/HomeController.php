@@ -13,6 +13,8 @@ class HomeController extends Controller
 {
     public function index(Request $request)
     {
+        $topicsFilter = $request->input('topics', []);
+
         $query = Product::query()
             ->when(
                 $request->searchType === 'keyword' && filled($request->keyword),
@@ -30,13 +32,17 @@ class HomeController extends Controller
                 )
             )
             ->when(
-                filled($request->topic),
+                !empty($topicsFilter),
                 fn ($query) => $query->whereHas(
                     'topics',
-                    fn ($query) => $query->whereRaw(
-                        "FIND_IN_SET(?, REPLACE(name, ', ', ','))",
-                        [$request->topic]
-                    )
+                    fn ($query) => $query->where(function ($query) use ($topicsFilter) {
+                        foreach ($topicsFilter as $topic) {
+                            $query->orWhereRaw(
+                                "FIND_IN_SET(?, REPLACE(name, ', ', ','))",
+                                [$topic]
+                            );
+                        }
+                    })
                 )
             )
             ->when(
@@ -66,10 +72,11 @@ class HomeController extends Controller
                 ]),
             ])
             ->latest()
-            ->get(['id', 'name']);
+            ->paginate(10)
+            ->withQueryString();
 
         $topics = Topics::query()
-            ->whereIn('product_id', $products->pluck('id'))
+            ->whereIn('product_id', (clone $query)->select('id'))
             ->pluck('name')
             ->flatMap(fn ($names) => explode(',', $names))
             ->map(fn ($name) => trim($name))
@@ -88,7 +95,7 @@ class HomeController extends Controller
 
         return Inertia::render('front/home/index', [
             'topics' => $topics,
-            'products' => $products,
+            'products' => Inertia::scroll(fn () => $products),
             'categories' => $categories,
         ]);
     }
