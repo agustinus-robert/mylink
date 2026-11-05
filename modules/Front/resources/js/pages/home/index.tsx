@@ -8,11 +8,17 @@ import Items from './items';
 type Topic = {
     id: number;
     name: string;
+    count: number;
 };
 
 type Product = {
     id: number;
     name: string;
+    link: string;
+    affiliate_link: string;
+    detail: {
+        prices: number;
+    } | null;
 };
 
 type Category = {
@@ -41,17 +47,9 @@ export default function Home({ topics, products, categories }: Props) {
                 searchType,
                 keyword: searchType === 'keyword' ? keyword : '',
                 category: searchType === 'category' ? category : [],
-                dateFrom: searchType === 'category' ? dateFrom : '',
-                dateTo: searchType === 'category' ? dateTo : '',
+                dateFrom,
+                dateTo,
             };
-
-            if (searchType === 'keyword' && keyword.trim().length < 2) {
-                return;
-            }
-
-            if (searchType === 'category' && category.length === 0) {
-                return;
-            }
 
             router.get(route('home'), params, {
                 preserveState: true,

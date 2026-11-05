@@ -15,7 +15,7 @@ class HomeController extends Controller
     {
         $query = Product::query()
             ->when(
-                $request->searchType === 'keyword',
+                $request->searchType === 'keyword' && filled($request->keyword),
                 fn ($query) => $query->where(
                     'name',
                     'like',
@@ -23,27 +23,19 @@ class HomeController extends Controller
                 )
             )
             ->when(
-                $request->searchType === 'category',
+                $request->searchType === 'category' && !empty($request->category),
                 fn ($query) => $query->whereIn(
                     'category_id',
-                    $request->category ?? []
+                    $request->category
                 )
             )
             ->when(
                 $request->dateFrom,
-                fn ($query) => $query->whereDate(
-                    'created_at',
-                    '>=',
-                    $request->dateFrom
-                )
+                fn ($query) => $query->whereDate('created_at', '>=', $request->dateFrom)
             )
             ->when(
                 $request->dateTo,
-                fn ($query) => $query->whereDate(
-                    'created_at',
-                    '<=',
-                    $request->dateTo
-                )
+                fn ($query) => $query->whereDate('created_at', '<=', $request->dateTo)
             );
 
         $products = (clone $query)
@@ -60,10 +52,17 @@ class HomeController extends Controller
 
         $topics = Topics::query()
             ->whereIn('product_id', $products->pluck('id'))
-            ->select('name')
-            ->distinct()
-            ->orderBy('name')
-            ->get();
+            ->pluck('name')
+            ->flatMap(fn ($names) => explode(',', $names))
+            ->map(fn ($name) => trim($name))
+            ->filter()
+            ->countBy()
+            ->sortKeys()
+            ->map(fn ($count, $name) => [
+                'name' => $name,
+                'count' => $count,
+            ])
+            ->values();
 
         $categories = Category::whereNull('deleted_at')
             ->get(['id', 'name']);
