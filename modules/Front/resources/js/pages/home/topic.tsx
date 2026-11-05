@@ -7,9 +7,11 @@ type Topic = {
 
 type Props = {
     topics: Topic[];
+    selectedTopic: string;
+    onSelect: (name: string) => void;
 };
 
-export default function Topics({ topics }: Props) {
+export default function Topics({ topics, selectedTopic, onSelect }: Props) {
     return (
         <div className="m-2 flex h-64 max-w-100 flex-col overflow-hidden rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
             <div className="flex items-center justify-between border-b border-gray-100 pb-3">
@@ -34,13 +36,25 @@ export default function Topics({ topics }: Props) {
             </div>
 
             <div className="flex flex-col gap-1 overflow-y-auto pt-3">
-                {topics.map((topic, index) => (
-                    <div
+                {topics.map((topic) => (
+                    <button
                         key={topic.name}
-                        className="group flex items-center justify-between rounded-lg px-2 py-2 transition-colors hover:bg-gray-50"
+                        type="button"
+                        onClick={() => onSelect(topic.name)}
+                        className={`group flex w-full items-center justify-between rounded-lg px-2 py-2 text-left transition-colors ${
+                            selectedTopic === topic.name
+                                ? 'bg-gray-100'
+                                : 'hover:bg-gray-50'
+                        }`}
                     >
                         <div className="flex min-w-0 items-center gap-2">
-                            <Hash className="size-3.5 shrink-0 text-gray-400 transition-colors group-hover:text-gray-700" />
+                            <Hash
+                                className={`size-3.5 shrink-0 ${
+                                    selectedTopic === topic.name
+                                        ? 'text-gray-800'
+                                        : 'text-gray-400 group-hover:text-gray-700'
+                                }`}
+                            />
 
                             <span className="truncate text-sm font-medium text-gray-700">
                                 {topic.name}
@@ -50,7 +64,7 @@ export default function Topics({ topics }: Props) {
                         <span className="ml-2 shrink-0 rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-500">
                             {topic.count} barang
                         </span>
-                    </div>
+                    </button>
                 ))}
 
                 {topics.length === 0 && (

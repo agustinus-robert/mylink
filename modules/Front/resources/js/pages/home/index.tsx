@@ -6,7 +6,6 @@ import Topics from './topic';
 import Items from './items';
 
 type Topic = {
-    id: number;
     name: string;
     count: number;
 };
@@ -40,15 +39,16 @@ export default function Home({ topics, products, categories }: Props) {
     const [category, setCategory] = useState<number[]>([]);
     const [dateFrom, setDateFrom] = useState('');
     const [dateTo, setDateTo] = useState('');
+    const [selectedTopic, setSelectedTopic] = useState('');
 
     useEffect(() => {
         const timer = setTimeout(() => {
             const params = {
                 searchType,
-                keyword: searchType === 'keyword' ? keyword : '',
-                category: searchType === 'category' ? category : [],
+                ...(searchType === 'keyword' ? { keyword } : { category }),
                 dateFrom,
                 dateTo,
+                topic: selectedTopic,
             };
 
             router.get(route('home'), params, {
@@ -59,7 +59,11 @@ export default function Home({ topics, products, categories }: Props) {
         }, 500);
 
         return () => clearTimeout(timer);
-    }, [searchType, keyword, category, dateFrom, dateTo]);
+    }, [searchType, keyword, category, dateFrom, dateTo, selectedTopic]);
+
+    const handleTopicSelect = (name: string) => {
+        setSelectedTopic((current) => (current === name ? '' : name));
+    };
 
     return (
         <div className="p-2">
@@ -78,7 +82,11 @@ export default function Home({ topics, products, categories }: Props) {
                     categories={categories}
                 />
 
-                <Topics topics={topics} />
+                <Topics
+                    topics={topics}
+                    selectedTopic={selectedTopic}
+                    onSelect={handleTopicSelect}
+                />
 
                 <Items products={products} />
             </div>

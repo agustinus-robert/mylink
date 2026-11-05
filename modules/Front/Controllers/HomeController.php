@@ -23,19 +23,37 @@ class HomeController extends Controller
                 )
             )
             ->when(
-                $request->searchType === 'category' && !empty($request->category),
+                $request->searchType === 'category' && filled($request->category),
                 fn ($query) => $query->whereIn(
                     'category_id',
                     $request->category
                 )
             )
             ->when(
-                $request->dateFrom,
-                fn ($query) => $query->whereDate('created_at', '>=', $request->dateFrom)
+                filled($request->topic),
+                fn ($query) => $query->whereHas(
+                    'topics',
+                    fn ($query) => $query->whereRaw(
+                        "FIND_IN_SET(?, REPLACE(name, ', ', ','))",
+                        [$request->topic]
+                    )
+                )
             )
             ->when(
-                $request->dateTo,
-                fn ($query) => $query->whereDate('created_at', '<=', $request->dateTo)
+                filled($request->dateFrom),
+                fn ($query) => $query->whereDate(
+                    'created_at',
+                    '>=',
+                    $request->dateFrom
+                )
+            )
+            ->when(
+                filled($request->dateTo),
+                fn ($query) => $query->whereDate(
+                    'created_at',
+                    '<=',
+                    $request->dateTo
+                )
             );
 
         $products = (clone $query)
@@ -64,7 +82,8 @@ class HomeController extends Controller
             ])
             ->values();
 
-        $categories = Category::whereNull('deleted_at')
+        $categories = Category::query()
+            ->whereNull('deleted_at')
             ->get(['id', 'name']);
 
         return Inertia::render('front/home/index', [
