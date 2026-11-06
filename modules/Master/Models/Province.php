@@ -11,10 +11,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Province extends Model
 {
-    use HasFactory, SoftDeletes, WhoIs;
+    use HasFactory, WhoIs;
 
-    public $table = "ref_provinces";
-    protected $fillable = ['name', 'slug', 'created_by', 'updated_by', 'deleted_by'];
+    public $table = "location_province";
+    protected $fillable = ['name'];
 
     protected static function booted(): void
     {

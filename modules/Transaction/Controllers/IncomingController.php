@@ -235,15 +235,15 @@ class IncomingController extends Controller
 
     private function getProvince(){
         return Province::query()
-        ->select('id', 'name')
-        ->orderBy('name')
+        ->select('id', 'province as name')
+        ->orderBy('province')
         ->get();
     }
 
     private function getDistrict(){
         return Regency::query()
-        ->select('id', 'province_id', 'name')
-        ->orderBy('name')
+        ->select('id', 'province_id', 'city_name as name')
+        ->orderBy('city_name')
         ->get();   
     }
 

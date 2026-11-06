@@ -11,10 +11,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Regency extends Model
 {
-    use HasFactory, SoftDeletes, WhoIs;
+    use HasFactory, WhoIs;
 
-    public $table = "ref_regencies";
-    protected $fillable = ['province_id', 'name', 'slug', 'created_by', 'updated_by', 'deleted_by'];
+    public $table = "location_city";
+    protected $fillable = ['province_id', 'city_name'];
 
     protected static function booted(): void
     {
