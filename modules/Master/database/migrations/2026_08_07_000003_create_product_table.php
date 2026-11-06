@@ -60,8 +60,15 @@ return new class extends Migration
             $table->id();
 
             $table->string('address')->nullable();
-            $table->string('province');
-            $table->string('district');
+            $table->foreignId('province_id')
+                ->constrained('location_province')
+                ->cascadeOnUpdate()
+                ->restrictOnDelete();
+
+            $table->foreignId('district_id')
+                ->constrained('location_city')
+                ->cascadeOnUpdate()
+                ->restrictOnDelete();
 
             $table->foreignId('created_by')
                 ->nullable()
