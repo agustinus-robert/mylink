@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use Modules\Account\Database\Seeders\RoleSeeders;
 use Modules\Account\Database\Seeders\PermissionSeeders;
 use Modules\Account\Database\Seeders\RolePermissionSeeders;
@@ -59,5 +60,16 @@ class DatabaseSeeder extends Seeder
             ProvinceSeeder::class,
             RegencySeeder::class
         ]);
+
+        $files = [
+            'location_province.sql',
+            'location_city.sql',
+        ];
+
+        foreach ($files as $file) {
+            DB::unprepared(
+                file_get_contents(database_path("migrations/ref/{$file}"))
+            );
+        }
     }
 }
