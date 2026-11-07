@@ -95,7 +95,7 @@ class HomeController extends Controller
 
         return Inertia::render('front/home/index', [
             'topics' => $topics,
-            'products' => Inertia::scroll(fn () => $products),
+            'products' => $products,
             'categories' => $categories,
         ]);
     }
