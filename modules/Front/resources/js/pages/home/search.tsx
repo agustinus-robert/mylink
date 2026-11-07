@@ -49,7 +49,15 @@ export default function Searching({
             ticking = true;
 
             window.requestAnimationFrame(() => {
-                setCompact(window.scrollY >= 150);
+                const scrollY = window.scrollY;
+
+                setCompact((previous) => {
+                    if (!previous && scrollY >= 150) return true;
+                    if (previous && scrollY <= 100) return false;
+
+                    return previous;
+                });
+
                 ticking = false;
             });
         };

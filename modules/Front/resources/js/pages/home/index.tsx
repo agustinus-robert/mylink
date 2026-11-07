@@ -84,22 +84,9 @@ export default function Home({ topics, products, categories }: Props) {
 
                     onSuccess: () => {
                         requestAnimationFrame(() => {
-                            requestAnimationFrame(() => {
-                                const items = itemsRef.current;
-
-                                if (!items) return;
-
-                                const itemsTop =
-                                    items.getBoundingClientRect().top +
-                                    window.scrollY;
-
-                                // Geser sedikit melewati bagian atas Items.
-                                const targetPosition = itemsTop - 100;
-
-                                window.scrollTo({
-                                    top: Math.max(0, targetPosition),
-                                    behavior: 'smooth',
-                                });
+                            window.scrollTo({
+                                top: scrollPosition.current,
+                                behavior: 'instant',
                             });
                         });
                     },
