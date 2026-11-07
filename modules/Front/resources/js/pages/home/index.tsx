@@ -1,6 +1,6 @@
 import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Searching from './search';
 import Topics from './topic';
 import Items from './items';
@@ -52,9 +52,19 @@ export default function Home({ topics, products, categories }: Props) {
     const [dateTo, setDateTo] = useState('');
     const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
 
-    // Filter pencarian
+    const firstRender = useRef(true);
+    const scrollPosition = useRef(0);
+
+    // Filter pencarian.
     useEffect(() => {
-        const timer = setTimeout(() => {
+        if (firstRender.current) {
+            firstRender.current = false;
+            return;
+        }
+
+        const timer = window.setTimeout(() => {
+            scrollPosition.current = window.scrollY;
+
             router.get(
                 route('home'),
                 {
@@ -68,17 +78,29 @@ export default function Home({ topics, products, categories }: Props) {
                     only: ['products', 'topics'],
                     reset: ['products'],
                     preserveState: true,
+                    preserveScroll: true,
                     replace: true,
+
+                    onSuccess: () => {
+                        requestAnimationFrame(() => {
+                            requestAnimationFrame(() => {
+                                window.scrollTo({
+                                    top: scrollPosition.current,
+                                    behavior: 'instant',
+                                });
+                            });
+                        });
+                    },
                 },
             );
         }, 500);
 
-        return () => clearTimeout(timer);
+        return () => window.clearTimeout(timer);
     }, [searchType, keyword, category, dateFrom, dateTo, selectedTopics]);
 
     return (
         <div className="p-2">
-            <div className="min-h-200 max-w-200 border border-gray-300">
+            <div className="max-w-200 border border-gray-300">
                 <Searching
                     searchType={searchType}
                     setSearchType={setSearchType}

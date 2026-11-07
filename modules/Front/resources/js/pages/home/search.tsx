@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { DayPicker, type DateRange } from 'react-day-picker';
 import { format, parseISO } from 'date-fns';
 import { id } from 'date-fns/locale';
@@ -39,16 +39,19 @@ export default function Searching({
 }: SearchingProps) {
     const [showCalendar, setShowCalendar] = useState(false);
     const [compact, setCompact] = useState(false);
-    const compactRef = useRef(false);
 
     useEffect(() => {
-        const handleScroll = () => {
-            const nextCompact = window.scrollY >= 150;
+        let ticking = false;
 
-            if (compactRef.current !== nextCompact) {
-                compactRef.current = nextCompact;
-                setCompact(nextCompact);
-            }
+        const handleScroll = () => {
+            if (ticking) return;
+
+            ticking = true;
+
+            window.requestAnimationFrame(() => {
+                setCompact(window.scrollY >= 150);
+                ticking = false;
+            });
         };
 
         window.addEventListener('scroll', handleScroll, {
@@ -89,7 +92,7 @@ export default function Searching({
         : 'Pilih rentang tanggal';
 
     const tabClass = (active: boolean) =>
-        `flex items-center justify-center gap-2 rounded-sm border font-bold transition ${
+        `flex items-center justify-center gap-2 rounded-sm border font-bold transition-all duration-300 ease-in-out ${
             compact ? 'px-2 py-1.5 text-xs' : 'px-3 py-3 text-sm'
         } ${
             active
@@ -102,40 +105,48 @@ export default function Searching({
 
     return (
         <div
-            className={`relative sticky top-0 z-40 m-2 flex max-w-100 flex-col overflow-visible rounded-sm border border-[#d4e0eb] bg-[#f3f6fa] shadow-[0_2px_6px_rgba(50,80,110,0.08)] ${
+            className={`relative sticky top-0 z-40 m-2 flex max-w-100 flex-col overflow-visible rounded-sm border border-[#d4e0eb] bg-[#f3f6fa] shadow-[0_2px_6px_rgba(50,80,110,0.08)] transition-shadow duration-300 ease-in-out ${
                 compact ? 'shadow-md' : ''
             }`}
         >
             {/* Header */}
             <div
-                className={`rounded-t-sm border-b border-[#c9dbea] bg-gradient-to-b from-[#fafdff] to-[#e5eff8] transition-all duration-200 ${
+                className={`rounded-t-sm border-b border-[#c9dbea] bg-gradient-to-b from-[#fafdff] to-[#e5eff8] transition-[padding] duration-300 ease-in-out ${
                     compact ? 'px-3 py-1.5' : 'px-3 py-3'
                 }`}
             >
                 <div className="flex items-center justify-between">
                     <div>
                         <h3
-                            className={`font-bold text-[#40566b] ${
+                            className={`font-bold text-[#40566b] transition-all duration-300 ${
                                 compact ? 'text-xs' : 'text-sm'
                             }`}
                         >
                             Pencarian Produk
                         </h3>
 
-                        {!compact && (
-                            <p className="mt-0.5 text-[11px] text-[#91a1b1]">
-                                Temukan produk yang Anda cari
-                            </p>
-                        )}
+                        <div
+                            className={`grid transition-all duration-300 ease-in-out ${
+                                compact
+                                    ? 'grid-rows-[0fr] opacity-0'
+                                    : 'grid-rows-[1fr] opacity-100'
+                            }`}
+                        >
+                            <div className="overflow-hidden">
+                                <p className="mt-0.5 text-[11px] text-[#91a1b1]">
+                                    Temukan produk yang Anda cari
+                                </p>
+                            </div>
+                        </div>
                     </div>
 
                     <div
-                        className={`flex items-center justify-center rounded-sm border border-[#d1e2f0] bg-gradient-to-b from-white to-[#e6f1fa] ${
+                        className={`flex shrink-0 items-center justify-center rounded-sm border border-[#d1e2f0] bg-gradient-to-b from-white to-[#e6f1fa] transition-all duration-300 ${
                             compact ? 'size-7' : 'size-9'
                         }`}
                     >
                         <Search
-                            className={`text-[#5286b1] ${
+                            className={`text-[#5286b1] transition-all duration-300 ${
                                 compact ? 'size-4' : 'size-5'
                             }`}
                         />
@@ -167,15 +178,23 @@ export default function Searching({
             {/* Keyword */}
             {searchType === 'keyword' ? (
                 <div
-                    className={`border-t border-white bg-[#fbfcfd] ${
+                    className={`border-t border-white bg-[#fbfcfd] transition-[padding] duration-300 ease-in-out ${
                         compact ? 'p-2' : 'p-3'
                     }`}
                 >
-                    {!compact && (
-                        <label className="mb-2 block text-xs font-bold text-[#566779]">
-                            Kata kunci pencarian
-                        </label>
-                    )}
+                    <div
+                        className={`grid transition-all duration-300 ease-in-out ${
+                            compact
+                                ? 'grid-rows-[0fr] opacity-0'
+                                : 'grid-rows-[1fr] opacity-100'
+                        }`}
+                    >
+                        <div className="overflow-hidden">
+                            <label className="mb-2 block text-xs font-bold text-[#566779]">
+                                Kata kunci pencarian
+                            </label>
+                        </div>
+                    </div>
 
                     <div className="flex rounded-sm border border-[#d4e0eb] bg-white shadow-inner focus-within:border-[#a9c8e0] focus-within:ring-1 focus-within:ring-[#dcebf6]">
                         <div className="flex items-center border-r border-[#e2e8ef] bg-gradient-to-b from-white to-[#f0f4f8] px-3">
@@ -186,23 +205,32 @@ export default function Searching({
                             type="text"
                             value={keyword}
                             onChange={(e) => setKeyword(e.target.value)}
-                            className={`min-w-0 flex-1 border-0 bg-transparent px-3 text-sm text-[#566779] outline-none placeholder:text-[#aab6c2] focus:ring-0 ${
+                            className={`min-w-0 flex-1 border-0 bg-transparent px-3 text-sm text-[#566779] transition-[height] duration-300 ease-in-out outline-none placeholder:text-[#aab6c2] focus:ring-0 ${
                                 compact ? 'h-8' : 'h-10'
                             }`}
                             placeholder="Nama produk atau kode produk..."
                         />
                     </div>
 
-                    {!compact && (
-                        <p className="mt-2 text-[10px] text-[#91a1b1]">
-                            Masukkan nama atau kode produk yang ingin dicari.
-                        </p>
-                    )}
+                    <div
+                        className={`grid transition-all duration-300 ease-in-out ${
+                            compact
+                                ? 'grid-rows-[0fr] opacity-0'
+                                : 'grid-rows-[1fr] opacity-100'
+                        }`}
+                    >
+                        <div className="overflow-hidden">
+                            <p className="mt-2 text-[10px] text-[#91a1b1]">
+                                Masukkan nama atau kode produk yang ingin
+                                dicari.
+                            </p>
+                        </div>
+                    </div>
                 </div>
             ) : (
                 <div className="border-t border-white bg-[#fbfcfd]">
                     <div
-                        className={`flex items-center justify-between border-b border-[#e2e8ef] bg-gradient-to-b from-white to-[#f5f8fb] px-3 ${
+                        className={`flex items-center justify-between border-b border-[#e2e8ef] bg-gradient-to-b from-white to-[#f5f8fb] px-3 transition-[padding] duration-300 ${
                             compact ? 'py-1.5' : 'py-2'
                         }`}
                     >
@@ -216,7 +244,7 @@ export default function Searching({
                     </div>
 
                     <div
-                        className={`thin-scrollbar flex gap-1.5 overflow-x-auto bg-white ${
+                        className={`thin-scrollbar flex gap-1.5 overflow-x-auto bg-white transition-[padding] duration-300 ${
                             compact ? 'p-2' : 'p-3'
                         }`}
                     >
@@ -228,7 +256,7 @@ export default function Searching({
                                     key={item.id}
                                     type="button"
                                     onClick={() => toggleCategory(item.id)}
-                                    className={`shrink-0 rounded-sm border font-semibold shadow-sm transition ${
+                                    className={`shrink-0 rounded-sm border font-semibold shadow-sm transition-all duration-200 ${
                                         compact
                                             ? 'px-2 py-1 text-[10px]'
                                             : 'px-3 py-1.5 text-xs'
@@ -245,20 +273,28 @@ export default function Searching({
                     </div>
 
                     <div
-                        className={`relative border-t border-[#e2e8ef] bg-[#f7f9fb] ${
+                        className={`relative border-t border-[#e2e8ef] bg-[#f7f9fb] transition-[padding] duration-300 ${
                             compact ? 'p-2' : 'p-3'
                         }`}
                     >
-                        {!compact && (
-                            <label className="mb-2 block text-xs font-bold text-[#566779]">
-                                Filter tanggal
-                            </label>
-                        )}
+                        <div
+                            className={`grid transition-all duration-300 ease-in-out ${
+                                compact
+                                    ? 'grid-rows-[0fr] opacity-0'
+                                    : 'grid-rows-[1fr] opacity-100'
+                            }`}
+                        >
+                            <div className="overflow-hidden">
+                                <label className="mb-2 block text-xs font-bold text-[#566779]">
+                                    Filter tanggal
+                                </label>
+                            </div>
+                        </div>
 
                         <button
                             type="button"
                             onClick={() => setShowCalendar((prev) => !prev)}
-                            className={`flex w-full items-center gap-2 rounded-sm border border-[#d4e0eb] bg-white px-3 text-left text-sm text-[#6487a5] shadow-inner transition hover:border-[#a9c8e0] ${
+                            className={`flex w-full items-center gap-2 rounded-sm border border-[#d4e0eb] bg-white px-3 text-left text-sm text-[#6487a5] shadow-inner transition-all duration-300 hover:border-[#a9c8e0] ${
                                 compact ? 'h-8' : 'h-10'
                             }`}
                         >
@@ -330,17 +366,25 @@ export default function Searching({
             )}
 
             {/* Footer */}
-            {!compact && (
-                <div className="flex items-center justify-between rounded-b-sm border-t border-[#dce4ec] bg-gradient-to-b from-white to-[#f0f4f8] px-3 py-2">
-                    <span className="text-[10px] text-[#91a1b1]">
-                        Sistem pencarian produk
-                    </span>
+            <div
+                className={`grid transition-all duration-300 ease-in-out ${
+                    compact
+                        ? 'grid-rows-[0fr] opacity-0'
+                        : 'grid-rows-[1fr] opacity-100'
+                }`}
+            >
+                <div className="overflow-hidden">
+                    <div className="flex items-center justify-between rounded-b-sm border-t border-[#dce4ec] bg-gradient-to-b from-white to-[#f0f4f8] px-3 py-2">
+                        <span className="text-[10px] text-[#91a1b1]">
+                            Sistem pencarian produk
+                        </span>
 
-                    <span className="text-[10px] font-semibold text-[#6d9a75]">
-                        ● Siap mencari
-                    </span>
+                        <span className="text-[10px] font-semibold text-[#6d9a75]">
+                            ● Siap mencari
+                        </span>
+                    </div>
                 </div>
-            )}
+            </div>
         </div>
     );
 }
