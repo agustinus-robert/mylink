@@ -62,19 +62,6 @@ class HomeController extends Controller
                 )
             );
 
-        $products = (clone $query)
-            ->with([
-                'topics:id,product_id,name',
-                'detail' => fn ($query) => $query->select([
-                    'trx_product_prices.id',
-                    'trx_product_prices.product_id',
-                    'trx_product_prices.prices',
-                ]),
-            ])
-            ->latest()
-            ->paginate(10)
-            ->withQueryString();
-
         $topics = Topics::query()
             ->whereIn('product_id', (clone $query)->select('id'))
             ->pluck('name')
@@ -95,7 +82,20 @@ class HomeController extends Controller
 
         return Inertia::render('front/home/index', [
             'topics' => $topics,
-            'products' => $products,
+            'products' => Inertia::scroll(
+                fn () => (clone $query)
+                    ->with([
+                        'topics:id,product_id,name',
+                        'detail' => fn ($query) => $query->select([
+                            'trx_product_prices.id',
+                            'trx_product_prices.product_id',
+                            'trx_product_prices.prices',
+                        ]),
+                    ])
+                    ->latest()
+                    ->paginate(10)
+                    ->withQueryString()
+            ),
             'categories' => $categories,
         ]);
     }

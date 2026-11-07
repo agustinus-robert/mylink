@@ -1,6 +1,7 @@
-import { Hand, ShoppingBag, LoaderCircle } from 'lucide-react';
+import { InfiniteScroll } from '@inertiajs/react';
+import { Hand, ShoppingBag } from 'lucide-react';
 
-type Products = {
+type Product = {
     id: number;
     name: string;
     link: string;
@@ -11,22 +12,18 @@ type Products = {
 };
 
 type Props = {
-    products: Products[];
-    currentPage: number;
-    lastPage: number;
-    loading: boolean;
+    products: {
+        data: Product[];
+        current_page: number;
+        last_page: number;
+        total: number;
+    };
 };
 
-export default function Items({
-    products,
-    currentPage,
-    lastPage,
-    loading,
-}: Props) {
+export default function Items({ products }: Props) {
     return (
-        <div className="m-2 flex h-[600px] max-w-100 flex-col rounded-sm border border-[#d4e0eb] bg-[#f3f6fa] p-2 shadow-[0_2px_6px_rgba(50,80,110,0.08)]">
-            {/* Header */}
-            <div className="mb-3 flex shrink-0 items-center justify-between rounded-sm border border-[#c9dbea] bg-gradient-to-b from-[#fafdff] to-[#e5eff8] px-3 py-3">
+        <div className="m-2 max-w-100 rounded-sm border border-[#d4e0eb] bg-[#f3f6fa] p-2 shadow-[0_2px_6px_rgba(50,80,110,0.08)]">
+            <div className="mb-3 flex items-center justify-between rounded-sm border border-[#c9dbea] bg-gradient-to-b from-[#fafdff] to-[#e5eff8] px-3 py-3">
                 <div className="flex items-center gap-2">
                     <div className="flex size-9 items-center justify-center rounded-sm border border-[#d1e2f0] bg-gradient-to-b from-white to-[#e6f1fa]">
                         <Hand className="size-5 text-[#5286b1]" />
@@ -42,22 +39,18 @@ export default function Items({
                     </div>
                 </div>
 
-                <div className="text-right">
-                    <span className="block rounded-sm border border-[#c9dbea] bg-white px-2 py-1 text-[10px] font-bold text-[#6487a5] shadow-sm">
-                        {products.length} PRODUK
-                    </span>
-                    <span className="mt-1 block text-[9px] text-[#91a1b1]">
-                        Halaman {currentPage}/{lastPage}
-                    </span>
-                </div>
+                <span className="rounded-sm border border-[#c9dbea] bg-white px-2 py-1 text-[10px] font-bold text-[#6487a5] shadow-sm">
+                    {products.data.length} PRODUK
+                </span>
             </div>
 
-            {/* Produk */}
-            <div
-                scroll-region
-                className="thin-scrollbar grid min-h-0 flex-1 auto-rows-max grid-cols-2 content-start items-start gap-2 overflow-y-auto"
+            <InfiniteScroll
+                data="products"
+                onlyNext
+                buffer={300}
+                className="grid auto-rows-max grid-cols-2 content-start items-start gap-2"
             >
-                {products.map((item) => (
+                {products.data.map((item) => (
                     <a
                         href={item.affiliate_link}
                         key={item.id}
@@ -65,7 +58,6 @@ export default function Items({
                         rel="noopener noreferrer"
                         className="group flex h-auto min-w-0 flex-col self-start overflow-hidden rounded-sm border border-[#dce4ec] bg-white shadow-[0_1px_3px_rgba(50,80,110,0.05)] transition hover:border-[#a9c8e0] hover:shadow-[0_3px_8px_rgba(50,80,110,0.12)]"
                     >
-                        {/* Gambar */}
                         <div className="relative h-40 w-full shrink-0 overflow-hidden border-b border-[#e8edf2] bg-[#f0f3f6]">
                             {item.link ? (
                                 <img
@@ -87,7 +79,6 @@ export default function Items({
                             </span>
                         </div>
 
-                        {/* Harga dan Nama */}
                         <div className="flex min-h-[105px] w-full shrink-0 flex-col bg-gradient-to-b from-white to-[#fbfcfd] p-2">
                             <p className="mb-1 text-sm font-bold text-[#d46f69]">
                                 {item.detail?.prices != null
@@ -108,38 +99,22 @@ export default function Items({
                         </div>
                     </a>
                 ))}
+            </InfiniteScroll>
 
-                {products.length === 0 && (
-                    <div className="col-span-2 flex flex-col items-center justify-center rounded-sm border border-dashed border-[#d5e0e9] bg-white py-16">
-                        <ShoppingBag className="mb-2 size-8 text-[#91afc8]" />
-                        <p className="text-xs text-[#91a1b1]">
-                            Belum ada barang ditemukan.
-                        </p>
-                    </div>
-                )}
-            </div>
-
-            {/* Footer */}
-            <div className="mt-2 flex shrink-0 items-center justify-between rounded-sm border border-[#dce4ec] bg-gradient-to-b from-white to-[#f0f4f8] px-2 py-2 text-[10px] text-[#91a1b1]">
-                <div>
-                    <span className="block">Katalog Produk</span>
-                    <span className="font-semibold text-[#6487a5]">
-                        Halaman {currentPage} dari {lastPage}
-                    </span>
+            {products.data.length === 0 && (
+                <div className="flex flex-col items-center justify-center rounded-sm border border-dashed border-[#d5e0e9] bg-white py-16">
+                    <ShoppingBag className="mb-2 size-8 text-[#91afc8]" />
+                    <p className="text-xs text-[#91a1b1]">
+                        Belum ada barang ditemukan.
+                    </p>
                 </div>
+            )}
 
-                <div className="flex items-center gap-1 font-semibold text-[#6487a5]">
-                    {loading ? (
-                        <>
-                            <LoaderCircle className="size-3 animate-spin" />
-                            Memuat...
-                        </>
-                    ) : currentPage >= lastPage ? (
-                        'Selesai'
-                    ) : (
-                        `${products.length} barang dimuat`
-                    )}
-                </div>
+            <div className="mt-3 flex justify-between rounded-sm border border-[#dce4ec] bg-gradient-to-b from-white to-[#f0f4f8] px-2 py-2 text-[10px] text-[#91a1b1]">
+                <span>Katalog Produk</span>
+                <span className="font-semibold text-[#6487a5]">
+                    {products.data.length} barang dimuat
+                </span>
             </div>
         </div>
     );

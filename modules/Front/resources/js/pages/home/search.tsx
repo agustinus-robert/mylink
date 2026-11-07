@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { DayPicker, type DateRange } from 'react-day-picker';
 import { format, parseISO } from 'date-fns';
 import { id } from 'date-fns/locale';
@@ -38,6 +38,29 @@ export default function Searching({
     categories,
 }: SearchingProps) {
     const [showCalendar, setShowCalendar] = useState(false);
+    const [compact, setCompact] = useState(false);
+    const compactRef = useRef(false);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            const nextCompact = window.scrollY >= 150;
+
+            if (compactRef.current !== nextCompact) {
+                compactRef.current = nextCompact;
+                setCompact(nextCompact);
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll, {
+            passive: true,
+        });
+
+        handleScroll();
+
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, []);
 
     const range: DateRange | undefined = dateFrom
         ? {
@@ -66,7 +89,9 @@ export default function Searching({
         : 'Pilih rentang tanggal';
 
     const tabClass = (active: boolean) =>
-        `flex items-center justify-center gap-2 rounded-sm border px-3 py-3 text-sm font-bold transition ${
+        `flex items-center justify-center gap-2 rounded-sm border font-bold transition ${
+            compact ? 'px-2 py-1.5 text-xs' : 'px-3 py-3 text-sm'
+        } ${
             active
                 ? 'border-[#a9c8e0] bg-gradient-to-b from-[#fafdff] to-[#dfedf8] text-[#4b83ad] shadow-inner'
                 : 'border-[#dce4ec] bg-gradient-to-b from-white to-[#f0f4f8] text-[#8296a9] hover:border-[#c5d9e9] hover:from-white hover:to-[#e8f0f7]'
@@ -76,24 +101,49 @@ export default function Searching({
         'rounded-sm border border-[#dce4ec] bg-gradient-to-b from-white to-[#f0f4f8] px-3 py-2 text-sm font-semibold text-[#6487a5] shadow-sm transition hover:from-white hover:to-[#e6eff7] active:translate-y-px';
 
     return (
-        <div className="relative m-2 flex max-w-100 flex-col overflow-visible rounded-sm border border-[#d4e0eb] bg-[#f3f6fa] shadow-[0_2px_6px_rgba(50,80,110,0.08)]">
-            <div className="rounded-t-sm border-b border-[#c9dbea] bg-gradient-to-b from-[#fafdff] to-[#e5eff8] px-3 py-3">
+        <div
+            className={`relative sticky top-0 z-40 m-2 flex max-w-100 flex-col overflow-visible rounded-sm border border-[#d4e0eb] bg-[#f3f6fa] shadow-[0_2px_6px_rgba(50,80,110,0.08)] ${
+                compact ? 'shadow-md' : ''
+            }`}
+        >
+            {/* Header */}
+            <div
+                className={`rounded-t-sm border-b border-[#c9dbea] bg-gradient-to-b from-[#fafdff] to-[#e5eff8] transition-all duration-200 ${
+                    compact ? 'px-3 py-1.5' : 'px-3 py-3'
+                }`}
+            >
                 <div className="flex items-center justify-between">
                     <div>
-                        <h3 className="text-sm font-bold text-[#40566b]">
+                        <h3
+                            className={`font-bold text-[#40566b] ${
+                                compact ? 'text-xs' : 'text-sm'
+                            }`}
+                        >
                             Pencarian Produk
                         </h3>
-                        <p className="mt-0.5 text-[11px] text-[#91a1b1]">
-                            Temukan produk yang Anda cari
-                        </p>
+
+                        {!compact && (
+                            <p className="mt-0.5 text-[11px] text-[#91a1b1]">
+                                Temukan produk yang Anda cari
+                            </p>
+                        )}
                     </div>
 
-                    <div className="flex size-9 items-center justify-center rounded-sm border border-[#d1e2f0] bg-gradient-to-b from-white to-[#e6f1fa]">
-                        <Search className="size-5 text-[#5286b1]" />
+                    <div
+                        className={`flex items-center justify-center rounded-sm border border-[#d1e2f0] bg-gradient-to-b from-white to-[#e6f1fa] ${
+                            compact ? 'size-7' : 'size-9'
+                        }`}
+                    >
+                        <Search
+                            className={`text-[#5286b1] ${
+                                compact ? 'size-4' : 'size-5'
+                            }`}
+                        />
                     </div>
                 </div>
             </div>
 
+            {/* Search type */}
             <div className="grid grid-cols-2 gap-1 border-b border-[#dce4ec] bg-[#eaf0f6] p-1">
                 <button
                     type="button"
@@ -114,11 +164,18 @@ export default function Searching({
                 </button>
             </div>
 
+            {/* Keyword */}
             {searchType === 'keyword' ? (
-                <div className="border-t border-white bg-[#fbfcfd] p-3">
-                    <label className="mb-2 block text-xs font-bold text-[#566779]">
-                        Kata kunci pencarian
-                    </label>
+                <div
+                    className={`border-t border-white bg-[#fbfcfd] ${
+                        compact ? 'p-2' : 'p-3'
+                    }`}
+                >
+                    {!compact && (
+                        <label className="mb-2 block text-xs font-bold text-[#566779]">
+                            Kata kunci pencarian
+                        </label>
+                    )}
 
                     <div className="flex rounded-sm border border-[#d4e0eb] bg-white shadow-inner focus-within:border-[#a9c8e0] focus-within:ring-1 focus-within:ring-[#dcebf6]">
                         <div className="flex items-center border-r border-[#e2e8ef] bg-gradient-to-b from-white to-[#f0f4f8] px-3">
@@ -129,18 +186,26 @@ export default function Searching({
                             type="text"
                             value={keyword}
                             onChange={(e) => setKeyword(e.target.value)}
-                            className="h-10 min-w-0 flex-1 border-0 bg-transparent px-3 text-sm text-[#566779] outline-none placeholder:text-[#aab6c2] focus:ring-0"
+                            className={`min-w-0 flex-1 border-0 bg-transparent px-3 text-sm text-[#566779] outline-none placeholder:text-[#aab6c2] focus:ring-0 ${
+                                compact ? 'h-8' : 'h-10'
+                            }`}
                             placeholder="Nama produk atau kode produk..."
                         />
                     </div>
 
-                    <p className="mt-2 text-[10px] text-[#91a1b1]">
-                        Masukkan nama atau kode produk yang ingin dicari.
-                    </p>
+                    {!compact && (
+                        <p className="mt-2 text-[10px] text-[#91a1b1]">
+                            Masukkan nama atau kode produk yang ingin dicari.
+                        </p>
+                    )}
                 </div>
             ) : (
                 <div className="border-t border-white bg-[#fbfcfd]">
-                    <div className="flex items-center justify-between border-b border-[#e2e8ef] bg-gradient-to-b from-white to-[#f5f8fb] px-3 py-2">
+                    <div
+                        className={`flex items-center justify-between border-b border-[#e2e8ef] bg-gradient-to-b from-white to-[#f5f8fb] px-3 ${
+                            compact ? 'py-1.5' : 'py-2'
+                        }`}
+                    >
                         <p className="text-xs font-bold text-[#566779]">
                             Pilih kategori produk
                         </p>
@@ -150,7 +215,11 @@ export default function Searching({
                         </span>
                     </div>
 
-                    <div className="thin-scrollbar flex gap-1.5 overflow-x-auto bg-white p-3">
+                    <div
+                        className={`thin-scrollbar flex gap-1.5 overflow-x-auto bg-white ${
+                            compact ? 'p-2' : 'p-3'
+                        }`}
+                    >
                         {categories.map((item) => {
                             const active = category.includes(item.id);
 
@@ -159,7 +228,11 @@ export default function Searching({
                                     key={item.id}
                                     type="button"
                                     onClick={() => toggleCategory(item.id)}
-                                    className={`shrink-0 rounded-sm border px-3 py-1.5 text-xs font-semibold shadow-sm transition ${
+                                    className={`shrink-0 rounded-sm border font-semibold shadow-sm transition ${
+                                        compact
+                                            ? 'px-2 py-1 text-[10px]'
+                                            : 'px-3 py-1.5 text-xs'
+                                    } ${
                                         active
                                             ? 'border-[#e6c99f] bg-gradient-to-b from-[#fff9ef] to-[#f8ead5] text-[#986b37]'
                                             : 'border-[#dce4ec] bg-gradient-to-b from-white to-[#f0f4f8] text-[#8296a9] hover:border-[#c5d9e9] hover:to-[#e8f0f7]'
@@ -171,15 +244,23 @@ export default function Searching({
                         })}
                     </div>
 
-                    <div className="relative border-t border-[#e2e8ef] bg-[#f7f9fb] p-3">
-                        <label className="mb-2 block text-xs font-bold text-[#566779]">
-                            Filter tanggal
-                        </label>
+                    <div
+                        className={`relative border-t border-[#e2e8ef] bg-[#f7f9fb] ${
+                            compact ? 'p-2' : 'p-3'
+                        }`}
+                    >
+                        {!compact && (
+                            <label className="mb-2 block text-xs font-bold text-[#566779]">
+                                Filter tanggal
+                            </label>
+                        )}
 
                         <button
                             type="button"
                             onClick={() => setShowCalendar((prev) => !prev)}
-                            className="flex h-10 w-full items-center gap-2 rounded-sm border border-[#d4e0eb] bg-white px-3 text-left text-sm text-[#6487a5] shadow-inner transition hover:border-[#a9c8e0]"
+                            className={`flex w-full items-center gap-2 rounded-sm border border-[#d4e0eb] bg-white px-3 text-left text-sm text-[#6487a5] shadow-inner transition hover:border-[#a9c8e0] ${
+                                compact ? 'h-8' : 'h-10'
+                            }`}
                         >
                             <Calendar className="size-4 shrink-0 text-[#91afc8]" />
                             <span className="flex-1 truncate">{dateLabel}</span>
@@ -248,15 +329,18 @@ export default function Searching({
                 </div>
             )}
 
-            <div className="flex items-center justify-between rounded-b-sm border-t border-[#dce4ec] bg-gradient-to-b from-white to-[#f0f4f8] px-3 py-2">
-                <span className="text-[10px] text-[#91a1b1]">
-                    Sistem pencarian produk
-                </span>
+            {/* Footer */}
+            {!compact && (
+                <div className="flex items-center justify-between rounded-b-sm border-t border-[#dce4ec] bg-gradient-to-b from-white to-[#f0f4f8] px-3 py-2">
+                    <span className="text-[10px] text-[#91a1b1]">
+                        Sistem pencarian produk
+                    </span>
 
-                <span className="text-[10px] font-semibold text-[#6d9a75]">
-                    ● Siap mencari
-                </span>
-            </div>
+                    <span className="text-[10px] font-semibold text-[#6d9a75]">
+                        ● Siap mencari
+                    </span>
+                </div>
+            )}
         </div>
     );
 }
