@@ -54,6 +54,7 @@ export default function Home({ topics, products, categories }: Props) {
 
     const firstRender = useRef(true);
     const scrollPosition = useRef(0);
+    const itemsRef = useRef<HTMLDivElement>(null);
 
     // Filter pencarian.
     useEffect(() => {
@@ -84,9 +85,20 @@ export default function Home({ topics, products, categories }: Props) {
                     onSuccess: () => {
                         requestAnimationFrame(() => {
                             requestAnimationFrame(() => {
+                                const items = itemsRef.current;
+
+                                if (!items) return;
+
+                                const itemsTop =
+                                    items.getBoundingClientRect().top +
+                                    window.scrollY;
+
+                                // Geser sedikit melewati bagian atas Items.
+                                const targetPosition = itemsTop - 100;
+
                                 window.scrollTo({
-                                    top: scrollPosition.current,
-                                    behavior: 'instant',
+                                    top: Math.max(0, targetPosition),
+                                    behavior: 'smooth',
                                 });
                             });
                         });
@@ -128,7 +140,9 @@ export default function Home({ topics, products, categories }: Props) {
                     onClear={() => setSelectedTopics([])}
                 />
 
-                <Items products={products} />
+                <div ref={itemsRef}>
+                    <Items products={products} />
+                </div>
             </div>
         </div>
     );
