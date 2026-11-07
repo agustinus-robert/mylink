@@ -52,9 +52,38 @@ export default function Home({ topics, products, categories }: Props) {
     const [dateTo, setDateTo] = useState('');
     const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
 
+    const [compact, setCompact] = useState(false);
+
     const firstRender = useRef(true);
     const scrollPosition = useRef(0);
     const itemsRef = useRef<HTMLDivElement>(null);
+
+    // Tampilkan Searching compact ketika scroll mencapai 400px.
+    // Searching normal tidak berubah posisi maupun ukurannya.
+    useEffect(() => {
+        let ticking = false;
+
+        const handleScroll = () => {
+            if (ticking) return;
+
+            ticking = true;
+
+            window.requestAnimationFrame(() => {
+                setCompact(window.scrollY >= 400);
+                ticking = false;
+            });
+        };
+
+        handleScroll();
+
+        window.addEventListener('scroll', handleScroll, {
+            passive: true,
+        });
+
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, []);
 
     // Filter pencarian.
     useEffect(() => {
@@ -100,7 +129,9 @@ export default function Home({ topics, products, categories }: Props) {
     return (
         <div className="p-2">
             <div className="max-w-200 border border-gray-300">
+                {/* Searching normal: tetap berada di posisi awal */}
                 <Searching
+                    compact={false}
                     searchType={searchType}
                     setSearchType={setSearchType}
                     keyword={keyword}
@@ -113,6 +144,28 @@ export default function Home({ topics, products, categories }: Props) {
                     setDateTo={setDateTo}
                     categories={categories}
                 />
+
+                {/* Searching compact: muncul setelah scroll 400px */}
+                {compact && (
+                    <div className="fixed inset-x-0 top-0 z-[100] px-2">
+                        <div className="max-w-200">
+                            <Searching
+                                compact={true}
+                                searchType={searchType}
+                                setSearchType={setSearchType}
+                                keyword={keyword}
+                                setKeyword={setKeyword}
+                                category={category}
+                                setCategory={setCategory}
+                                dateFrom={dateFrom}
+                                dateTo={dateTo}
+                                setDateFrom={setDateFrom}
+                                setDateTo={setDateTo}
+                                categories={categories}
+                            />
+                        </div>
+                    </div>
+                )}
 
                 <Topics
                     topics={topics}
