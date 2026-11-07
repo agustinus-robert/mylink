@@ -24,8 +24,8 @@ class ProductLocation extends Model
     protected $fillable = [
         'name',
         'address',
-        'province',
-        'district',
+        'province_id',
+        'district_id',
         'created_by',
         'updated_by',
         'deleted_by',

@@ -24,8 +24,8 @@ class IncomingRequests extends FormRequest
             'affiliate_link' => ['required', 'string'],
             'link' => ['required', 'string', 'max:5120'],
             'address' => ['required', 'string'],
-            'province_id' => ['required', 'integer', 'exists:ref_provinces,id'],
-            'district_id' => ['required', 'integer', 'exists:ref_regencies,id'],
+            'province_id' => ['required', 'integer', 'exists:location_province,id'],
+            'district_id' => ['required', 'integer', 'exists:location_city,id'],
             'prices' => ['required', 'numeric'],
             'recorded_at' => ['required', 'date'],
             'topic' => ['required', 'string']
