@@ -127,8 +127,8 @@ export default function Home({ topics, products, categories }: Props) {
     }, [searchType, keyword, category, dateFrom, dateTo, selectedTopics]);
 
     return (
-        <div className="p-2">
-            <div className="max-w-200 border border-gray-300">
+        <div className="mb-2">
+            <div className="max-w-210">
                 {/* Searching normal: tetap berada di posisi awal */}
                 <Searching
                     compact={false}
