@@ -56,12 +56,12 @@ class ProductLocation extends Model
 
     public function province(): BelongsTo
     {
-        return $this->belongsTo(Province::class, 'province', 'id');
+        return $this->belongsTo(Province::class, 'province_id', 'id');
     }
 
     public function district(): BelongsTo
     {
-        return $this->belongsTo(Regency::class, 'district', 'id');
+        return $this->belongsTo(Regency::class, 'district_id', 'id');
     }
 
     public function scopeRange(

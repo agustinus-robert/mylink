@@ -35,13 +35,33 @@ type Category = {
     name: string;
 };
 
+type Province = {
+    id: number;
+    name: string;
+};
+
+type Regency = {
+    id: number;
+    province_id: number;
+    type: string;
+    name: string;
+};
+
 type Props = {
     topics: Topic[];
     products: Pagination<Product>;
     categories: Category[];
+    provinces: Province[];
+    regencies: Regency[];
 };
 
-export default function Home({ topics, products, categories }: Props) {
+export default function Home({
+    topics,
+    products,
+    categories,
+    provinces,
+    regencies,
+}: Props) {
     const [searchType, setSearchType] = useState<'keyword' | 'category'>(
         'keyword',
     );
@@ -52,14 +72,16 @@ export default function Home({ topics, products, categories }: Props) {
     const [dateTo, setDateTo] = useState('');
     const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
 
+    // Filter lokasi
+    const [province, setProvince] = useState('');
+    const [regency, setRegency] = useState('');
+
     const [compact, setCompact] = useState(false);
 
     const firstRender = useRef(true);
     const scrollPosition = useRef(0);
-    const itemsRef = useRef<HTMLDivElement>(null);
 
     // Tampilkan Searching compact ketika scroll mencapai 400px.
-    // Searching normal tidak berubah posisi maupun ukurannya.
     useEffect(() => {
         let ticking = false;
 
@@ -99,13 +121,17 @@ export default function Home({ topics, products, categories }: Props) {
                 route('home'),
                 {
                     searchType,
-                    ...(searchType === 'keyword' ? { keyword } : { category }),
-                    dateFrom,
-                    dateTo,
-                    topics: selectedTopics,
+                    ...(searchType === 'keyword'
+                        ? { keyword: keyword || undefined }
+                        : { category: category.length ? category : undefined }),
+                    dateFrom: dateFrom || undefined,
+                    dateTo: dateTo || undefined,
+                    topics: selectedTopics.length ? selectedTopics : undefined,
+                    province: province || undefined,
+                    regency: regency || undefined,
                 },
                 {
-                    only: ['products', 'topics'],
+                    only: ['products', 'topics', 'regencies'],
                     reset: ['products'],
                     preserveState: true,
                     preserveScroll: true,
@@ -124,12 +150,21 @@ export default function Home({ topics, products, categories }: Props) {
         }, 500);
 
         return () => window.clearTimeout(timer);
-    }, [searchType, keyword, category, dateFrom, dateTo, selectedTopics]);
+    }, [
+        searchType,
+        keyword,
+        category,
+        dateFrom,
+        dateTo,
+        selectedTopics,
+        province,
+        regency,
+    ]);
 
     return (
         <div className="mb-2">
             <div className="max-w-210">
-                {/* Searching normal: tetap berada di posisi awal */}
+                {/* Searching normal */}
                 <Searching
                     compact={false}
                     searchType={searchType}
@@ -143,9 +178,15 @@ export default function Home({ topics, products, categories }: Props) {
                     setDateFrom={setDateFrom}
                     setDateTo={setDateTo}
                     categories={categories}
+                    province={province}
+                    setProvince={setProvince}
+                    regency={regency}
+                    setRegency={setRegency}
+                    provinces={provinces}
+                    regencies={regencies}
                 />
 
-                {/* Searching compact: muncul setelah scroll 400px */}
+                {/* Searching compact */}
                 {compact && (
                     <div className="fixed inset-x-0 top-0 z-[100] px-2">
                         <div className="max-w-200">
@@ -162,6 +203,12 @@ export default function Home({ topics, products, categories }: Props) {
                                 setDateFrom={setDateFrom}
                                 setDateTo={setDateTo}
                                 categories={categories}
+                                province={province}
+                                setProvince={setProvince}
+                                regency={regency}
+                                setRegency={setRegency}
+                                provinces={provinces}
+                                regencies={regencies}
                             />
                         </div>
                     </div>
@@ -180,9 +227,7 @@ export default function Home({ topics, products, categories }: Props) {
                     onClear={() => setSelectedTopics([])}
                 />
 
-                <div ref={itemsRef}>
-                    <Items products={products} />
-                </div>
+                <Items products={products} />
             </div>
         </div>
     );

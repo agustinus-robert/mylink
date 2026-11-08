@@ -8,12 +8,16 @@ use Inertia\Inertia;
 use Modules\Transaction\Models\Product;
 use Modules\Master\Models\Category;
 use Modules\Transaction\Models\Topics;
+use Modules\Master\Models\Province;
+use Modules\Master\Models\Regency;
 
 class HomeController extends Controller
 {
     public function index(Request $request)
     {
         $topicsFilter = $request->input('topics', []);
+        $provinceId = $request->input('province');
+        $regencyId = $request->input('regency');
 
         $query = Product::query()
             ->when(
@@ -31,6 +35,16 @@ class HomeController extends Controller
                     $request->category
                 )
             )
+           ->when(filled($provinceId), function ($q) use ($provinceId) {
+                $q->whereHas('detail.location.district', function ($district) use ($provinceId) {
+                    $district->where('province_id', $provinceId);
+                });
+            })
+            ->when(filled($regencyId), function ($q) use ($regencyId) {
+                $q->whereHas('detail.location', function ($location) use ($regencyId) {
+                    $location->where('district_id', $regencyId);
+                });
+            })
             ->when(
                 !empty($topicsFilter),
                 fn ($query) => $query->whereHas(
@@ -80,8 +94,29 @@ class HomeController extends Controller
             ->whereNull('deleted_at')
             ->get(['id', 'name']);
 
+        $provinces = Province::query()
+            ->orderBy('province')
+            ->get([
+                'id',
+                'province as name',
+            ]);
+
+        $regencies = Regency::query()
+            ->when(
+                filled($provinceId),
+                fn ($query) => $query->where('province_id', $provinceId)
+            )
+            ->orderBy('city_name')
+            ->get([
+                'id',
+                'province_id',
+                'type',
+                'city_name as name',
+            ]);
+
         return Inertia::render('front/home/index', [
             'topics' => $topics,
+
             'products' => Inertia::scroll(
                 fn () => (clone $query)
                     ->with([
@@ -90,13 +125,18 @@ class HomeController extends Controller
                             'trx_product_prices.id',
                             'trx_product_prices.product_id',
                             'trx_product_prices.prices',
+                            'trx_product_prices.location_id',
                         ]),
+                        'detail.location',
                     ])
                     ->latest()
                     ->paginate(10)
                     ->withQueryString()
             ),
+
             'categories' => $categories,
+            'provinces' => $provinces,
+            'regencies' => $regencies,
         ]);
     }
 }

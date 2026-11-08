@@ -4,9 +4,22 @@ import { format, parseISO } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { Search, ListFilter, Calendar } from 'lucide-react';
 import 'react-day-picker/style.css';
+import Location from './location';
 
 type Category = {
     id: number;
+    name: string;
+};
+
+type Province = {
+    id: number;
+    name: string;
+};
+
+type Regency = {
+    id: number;
+    province_id: number;
+    type: string;
     name: string;
 };
 
@@ -23,6 +36,12 @@ type SearchingProps = {
     setDateFrom: (value: string) => void;
     setDateTo: (value: string) => void;
     categories: Category[];
+    province: string;
+    setProvince: (value: string) => void;
+    regency: string;
+    setRegency: (value: string) => void;
+    provinces: Province[];
+    regencies: Regency[];
 };
 
 export default function Searching({
@@ -38,6 +57,12 @@ export default function Searching({
     setDateFrom,
     setDateTo,
     categories,
+    province,
+    setProvince,
+    regency,
+    setRegency,
+    provinces,
+    regencies,
 }: SearchingProps) {
     const [showCalendar, setShowCalendar] = useState(false);
 
@@ -347,6 +372,17 @@ export default function Searching({
                         </div>
                     </div>
                 )}
+
+                {/* Location */}
+                <Location
+                    compact={compact}
+                    province={province}
+                    setProvince={setProvince}
+                    regency={regency}
+                    setRegency={setRegency}
+                    provinces={provinces}
+                    regencies={regencies}
+                />
 
                 {/* Footer */}
                 <div
