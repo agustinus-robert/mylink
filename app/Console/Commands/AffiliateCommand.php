@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Modules\Master\Models\Category;
 use Modules\Master\Models\Regency;
 use Modules\Transaction\Models\Product;
 use Modules\Transaction\Models\ProductLocation;
@@ -14,13 +15,33 @@ use Modules\Transaction\Models\Topics;
 
 class AffiliateCommand extends Command
 {
-    protected $signature = 'app:affiliate-command';
+    protected $signature = 'app:affiliate-command
+                            {file : Nama file CSV di storage/app}
+                            {category : Nama kategori produk}';
 
     protected $description = 'Import produk Shopee Affiliate dari CSV';
 
     public function handle(): int
     {
-        $filePath = storage_path('app/affiliate.csv');
+        $fileName = $this->argument('file');
+        $categoryName = trim($this->argument('category'));
+
+        if (
+            basename($fileName) !== $fileName ||
+            !str_ends_with(strtolower($fileName), '.csv')
+        ) {
+            $this->error('Masukkan nama file CSV yang valid.');
+
+            return self::FAILURE;
+        }
+
+        if ($categoryName === '') {
+            $this->error('Nama kategori tidak boleh kosong.');
+
+            return self::FAILURE;
+        }
+
+        $filePath = storage_path('app/' . $fileName);
 
         if (!file_exists($filePath)) {
             $this->error("File CSV tidak ditemukan: {$filePath}");
@@ -54,12 +75,18 @@ class AffiliateCommand extends Command
         $totalColumns = count($headers);
 
         $this->info("Jumlah header: {$totalColumns}");
+        $this->info("Kategori: {$categoryName}");
         $this->info('Memulai import CSV...');
 
         $success = 0;
         $skipped = 0;
         $failed = 0;
         $rowNumber = 1;
+
+        // Cache kategori agar tidak dicari berulang kali
+        $categoryId = null;
+        $categoryChecked = false;
+        $categoryWarningShown = false;
 
         // Baca setiap baris CSV
         while (($line = fgets($file)) !== false) {
@@ -134,7 +161,10 @@ class AffiliateCommand extends Command
             try {
                 $result = DB::transaction(function () use (
                     $data,
-                    &$step
+                    &$step,
+                    $categoryName,
+                    &$categoryId,
+                    &$categoryChecked
                 ) {
                     // =====================================
                     // DATA PRODUK
@@ -145,7 +175,7 @@ class AffiliateCommand extends Command
                     $name = trim($data['Nama Produk'] ?? '');
                     $linkImage = trim($data['Image 1'] ?? '');
                     $link = trim($data['Link Produk'] ?? '');
-                    $keyword = trim($data['Kategori'] ?? '');
+                    $keyword = trim($data['Hashtag'] ?? '');
 
                     $shopName = trim($data['Toko'] ?? '');
                     $locationName = trim($data['Lokasi Toko'] ?? '');
@@ -170,6 +200,52 @@ class AffiliateCommand extends Command
                             ->exists()
                     ) {
                         return false;
+                    }
+
+                    // =====================================
+                    // CEK / INSERT CATEGORY
+                    // =====================================
+
+                    if (!$categoryChecked) {
+                        $step = "Mengecek kategori: {$categoryName}";
+
+                        $category = Category::withTrashed()
+                            ->whereRaw(
+                                'LOWER(name) = ?',
+                                [Str::lower($categoryName)]
+                            )
+                            ->first();
+
+                        if ($category) {
+                            // Jika kategori pernah dihapus, aktifkan kembali
+                            if ($category->trashed()) {
+                                $category->restore();
+                            }
+                        } else {
+                            // Generate category code
+                            $step = 'Generate Category Code';
+
+                            do {
+                                $categoryCode = Str::upper(
+                                    Str::random(3)
+                                );
+                            } while (
+                                Category::withTrashed()
+                                    ->where('code', $categoryCode)
+                                    ->exists()
+                            );
+
+                            // Buat kategori baru
+                            $step = 'Insert Category';
+
+                            $category = Category::create([
+                                'code' => $categoryCode,
+                                'name' => $categoryName,
+                            ]);
+                        }
+
+                        $categoryId = $category->id;
+                        $categoryChecked = true;
                     }
 
                     // =====================================
@@ -225,6 +301,7 @@ class AffiliateCommand extends Command
                         'slug' => $slug,
                         'link' => $linkImage,
                         'affiliate_link' => $link,
+                        'category_id' => $categoryId,
                     ]);
 
                     // =====================================
@@ -233,15 +310,11 @@ class AffiliateCommand extends Command
 
                     $step = 'Insert Topics';
 
-                    $keyword = preg_replace(
-                        '/^Keyword:\s*/i',
-                        '',
-                        $keyword
-                    );
-
                     $keyword = trim($keyword);
 
                     if ($keyword !== '') {
+                        $keyword = preg_replace('/\s+/', ',', $keyword);
+
                         Topics::create([
                             'product_id' => $product->id,
                             'name' => $keyword,
@@ -346,6 +419,16 @@ class AffiliateCommand extends Command
 
                 if ($result) {
                     $success++;
+
+                    // Beri peringatan jika kategori sudah ada
+                    if ($categoryId !== null && !$categoryWarningShown) {
+                        $category = Category::find($categoryId);
+
+                        if ($category) {
+                            // Kategori yang baru dibuat juga akan ditemukan.
+                            // Peringatan ditampilkan berdasarkan status di bawah.
+                        }
+                    }
 
                     $this->info('BERHASIL');
                 } else {
