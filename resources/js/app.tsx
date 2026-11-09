@@ -11,8 +11,6 @@ import AuthLayout from '@/layouts/auth-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 
 import NavOne from '@/components/app-navone';
-import Brands from '@/components/app-brand';
-
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 const pages = {
@@ -22,7 +20,6 @@ const pages = {
 
 const FrontLayout = ({ children }: { children: React.ReactNode }) => (
     <>
-        <Brands />
         {children}
         <NavOne />
     </>

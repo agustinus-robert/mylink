@@ -19,6 +19,9 @@ class HomeController extends Controller
         $provinceId = $request->input('province');
         $regencyId = $request->input('regency');
 
+        $minPrice = $request->input('minPrice');
+        $maxPrice = $request->input('maxPrice');
+
         $query = Product::query()
             ->when(
                 $request->searchType === 'keyword' && filled($request->keyword),
@@ -35,7 +38,7 @@ class HomeController extends Controller
                     $request->category
                 )
             )
-           ->when(filled($provinceId), function ($q) use ($provinceId) {
+            ->when(filled($provinceId), function ($q) use ($provinceId) {
                 $q->whereHas('detail.location.district', function ($district) use ($provinceId) {
                     $district->where('province_id', $provinceId);
                 });
@@ -45,6 +48,30 @@ class HomeController extends Controller
                     $location->where('district_id', $regencyId);
                 });
             })
+            ->when(
+                filled($minPrice) || filled($maxPrice),
+                function ($q) use ($minPrice, $maxPrice) {
+                    $q->whereHas('detail', function ($price) use ($minPrice, $maxPrice) {
+                        $price
+                            ->when(
+                                filled($minPrice),
+                                fn ($price) => $price->where(
+                                    'prices',
+                                    '>=',
+                                    $minPrice
+                                )
+                            )
+                            ->when(
+                                filled($maxPrice),
+                                fn ($price) => $price->where(
+                                    'prices',
+                                    '<=',
+                                    $maxPrice
+                                )
+                            );
+                    });
+                }
+            )
             ->when(
                 !empty($topicsFilter),
                 fn ($query) => $query->whereHas(

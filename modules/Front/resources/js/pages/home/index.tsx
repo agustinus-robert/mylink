@@ -2,7 +2,6 @@ import { router } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { useState, useEffect, useRef } from 'react';
 import Searching from './search';
-import Topics from './topic';
 import Items from './items';
 
 type Topic = {
@@ -72,42 +71,15 @@ export default function Home({
     const [dateTo, setDateTo] = useState('');
     const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
 
-    // Filter lokasi
     const [province, setProvince] = useState('');
     const [regency, setRegency] = useState('');
 
-    const [compact, setCompact] = useState(false);
+    const [minPrice, setMinPrice] = useState('');
+    const [maxPrice, setMaxPrice] = useState('');
 
     const firstRender = useRef(true);
     const scrollPosition = useRef(0);
 
-    // Tampilkan Searching compact ketika scroll mencapai 400px.
-    useEffect(() => {
-        let ticking = false;
-
-        const handleScroll = () => {
-            if (ticking) return;
-
-            ticking = true;
-
-            window.requestAnimationFrame(() => {
-                setCompact(window.scrollY >= 400);
-                ticking = false;
-            });
-        };
-
-        handleScroll();
-
-        window.addEventListener('scroll', handleScroll, {
-            passive: true,
-        });
-
-        return () => {
-            window.removeEventListener('scroll', handleScroll);
-        };
-    }, []);
-
-    // Filter pencarian.
     useEffect(() => {
         if (firstRender.current) {
             firstRender.current = false;
@@ -123,12 +95,16 @@ export default function Home({
                     searchType,
                     ...(searchType === 'keyword'
                         ? { keyword: keyword || undefined }
-                        : { category: category.length ? category : undefined }),
+                        : {
+                              category: category.length ? category : undefined,
+                          }),
                     dateFrom: dateFrom || undefined,
                     dateTo: dateTo || undefined,
                     topics: selectedTopics.length ? selectedTopics : undefined,
                     province: province || undefined,
                     regency: regency || undefined,
+                    minPrice: minPrice || undefined,
+                    maxPrice: maxPrice || undefined,
                 },
                 {
                     only: ['products', 'topics', 'regencies'],
@@ -136,7 +112,6 @@ export default function Home({
                     preserveState: true,
                     preserveScroll: true,
                     replace: true,
-
                     onSuccess: () => {
                         requestAnimationFrame(() => {
                             window.scrollTo({
@@ -159,12 +134,13 @@ export default function Home({
         selectedTopics,
         province,
         regency,
+        minPrice,
+        maxPrice,
     ]);
 
     return (
-        <div className="mb-2">
-            <div className="max-w-210">
-                {/* Searching normal */}
+        <div className="mb-2 w-full">
+            <div className="sticky top-0 z-40 mx-auto w-full max-w-210 bg-[#fafdff]">
                 <Searching
                     compact={false}
                     searchType={searchType}
@@ -184,50 +160,23 @@ export default function Home({
                     setRegency={setRegency}
                     provinces={provinces}
                     regencies={regencies}
-                />
-
-                {/* Searching compact */}
-                {compact && (
-                    <div className="fixed inset-x-0 top-0 z-[100] px-2">
-                        <div className="max-w-200">
-                            <Searching
-                                compact={true}
-                                searchType={searchType}
-                                setSearchType={setSearchType}
-                                keyword={keyword}
-                                setKeyword={setKeyword}
-                                category={category}
-                                setCategory={setCategory}
-                                dateFrom={dateFrom}
-                                dateTo={dateTo}
-                                setDateFrom={setDateFrom}
-                                setDateTo={setDateTo}
-                                categories={categories}
-                                province={province}
-                                setProvince={setProvince}
-                                regency={regency}
-                                setRegency={setRegency}
-                                provinces={provinces}
-                                regencies={regencies}
-                            />
-                        </div>
-                    </div>
-                )}
-
-                <Topics
+                    minPrice={minPrice}
+                    maxPrice={maxPrice}
+                    setMinPrice={setMinPrice}
+                    setMaxPrice={setMaxPrice}
                     topics={topics}
                     selectedTopics={selectedTopics}
-                    onSelect={(name) =>
+                    onSelectTopic={(name: string) =>
                         setSelectedTopics((current) =>
                             current.includes(name)
                                 ? current.filter((topic) => topic !== name)
                                 : [...current, name],
                         )
                     }
-                    onClear={() => setSelectedTopics([])}
-                />
-
-                <Items products={products} />
+                    onClearTopics={() => setSelectedTopics([])}
+                >
+                    <Items products={products} />
+                </Searching>
             </div>
         </div>
     );

@@ -1,10 +1,23 @@
 import React, { useState } from 'react';
-import { DayPicker, type DateRange } from 'react-day-picker';
-import { format, parseISO } from 'date-fns';
-import { id } from 'date-fns/locale';
-import { Search, ListFilter, Calendar } from 'lucide-react';
-import 'react-day-picker/style.css';
+import {
+    Search,
+    ArrowLeft,
+    X,
+    Tags,
+    ChevronDown,
+    ChevronUp,
+} from 'lucide-react';
+
+import Brands from '../../../../../../resources/js/components/app-brand';
+import PriceRange from './price-range';
+import SearchForm from './search-form';
 import Location from './location';
+import Topics from './topic';
+
+type Topic = {
+    name: string;
+    count: number;
+};
 
 type Category = {
     id: number;
@@ -25,247 +38,110 @@ type Regency = {
 
 type SearchingProps = {
     compact: boolean;
+
     searchType: 'keyword' | 'category';
     setSearchType: (value: 'keyword' | 'category') => void;
+
     keyword: string;
     setKeyword: (value: string) => void;
+
     category: number[];
     setCategory: React.Dispatch<React.SetStateAction<number[]>>;
+
     dateFrom: string;
     dateTo: string;
     setDateFrom: (value: string) => void;
     setDateTo: (value: string) => void;
+
     categories: Category[];
+
     province: string;
     setProvince: (value: string) => void;
+
     regency: string;
     setRegency: (value: string) => void;
+
     provinces: Province[];
     regencies: Regency[];
+
+    topics: Topic[];
+    selectedTopics: string[];
+    onSelectTopic: (name: string) => void;
+    onClearTopics: () => void;
+
+    children?: React.ReactNode;
+    minPrice: string;
+    maxPrice: string;
+    setMinPrice: (value: string) => void;
+    setMaxPrice: (value: string) => void;
 };
 
-export default function Searching({
-    compact,
-    searchType,
-    setSearchType,
-    keyword,
-    setKeyword,
-    category,
-    setCategory,
-    dateFrom,
-    dateTo,
-    setDateFrom,
-    setDateTo,
-    categories,
-    province,
-    setProvince,
-    regency,
-    setRegency,
-    provinces,
-    regencies,
-}: SearchingProps) {
-    const [showCalendar, setShowCalendar] = useState(false);
+export default function Searching(props: SearchingProps) {
+    const [isSearching, setIsSearching] = useState(false);
+    const [showTopics, setShowTopics] = useState(false);
 
-    const range: DateRange | undefined = dateFrom
-        ? {
-              from: parseISO(dateFrom),
-              to: dateTo ? parseISO(dateTo) : undefined,
-          }
-        : undefined;
-
-    const toggleCategory = (item: number) => {
-        setCategory((prev) =>
-            prev.includes(item)
-                ? prev.filter((value) => value !== item)
-                : [...prev, item],
+    const toggleCategory = (id: number) => {
+        props.setCategory((prev) =>
+            prev.includes(id)
+                ? prev.filter((item) => item !== id)
+                : [...prev, id],
         );
     };
 
-    const handleDateSelect = (selected: DateRange | undefined) => {
-        setDateFrom(selected?.from ? format(selected.from, 'yyyy-MM-dd') : '');
-        setDateTo(selected?.to ? format(selected.to, 'yyyy-MM-dd') : '');
-    };
-
-    const dateLabel = range?.from
-        ? range.to
-            ? `${format(range.from, 'dd/MM/yyyy')} – ${format(range.to, 'dd/MM/yyyy')}`
-            : `${format(range.from, 'dd/MM/yyyy')} – Pilih tanggal akhir`
-        : 'Pilih rentang tanggal';
-
-    const tabClass = (active: boolean) =>
-        `flex items-center justify-center gap-2 rounded-sm border font-bold transition-all duration-300 ease-in-out ${
-            compact ? 'px-2 py-1.5 text-xs' : 'px-3 py-3 text-sm'
-        } ${
-            active
-                ? 'border-[#a9c8e0] bg-gradient-to-b from-[#fafdff] to-[#dfedf8] text-[#4b83ad] shadow-inner'
-                : 'border-[#dce4ec] bg-gradient-to-b from-white to-[#f0f4f8] text-[#8296a9] hover:border-[#c5d9e9] hover:from-white hover:to-[#e8f0f7]'
-        }`;
-
-    const buttonClass =
-        'rounded-sm border border-[#dce4ec] bg-gradient-to-b from-white to-[#f0f4f8] px-3 py-2 text-sm font-semibold text-[#6487a5] shadow-sm transition hover:from-white hover:to-[#e6eff7] active:translate-y-px';
-
     return (
-        <div className="relative z-40 mx-2 mt-0 mb-2 max-w-100">
-            <div
-                className={`relative flex max-w-100 flex-col overflow-visible rounded-sm border border-[#d4e0eb] bg-[#f3f6fa] shadow-[0_2px_6px_rgba(50,80,110,0.08)] transition-shadow duration-300 ease-in-out ${
-                    compact ? 'z-50 shadow-md' : ''
-                }`}
-            >
-                {/* Header */}
-                <div
-                    className={`rounded-t-sm border-b border-[#c9dbea] bg-gradient-to-b from-[#fafdff] to-[#e5eff8] transition-[padding] duration-300 ease-in-out ${
-                        compact ? 'px-3 py-1.5' : 'px-3 py-3'
-                    }`}
-                >
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <h3
-                                className={`font-bold text-[#40566b] transition-all duration-300 ${
-                                    compact ? 'text-xs' : 'text-sm'
-                                }`}
+        <div className="relative min-h-screen bg-[#f5f7fa]">
+            {!isSearching && (
+                <div className="mx-auto w-full">
+                    {/* Search Bar */}
+                    <div className="sticky top-0 z-40 border-b border-[#dce4ec] bg-white shadow-sm">
+                        <Brands />
+                        <div className="px-3 py-3">
+                            <button
+                                type="button"
+                                onClick={() => setIsSearching(true)}
+                                className="flex h-11 w-full items-center gap-3 rounded-md border border-[#d4e0eb] bg-[#f8fafc] px-3 text-left shadow-inner transition hover:border-[#a9c8e0]"
                             >
-                                Pencarian Produk
+                                <Search className="size-5 shrink-0 text-[#6487a5]" />
+
+                                <span className="flex-1 truncate text-sm text-[#91a1b1]">
+                                    {props.keyword ||
+                                        'Cari produk yang Anda inginkan...'}
+                                </span>
+
+                                {props.keyword && (
+                                    <span className="text-xs text-[#6487a5]">
+                                        Ubah
+                                    </span>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Categories */}
+                    <div className="border-b border-[#dce4ec] bg-white px-3 py-3">
+                        <div className="mb-2 flex items-center justify-between">
+                            <h3 className="text-xs font-bold text-[#566779]">
+                                Kategori
                             </h3>
 
-                            <div
-                                className={`grid transition-all duration-300 ease-in-out ${
-                                    compact
-                                        ? 'grid-rows-[0fr] opacity-0'
-                                        : 'grid-rows-[1fr] opacity-100'
-                                }`}
-                            >
-                                <div className="overflow-hidden">
-                                    <p className="mt-0.5 text-[11px] text-[#91a1b1]">
-                                        Temukan produk yang Anda cari
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div
-                            className={`flex shrink-0 items-center justify-center rounded-sm border border-[#d1e2f0] bg-gradient-to-b from-white to-[#e6f1fa] transition-all duration-300 ${
-                                compact ? 'size-7' : 'size-9'
-                            }`}
-                        >
-                            <Search
-                                className={`text-[#5286b1] transition-all duration-300 ${
-                                    compact ? 'size-4' : 'size-5'
-                                }`}
-                            />
-                        </div>
-                    </div>
-                </div>
-
-                {/* Search type */}
-                <div className="grid grid-cols-2 gap-1 border-b border-[#dce4ec] bg-[#eaf0f6] p-1">
-                    <button
-                        type="button"
-                        onClick={() => setSearchType('keyword')}
-                        className={tabClass(searchType === 'keyword')}
-                    >
-                        <Search className="size-4" />
-                        Keyword
-                    </button>
-
-                    <button
-                        type="button"
-                        onClick={() => setSearchType('category')}
-                        className={tabClass(searchType === 'category')}
-                    >
-                        <ListFilter className="size-4" />
-                        Kategori
-                    </button>
-                </div>
-
-                {/* Keyword */}
-                {searchType === 'keyword' ? (
-                    <div
-                        className={`border-t border-white bg-[#fbfcfd] transition-[padding] duration-300 ease-in-out ${
-                            compact ? 'p-2' : 'p-3'
-                        }`}
-                    >
-                        <div
-                            className={`grid transition-all duration-300 ease-in-out ${
-                                compact
-                                    ? 'grid-rows-[0fr] opacity-0'
-                                    : 'grid-rows-[1fr] opacity-100'
-                            }`}
-                        >
-                            <div className="overflow-hidden">
-                                <label className="mb-2 block text-xs font-bold text-[#566779]">
-                                    Kata kunci pencarian
-                                </label>
-                            </div>
-                        </div>
-
-                        <div className="flex rounded-sm border border-[#d4e0eb] bg-white shadow-inner focus-within:border-[#a9c8e0] focus-within:ring-1 focus-within:ring-[#dcebf6]">
-                            <div className="flex items-center border-r border-[#e2e8ef] bg-gradient-to-b from-white to-[#f0f4f8] px-3">
-                                <Search className="size-4 text-[#91afc8]" />
-                            </div>
-
-                            <input
-                                type="text"
-                                value={keyword}
-                                onChange={(e) => setKeyword(e.target.value)}
-                                className={`min-w-0 flex-1 border-0 bg-transparent px-3 text-sm text-[#566779] transition-[height] duration-300 ease-in-out outline-none placeholder:text-[#aab6c2] focus:ring-0 ${
-                                    compact ? 'h-8' : 'h-10'
-                                }`}
-                                placeholder="Nama produk atau kode produk..."
-                            />
-                        </div>
-
-                        <div
-                            className={`grid transition-all duration-300 ease-in-out ${
-                                compact
-                                    ? 'grid-rows-[0fr] opacity-0'
-                                    : 'grid-rows-[1fr] opacity-100'
-                            }`}
-                        >
-                            <div className="overflow-hidden">
-                                <p className="mt-2 text-[10px] text-[#91a1b1]">
-                                    Masukkan nama atau kode produk yang ingin
-                                    dicari.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                ) : (
-                    <div className="border-t border-white bg-[#fbfcfd]">
-                        <div
-                            className={`flex items-center justify-between border-b border-[#e2e8ef] bg-gradient-to-b from-white to-[#f5f8fb] px-3 transition-[padding] duration-300 ${
-                                compact ? 'py-1.5' : 'py-2'
-                            }`}
-                        >
-                            <p className="text-xs font-bold text-[#566779]">
-                                Pilih kategori produk
-                            </p>
-
-                            <span className="rounded-sm border border-[#dce4ec] bg-white px-2 py-0.5 text-[10px] font-semibold text-[#6487a5]">
-                                {category.length} dipilih
+                            <span className="text-[10px] text-[#91a1b1]">
+                                {props.category.length} dipilih
                             </span>
                         </div>
 
-                        <div
-                            className={`thin-scrollbar flex gap-1.5 overflow-x-auto bg-white transition-[padding] duration-300 ${
-                                compact ? 'p-2' : 'p-3'
-                            }`}
-                        >
-                            {categories.map((item) => {
-                                const active = category.includes(item.id);
+                        <div className="thin-scrollbar flex gap-2 overflow-x-auto pb-1">
+                            {props.categories.map((item) => {
+                                const active = props.category.includes(item.id);
 
                                 return (
                                     <button
                                         key={item.id}
                                         type="button"
                                         onClick={() => toggleCategory(item.id)}
-                                        className={`shrink-0 rounded-sm border font-semibold shadow-sm transition-all duration-200 ${
-                                            compact
-                                                ? 'px-2 py-1 text-[10px]'
-                                                : 'px-3 py-1.5 text-xs'
-                                        } ${
+                                        className={`shrink-0 rounded-sm border px-3 py-1.5 text-xs font-semibold transition ${
                                             active
-                                                ? 'border-[#e6c99f] bg-gradient-to-b from-[#fff9ef] to-[#f8ead5] text-[#986b37]'
-                                                : 'border-[#dce4ec] bg-gradient-to-b from-white to-[#f0f4f8] text-[#8296a9] hover:border-[#c5d9e9] hover:to-[#e8f0f7]'
+                                                ? 'border-[#e6c99f] bg-[#fff3df] text-[#986b37]'
+                                                : 'border-[#dce4ec] bg-white text-[#8296a9] hover:border-[#c5d9e9]'
                                         }`}
                                     >
                                         {item.name}
@@ -273,138 +149,135 @@ export default function Searching({
                                 );
                             })}
                         </div>
+                    </div>
 
-                        <div
-                            className={`relative border-t border-[#e2e8ef] bg-[#f7f9fb] transition-[padding] duration-300 ${
-                                compact ? 'p-2' : 'p-3'
+                    {/* Popular Topics Toggle */}
+                    <div className="border-b border-[#dce4ec] bg-white px-3 py-2">
+                        <button
+                            type="button"
+                            onClick={() => setShowTopics((prev) => !prev)}
+                            className={`flex w-full items-center justify-between rounded-sm px-2 py-2 transition ${
+                                showTopics
+                                    ? 'bg-[#eef4f9] text-[#4b83ad]'
+                                    : 'text-[#64788b] hover:bg-[#f5f8fb]'
                             }`}
                         >
-                            <div
-                                className={`grid transition-all duration-300 ease-in-out ${
-                                    compact
-                                        ? 'grid-rows-[0fr] opacity-0'
-                                        : 'grid-rows-[1fr] opacity-100'
-                                }`}
-                            >
-                                <div className="overflow-hidden">
-                                    <label className="mb-2 block text-xs font-bold text-[#566779]">
-                                        Filter tanggal
-                                    </label>
-                                </div>
-                            </div>
+                            <span className="flex items-center gap-2">
+                                <Tags className="size-4" />
 
+                                <span className="text-xs font-bold">Topik</span>
+
+                                {props.selectedTopics.length > 0 && (
+                                    <span className="rounded-full bg-[#e5eff8] px-2 py-0.5 text-[10px] font-semibold text-[#4b83ad]">
+                                        {props.selectedTopics.length}
+                                    </span>
+                                )}
+                            </span>
+
+                            {showTopics ? (
+                                <ChevronUp className="size-4" />
+                            ) : (
+                                <ChevronDown className="size-4" />
+                            )}
+                        </button>
+
+                        {showTopics && (
+                            <div className="pt-2">
+                                <Topics
+                                    topics={props.topics}
+                                    selectedTopics={props.selectedTopics}
+                                    onSelect={props.onSelectTopic}
+                                    onClear={props.onClearTopics}
+                                />
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Product Items */}
+                    <div className="w-full">{props.children}</div>
+                </div>
+            )}
+
+            {/* Fullscreen Search View */}
+            {isSearching && (
+                <div className="fixed inset-0 z-[100] flex flex-col overflow-y-auto bg-[#f5f7fa]">
+                    {/* Search Header */}
+                    <div className="sticky top-0 z-50 flex items-center gap-2 border-b border-[#dce4ec] bg-white px-3 py-3 shadow-sm">
+                        <button
+                            type="button"
+                            onClick={() => setIsSearching(false)}
+                            className="flex size-9 shrink-0 items-center justify-center rounded-sm border border-[#dce4ec] bg-[#f8fafc] text-[#6487a5]"
+                        >
+                            <ArrowLeft className="size-5" />
+                        </button>
+
+                        <div className="min-w-0 flex-1">
+                            <h3 className="text-sm font-bold text-[#40566b]">
+                                Pencarian Produk
+                            </h3>
+
+                            <p className="text-[10px] text-[#91a1b1]">
+                                Cari dan atur filter produk
+                            </p>
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={() => setIsSearching(false)}
+                            className="flex size-9 shrink-0 items-center justify-center rounded-sm text-[#8296a9] hover:bg-[#f0f4f8]"
+                        >
+                            <X className="size-5" />
+                        </button>
+                    </div>
+
+                    {/* Search Form */}
+                    <div className="mx-auto w-full max-w-2xl">
+                        <SearchForm
+                            compact={false}
+                            searchType={props.searchType}
+                            setSearchType={props.setSearchType}
+                            keyword={props.keyword}
+                            setKeyword={props.setKeyword}
+                            category={props.category}
+                            setCategory={props.setCategory}
+                            dateFrom={props.dateFrom}
+                            dateTo={props.dateTo}
+                            setDateFrom={props.setDateFrom}
+                            setDateTo={props.setDateTo}
+                            categories={props.categories}
+                        />
+
+                        {/* Location Filter */}
+                        <Location
+                            compact={false}
+                            province={props.province}
+                            setProvince={props.setProvince}
+                            regency={props.regency}
+                            setRegency={props.setRegency}
+                            provinces={props.provinces}
+                            regencies={props.regencies}
+                        />
+
+                        <PriceRange
+                            minPrice={props.minPrice}
+                            maxPrice={props.maxPrice}
+                            setMinPrice={props.setMinPrice}
+                            setMaxPrice={props.setMaxPrice}
+                        />
+
+                        {/* Back to Items */}
+                        <div className="p-3">
                             <button
                                 type="button"
-                                onClick={() => setShowCalendar((prev) => !prev)}
-                                className={`flex w-full items-center gap-2 rounded-sm border border-[#d4e0eb] bg-white px-3 text-left text-sm text-[#6487a5] shadow-inner transition-all duration-300 hover:border-[#a9c8e0] ${
-                                    compact ? 'h-8' : 'h-10'
-                                }`}
+                                onClick={() => setIsSearching(false)}
+                                className="w-full rounded-sm border border-[#a9c8e0] bg-gradient-to-b from-[#fafdff] to-[#dfedf8] px-4 py-3 text-sm font-bold text-[#4b83ad] shadow-sm transition hover:to-[#d5e8f6]"
                             >
-                                <Calendar className="size-4 shrink-0 text-[#91afc8]" />
-                                <span className="flex-1 truncate">
-                                    {dateLabel}
-                                </span>
+                                Tampilkan Produk
                             </button>
-
-                            {showCalendar && (
-                                <div className="absolute top-full right-0 left-0 z-50 mt-1 rounded-sm border border-[#d4e0eb] bg-[#fbfcfd] p-3 shadow-[0_4px_12px_rgba(50,80,110,0.15)]">
-                                    <div className="mb-2 border-b border-[#e2e8ef] pb-2 text-xs font-bold text-[#566779]">
-                                        Pilih rentang tanggal
-                                    </div>
-
-                                    <DayPicker
-                                        mode="range"
-                                        selected={range}
-                                        onSelect={handleDateSelect}
-                                        locale={id}
-                                        numberOfMonths={1}
-                                        showOutsideDays
-                                        className="w-full"
-                                        classNames={{
-                                            root: 'w-full',
-                                            month: 'w-full',
-                                            month_grid:
-                                                'w-full table-fixed border-collapse',
-                                            weekdays: 'w-full',
-                                            weekday:
-                                                'p-1 text-center text-xs font-bold text-[#91a1b1]',
-                                            week: 'w-full',
-                                            day: 'p-0 text-center',
-                                            day_button:
-                                                'mx-auto flex size-8 items-center justify-center rounded-sm border border-transparent text-sm text-[#566779] hover:border-[#c9dbea] hover:bg-[#edf4fa]',
-                                            selected:
-                                                'bg-gradient-to-b from-[#dcebf7] to-[#c5dced] text-[#426f94]',
-                                            range_start:
-                                                'rounded-sm bg-[#c5dced] text-[#426f94]',
-                                            range_end:
-                                                'rounded-sm bg-[#c5dced] text-[#426f94]',
-                                            range_middle:
-                                                'bg-[#edf4fa] text-[#6487a5]',
-                                        }}
-                                    />
-
-                                    <div className="flex justify-end gap-2 border-t border-[#e2e8ef] pt-3">
-                                        <button
-                                            type="button"
-                                            onClick={() =>
-                                                handleDateSelect(undefined)
-                                            }
-                                            className={buttonClass}
-                                        >
-                                            Reset
-                                        </button>
-
-                                        <button
-                                            type="button"
-                                            disabled={
-                                                !range?.from || !range?.to
-                                            }
-                                            onClick={() =>
-                                                setShowCalendar(false)
-                                            }
-                                            className="rounded-sm border border-[#e6c99f] bg-gradient-to-b from-[#fff9ef] to-[#f8ead5] px-4 py-2 text-sm font-bold text-[#986b37] shadow-sm transition hover:from-[#fff4e4] hover:to-[#f4dfc1] disabled:cursor-not-allowed disabled:opacity-50"
-                                        >
-                                            Terapkan
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                )}
-
-                {/* Location */}
-                <Location
-                    compact={compact}
-                    province={province}
-                    setProvince={setProvince}
-                    regency={regency}
-                    setRegency={setRegency}
-                    provinces={provinces}
-                    regencies={regencies}
-                />
-
-                {/* Footer */}
-                <div
-                    className={`grid transition-all duration-300 ease-in-out ${
-                        compact
-                            ? 'grid-rows-[0fr] opacity-0'
-                            : 'grid-rows-[1fr] opacity-100'
-                    }`}
-                >
-                    <div className="overflow-hidden">
-                        <div className="flex items-center justify-between rounded-b-sm border-t border-[#dce4ec] bg-gradient-to-b from-white to-[#f0f4f8] px-3 py-2">
-                            <span className="text-[10px] text-[#91a1b1]">
-                                Sistem pencarian produk
-                            </span>
-
-                            <span className="text-[10px] font-semibold text-[#6d9a75]">
-                                ● Siap mencari
-                            </span>
                         </div>
                     </div>
                 </div>
-            </div>
+            )}
         </div>
     );
 }
