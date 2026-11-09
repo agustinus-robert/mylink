@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-B-hcVAMW.js";import{t}from"./table-rlokb_lr.js";import{columns as n}from"./types-C_9XmLXX.js";var r=e();function i({hotel:e}){let i=e.data;return(0,r.jsx)(r.Fragment,{children:(0,r.jsx)(t,{heading:{head:`Base Hotel`},data:i,columns:n,link:{add:`hotel.base-hotel.create`}})})}export{i as default};

@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-B-hcVAMW.js";import{t}from"./table-rlokb_lr.js";import{columns as n}from"./types-BUDzq69g.js";var r=e();function i({department:e}){let i=e.data;return(0,r.jsx)(r.Fragment,{children:(0,r.jsx)(t,{heading:{head:`Department`},data:i,columns:n,link:{add:`company.department.create`}})})}export{i as default};

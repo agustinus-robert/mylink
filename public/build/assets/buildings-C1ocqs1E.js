@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-B-hcVAMW.js";import{t}from"./table-rlokb_lr.js";import{columns as n}from"./types-DYrQoHVL.js";var r=e();function i({building:e}){let i=e.data;return(0,r.jsx)(t,{heading:{head:`Bangunan`},data:i,columns:n,link:{add:`hotel.building.create`}})}export{i as default};
