@@ -166,4 +166,30 @@ class HomeController extends Controller
             'regencies' => $regencies,
         ]);
     }
+
+    public function autocomplete(Request $request)
+    {
+        $keyword = trim($request->input('keyword', ''));
+
+        if (mb_strlen($keyword) < 2) {
+            return response()->json([]);
+        }
+
+        $products = Product::query()
+            ->select([
+                'id',
+                'code',
+                'name',
+                'slug',
+            ])
+            ->where(function ($query) use ($keyword) {
+                $query->where('name', 'like', "%{$keyword}%")
+                    ->orWhere('code', 'like', "%{$keyword}%");
+            })
+            ->orderBy('name')
+            ->limit(8)
+            ->get();
+
+        return response()->json($products);
+    }
 }

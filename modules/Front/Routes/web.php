@@ -9,3 +9,8 @@ use Modules\Front\Controllers\HomeController;
 //     ->group(function () {
 //         Route::get('/beranda', [HomeController::class, 'index'])->name('beranda');
 //     });
+
+Route::get('/autocomplete/products', [
+    HomeController::class,
+    'autocomplete',
+])->name('front.products.autocomplete');
