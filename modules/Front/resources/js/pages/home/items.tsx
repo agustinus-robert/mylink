@@ -1,5 +1,10 @@
-import { InfiniteScroll } from '@inertiajs/react';
-import { Hand, ShoppingBag } from 'lucide-react';
+import { InfiniteScroll, router, usePage } from '@inertiajs/react';
+import {
+    Hand,
+    ShoppingBag,
+    ArrowDownWideNarrow,
+    ArrowUpWideNarrow,
+} from 'lucide-react';
 
 type Product = {
     id: number;
@@ -21,6 +26,28 @@ type Props = {
 };
 
 export default function Items({ products }: Props) {
+    const { url } = usePage();
+
+    const currentUrl = new URL(url, window.location.origin);
+    const sort = currentUrl.searchParams.get('sort') || 'desc';
+
+    const handleSort = () => {
+        const nextSort = sort === 'desc' ? 'asc' : 'desc';
+
+        const params = new URLSearchParams(currentUrl.search);
+        params.set('sort', nextSort);
+
+        router.get(
+            `${currentUrl.pathname}?${params.toString()}`,
+            {},
+            {
+                preserveState: true,
+                preserveScroll: true,
+                replace: true,
+            },
+        );
+    };
+
     return (
         <div className="flex w-full flex-col">
             {/* Header */}
@@ -38,9 +65,32 @@ export default function Items({ products }: Props) {
                     </div>
                 </div>
 
-                <span className="text-[10px] font-bold text-[#6487a5]">
-                    {products.total.toLocaleString('id-ID')} PRODUK
-                </span>
+                <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-bold text-[#6487a5]">
+                        {products.total.toLocaleString('id-ID')} PRODUK
+                    </span>
+
+                    {/* Sorting */}
+                    <button
+                        type="button"
+                        onClick={handleSort}
+                        title={
+                            sort === 'desc'
+                                ? 'Urutkan dari terlama'
+                                : 'Urutkan dari terbaru'
+                        }
+                        aria-label={
+                            sort === 'desc' ? 'Ascending' : 'Descending'
+                        }
+                        className="flex size-7 items-center justify-center rounded-sm border border-[#dce4ec] bg-gradient-to-b from-white to-[#edf3f8] text-[#6487a5] shadow-sm transition hover:border-[#a9c8e0] hover:bg-[#edf5fb] hover:text-[#3e79a8] active:scale-95"
+                    >
+                        {sort === 'desc' ? (
+                            <ArrowDownWideNarrow className="size-4" />
+                        ) : (
+                            <ArrowUpWideNarrow className="size-4" />
+                        )}
+                    </button>
+                </div>
             </div>
 
             {/* Product List */}

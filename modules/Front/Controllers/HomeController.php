@@ -22,6 +22,13 @@ class HomeController extends Controller
         $minPrice = $request->input('minPrice');
         $maxPrice = $request->input('maxPrice');
 
+        // Sorting
+        $sort = $request->input('sort', 'desc');
+
+        if (!in_array($sort, ['asc', 'desc'], true)) {
+            $sort = 'desc';
+        }
+
         $query = Product::query()
             ->when(
                 $request->searchType === 'keyword' && filled($request->keyword),
@@ -156,7 +163,8 @@ class HomeController extends Controller
                         ]),
                         'detail.location',
                     ])
-                    ->latest()
+                    ->orderBy('name', $sort)
+                    ->orderBy('id', $sort)
                     ->paginate(10)
                     ->withQueryString()
             ),
