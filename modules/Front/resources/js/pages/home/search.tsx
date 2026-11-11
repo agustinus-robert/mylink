@@ -172,7 +172,7 @@ export default function Searching(props: SearchingProps) {
                     </div>
 
                     {/* Popular Topics Toggle */}
-                    <div className="border-b border-[#dce4ec] bg-white px-3 py-2">
+                    {/* <div className="border-b border-[#dce4ec] bg-white px-3 py-2">
                         <button
                             type="button"
                             onClick={() => setShowTopics((prev) => !prev)}
@@ -211,7 +211,7 @@ export default function Searching(props: SearchingProps) {
                                 />
                             </div>
                         )}
-                    </div>
+                    </div> */}
 
                     {/* Product Items */}
                     <div className="w-full">{props.children}</div>
