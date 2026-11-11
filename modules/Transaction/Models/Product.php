@@ -28,6 +28,7 @@ class Product extends Model
         'affiliate_link',
         'category_id',
         'sub_category_id',
+        'related',
         'created_by',
         'updated_by',
         'deleted_by',

@@ -21,10 +21,45 @@ class AffiliateCommand extends Command
 
     protected $description = 'Import produk Shopee Affiliate dari CSV';
 
+    /**
+     * Parse satu baris CSV Shopee.
+     *
+     * Menangani format:
+     * "Product ID,""Shop ID"",""Nama Produk""..."
+     *
+     * serta format CSV standar.
+     */
+    private function parseCsvLine(string $line): array
+    {
+        $line = rtrim($line, "\r\n");
+
+        // Hilangkan BOM jika ada.
+        $line = preg_replace('/^\xEF\xBB\xBF/', '', $line);
+
+        // Periksa apakah seluruh baris dibungkus tanda kutip.
+        if (
+            strlen($line) >= 2 &&
+            str_starts_with($line, '"') &&
+            str_ends_with($line, '"')
+        ) {
+            // Lepaskan tanda kutip pembungkus.
+            $line = substr($line, 1, -1);
+
+            // Kembalikan tanda kutip internal.
+            $line = str_replace('""', '"', $line);
+        }
+
+        return str_getcsv($line, ',', '"', '');
+    }
+
     public function handle(): int
     {
         $fileName = $this->argument('file');
         $categoryName = trim($this->argument('category'));
+
+        // =====================================
+        // VALIDASI FILE
+        // =====================================
 
         if (
             basename($fileName) !== $fileName ||
@@ -57,8 +92,15 @@ class AffiliateCommand extends Command
             return self::FAILURE;
         }
 
-        // Baca header
-        $headers = fgetcsv($file, 0, ',', '"', '');
+        // =====================================
+        // BACA HEADER CSV
+        // =====================================
+
+        $headerLine = fgets($file);
+
+        $headers = $headerLine !== false
+            ? $this->parseCsvLine($headerLine)
+            : false;
 
         if (!$headers) {
             $this->error('Header CSV tidak ditemukan.');
@@ -67,59 +109,126 @@ class AffiliateCommand extends Command
             return self::FAILURE;
         }
 
-        // Bersihkan BOM dan spasi header
+        // Normalisasi BOM dan spasi header.
         $headers = array_map(function ($header) {
-            return trim(preg_replace('/^\xEF\xBB\xBF/', '', $header));
+            $header = preg_replace(
+                '/^\xEF\xBB\xBF/',
+                '',
+                (string) $header
+            );
+
+            return trim(preg_replace('/\s+/', ' ', $header));
+        }, $headers);
+
+        // Normalisasi nama header agar konsisten.
+        $canonicalHeaders = [
+            'product id' => 'Product ID',
+            'shop id' => 'Shop ID',
+            'nama produk' => 'Nama Produk',
+            'kategori' => 'Kategori',
+            'harga' => 'Harga',
+            'harga asli' => 'Harga Asli',
+            'stok' => 'Stok',
+            'terjual' => 'Terjual',
+            'rating' => 'Rating',
+            'ulasan' => 'Ulasan',
+            'liked count' => 'Liked Count',
+            'tanggal upload' => 'Tanggal Upload',
+            'komisi' => 'Komisi',
+            'estimasi komisi' => 'Estimasi Komisi',
+            'toko' => 'Toko',
+            'link produk' => 'Link Produk',
+            'image 1' => 'Image 1',
+            'image 2' => 'Image 2',
+            'image 3' => 'Image 3',
+            'image 4' => 'Image 4',
+            'image 5' => 'Image 5',
+            'image 6' => 'Image 6',
+            'image 7' => 'Image 7',
+            'image 8' => 'Image 8',
+            'image 9' => 'Image 9',
+            'videos' => 'Videos',
+            'sample gratis' => 'Sample Gratis',
+            'komisi maksimal' => 'Komisi Maksimal',
+            'komisi seller' => 'Komisi Seller',
+            'lokasi toko' => 'Lokasi Toko',
+            'rating toko' => 'Rating Toko',
+            'jumlah penilaian toko' => 'Jumlah Penilaian Toko',
+            'currency' => 'Currency',
+            'hashtag' => 'Hashtag',
+            'keyword' => 'Keyword',
+        ];
+
+        $headers = array_map(function ($header) use ($canonicalHeaders) {
+            $key = Str::lower(trim($header));
+
+            return $canonicalHeaders[$key] ?? $header;
         }, $headers);
 
         $totalColumns = count($headers);
 
+        // Cari posisi kolom penting.
+        $nameIndex = array_search('Nama Produk', $headers, true);
+
+        $requiredHeaders = [
+            'Nama Produk',
+            'Link Produk',
+        ];
+
+        foreach ($requiredHeaders as $required) {
+            if (!in_array($required, $headers, true)) {
+                $this->error("Header CSV tidak ditemukan: {$required}");
+
+                $this->line(
+                    'Header terbaca: ' . implode(' | ', $headers)
+                );
+
+                fclose($file);
+
+                return self::FAILURE;
+            }
+        }
+
         $this->info("Jumlah header: {$totalColumns}");
+        $this->info("Index Nama Produk: {$nameIndex}");
         $this->info("Kategori: {$categoryName}");
         $this->info('Memulai import CSV...');
+
+        // =====================================
+        // COUNTER
+        // =====================================
 
         $success = 0;
         $skipped = 0;
         $failed = 0;
         $rowNumber = 1;
 
-        // Cache kategori agar tidak dicari berulang kali
-        $categoryId = null;
-        $categoryChecked = false;
-        $categoryWarningShown = false;
+        // =====================================
+        // BACA SETIAP BARIS CSV
+        // =====================================
 
-        // Baca setiap baris CSV
         while (($line = fgets($file)) !== false) {
             $rowNumber++;
 
-            $line = trim($line);
-
-            if ($line === '') {
+            if (trim($line) === '') {
                 continue;
             }
 
-            // Normalisasi pembungkus seluruh baris CSV Shopee
-            if (
-                str_starts_with($line, '"') &&
-                str_ends_with($line, '"')
-            ) {
-                $line = substr($line, 1, -1);
-            }
+            // Parse baris menggunakan parser yang sama.
+            $row = $this->parseCsvLine($line);
 
-            // Kembalikan tanda kutip yang di-escape
-            $line = str_replace('""', '"', $line);
+            // =====================================
+            // PERBAIKI KOLOM NAMA PRODUK
+            // =====================================
 
-            // Parsing CSV
-            $row = str_getcsv($line, ',', '"', '');
-
-            // Perbaiki koma tanpa kutip pada nama produk.
-            // Kolom pertama adalah Nama Produk.
+            // Jika terdapat koma tanpa tanda kutip pada nama produk,
+            // gabungkan kembali ke kolom Nama Produk.
             if (count($row) > $totalColumns) {
                 $extraColumns = count($row) - $totalColumns;
 
                 $productNameParts = array_slice(
                     $row,
-                    0,
+                    $nameIndex,
                     $extraColumns + 1
                 );
 
@@ -127,14 +236,17 @@ class AffiliateCommand extends Command
 
                 array_splice(
                     $row,
-                    0,
+                    $nameIndex,
                     $extraColumns + 1,
                     [$productName]
                 );
             }
 
-            // Validasi jumlah kolom
-            if (count($headers) !== count($row)) {
+            // =====================================
+            // VALIDASI JUMLAH KOLOM
+            // =====================================
+
+            if (count($row) !== $totalColumns) {
                 $failed++;
 
                 $this->newLine();
@@ -142,17 +254,21 @@ class AffiliateCommand extends Command
                     "Baris {$rowNumber}: Jumlah kolom tidak cocok."
                 );
 
-                $this->line('Header: ' . count($headers));
+                $this->line('Header: ' . $totalColumns);
                 $this->line('Data  : ' . count($row));
                 $this->line('Isi   : ' . substr($line, 0, 300));
 
                 continue;
             }
 
-            // Gabungkan header dan data
+            // =====================================
+            // GABUNGKAN HEADER DAN DATA
+            // =====================================
+
             $data = array_combine($headers, $row);
 
             $productName = trim($data['Nama Produk'] ?? '');
+
             $step = 'Memulai transaksi';
 
             $this->newLine();
@@ -162,9 +278,7 @@ class AffiliateCommand extends Command
                 $result = DB::transaction(function () use (
                     $data,
                     &$step,
-                    $categoryName,
-                    &$categoryId,
-                    &$categoryChecked
+                    $categoryName
                 ) {
                     // =====================================
                     // DATA PRODUK
@@ -175,7 +289,9 @@ class AffiliateCommand extends Command
                     $name = trim($data['Nama Produk'] ?? '');
                     $linkImage = trim($data['Image 1'] ?? '');
                     $link = trim($data['Link Produk'] ?? '');
+
                     $keyword = trim($data['Hashtag'] ?? '');
+                    $related = trim($data['Keyword'] ?? '');
 
                     $shopName = trim($data['Toko'] ?? '');
                     $locationName = trim($data['Lokasi Toko'] ?? '');
@@ -206,47 +322,43 @@ class AffiliateCommand extends Command
                     // CEK / INSERT CATEGORY
                     // =====================================
 
-                    if (!$categoryChecked) {
-                        $step = "Mengecek kategori: {$categoryName}";
+                    $step = "Mengecek kategori: {$categoryName}";
 
-                        $category = Category::withTrashed()
-                            ->whereRaw(
-                                'LOWER(name) = ?',
-                                [Str::lower($categoryName)]
-                            )
-                            ->first();
+                    $category = Category::withTrashed()
+                        ->whereRaw(
+                            'LOWER(name) = ?',
+                            [Str::lower($categoryName)]
+                        )
+                        ->first();
 
-                        if ($category) {
-                            // Jika kategori pernah dihapus, aktifkan kembali
-                            if ($category->trashed()) {
-                                $category->restore();
-                            }
-                        } else {
-                            // Generate category code
-                            $step = 'Generate Category Code';
-
-                            do {
-                                $categoryCode = Str::upper(
-                                    Str::random(3)
-                                );
-                            } while (
-                                Category::withTrashed()
-                                    ->where('code', $categoryCode)
-                                    ->exists()
-                            );
-
-                            // Buat kategori baru
-                            $step = 'Insert Category';
-
-                            $category = Category::create([
-                                'code' => $categoryCode,
-                                'name' => $categoryName,
-                            ]);
+                    if ($category) {
+                        if ($category->trashed()) {
+                            $category->restore();
                         }
+                    } else {
+                        // Generate category code.
+                        $step = 'Generate Category Code';
 
-                        $categoryId = $category->id;
-                        $categoryChecked = true;
+                        do {
+                            $categoryCode = Str::upper(
+                                Str::random(3)
+                            );
+                        } while (
+                            Category::withTrashed()
+                                ->where('code', $categoryCode)
+                                ->exists()
+                        );
+
+                        // Insert category.
+                        $step = 'Insert Category';
+
+                        $category = Category::create([
+                            'code' => $categoryCode,
+                            'name' => $categoryName,
+                        ]);
                     }
+
+                    $categoryId = $category->id;
 
                     // =====================================
                     // HARGA DAN TANGGAL
@@ -254,8 +366,9 @@ class AffiliateCommand extends Command
 
                     $step = 'Membaca harga dan tanggal';
 
-                    $price = (int) str_replace(
-                        ['.', ','],
+                    // Rp1.250.000 menjadi 1250000.
+                    $price = (int) preg_replace(
+                        '/\D+/',
                         '',
                         trim($data['Harga'] ?? '0')
                     );
@@ -264,16 +377,23 @@ class AffiliateCommand extends Command
                         $data['Tanggal Upload'] ?? ''
                     );
 
+                    // Jika tanggal kosong, gunakan tanggal hari ini.
                     if ($uploadDate === '') {
-                        throw new \RuntimeException(
-                            'Tanggal upload kosong.'
+                        $recordedAt = now()->toDateString();
+                    } else {
+                        $date = Carbon::createFromFormat(
+                            '!j/n/Y',
+                            $uploadDate
                         );
-                    }
 
-                    $recordedAt = Carbon::createFromFormat(
-                        '!j/n/Y',
-                        $uploadDate
-                    )->format('Y-m-d');
+                        if (!$date) {
+                            throw new \RuntimeException(
+                                "Format tanggal tidak valid: {$uploadDate}"
+                            );
+                        }
+
+                        $recordedAt = $date->format('Y-m-d');
+                    }
 
                     // =====================================
                     // GENERATE PRODUCT CODE
@@ -302,6 +422,7 @@ class AffiliateCommand extends Command
                         'link' => $linkImage,
                         'affiliate_link' => $link,
                         'category_id' => $categoryId,
+                        'related' => $related,
                     ]);
 
                     // =====================================
@@ -310,10 +431,12 @@ class AffiliateCommand extends Command
 
                     $step = 'Insert Topics';
 
-                    $keyword = trim($keyword);
-
                     if ($keyword !== '') {
-                        $keyword = preg_replace('/\s+/', ',', $keyword);
+                        $keyword = preg_replace(
+                            '/\s+/',
+                            ',',
+                            trim($keyword)
+                        );
 
                         Topics::create([
                             'product_id' => $product->id,
@@ -334,7 +457,7 @@ class AffiliateCommand extends Command
                             Str::squish($locationName)
                         );
 
-                        // Identifikasi jenis wilayah
+                        // Identifikasi jenis wilayah.
                         if (
                             preg_match(
                                 '/^KABUPATEN\s+(.+)$/i',
@@ -364,7 +487,7 @@ class AffiliateCommand extends Command
                             );
                         }
 
-                        // Cari Regency
+                        // Cari Regency.
                         $step = "Mencari Regency: {$type} {$cityName}";
 
                         $regency = Regency::query()
@@ -387,7 +510,7 @@ class AffiliateCommand extends Command
                             );
                         }
 
-                        // Simpan toko ke mst_locations
+                        // Simpan toko ke mst_locations.
                         $step = 'Insert Product Location';
 
                         $location = ProductLocation::firstOrCreate([
@@ -417,18 +540,12 @@ class AffiliateCommand extends Command
                     return true;
                 });
 
+                // =====================================
+                // HASIL PER BARIS
+                // =====================================
+
                 if ($result) {
                     $success++;
-
-                    // Beri peringatan jika kategori sudah ada
-                    if ($categoryId !== null && !$categoryWarningShown) {
-                        $category = Category::find($categoryId);
-
-                        if ($category) {
-                            // Kategori yang baru dibuat juga akan ditemukan.
-                            // Peringatan ditampilkan berdasarkan status di bawah.
-                        }
-                    }
 
                     $this->info('BERHASIL');
                 } else {

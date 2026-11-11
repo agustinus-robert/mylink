@@ -30,6 +30,8 @@ return new class extends Migration
                 ->constrained('mst_sub_categories')
                 ->cascadeOnDelete();
 
+            $table->text('related');
+
             $table->foreignId('created_by')
                 ->nullable()
                 ->constrained('users');
