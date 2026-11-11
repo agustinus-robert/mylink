@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Search,
     ArrowLeft,
@@ -70,6 +70,7 @@ type SearchingProps = {
     onClearTopics: () => void;
 
     children?: React.ReactNode;
+
     minPrice: string;
     maxPrice: string;
     setMinPrice: (value: string) => void;
@@ -79,6 +80,24 @@ type SearchingProps = {
 export default function Searching(props: SearchingProps) {
     const [isSearching, setIsSearching] = useState(false);
     const [showTopics, setShowTopics] = useState(false);
+
+    // Sinkronisasi keyword dan searchType dari URL
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+
+        const urlKeyword = params.get('keyword');
+        const urlSearchType = params.get('searchType');
+
+        if (urlKeyword !== null) {
+            props.setKeyword(urlKeyword);
+        }
+
+        if (urlSearchType === 'keyword' || urlKeyword !== null) {
+            props.setSearchType('keyword');
+        } else if (urlSearchType === 'category') {
+            props.setSearchType('category');
+        }
+    }, []);
 
     const toggleCategory = (id: number) => {
         props.setCategory((prev) =>
@@ -95,6 +114,7 @@ export default function Searching(props: SearchingProps) {
                     {/* Search Bar */}
                     <div className="sticky top-0 z-40 border-b border-[#dce4ec] bg-white shadow-sm">
                         <Brands />
+
                         <div className="px-3 py-3">
                             <button
                                 type="button"
@@ -258,6 +278,7 @@ export default function Searching(props: SearchingProps) {
                             regencies={props.regencies}
                         />
 
+                        {/* Price Filter */}
                         <PriceRange
                             minPrice={props.minPrice}
                             maxPrice={props.maxPrice}

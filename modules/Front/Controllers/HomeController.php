@@ -7,12 +7,15 @@ use Illuminate\Routing\Controller;
 use Inertia\Inertia;
 use Modules\Transaction\Models\Product;
 use Modules\Master\Models\Category;
+use Modules\Front\Traits\ProductSimilarity;
 use Modules\Transaction\Models\Topics;
 use Modules\Master\Models\Province;
 use Modules\Master\Models\Regency;
 
 class HomeController extends Controller
 {
+    use ProductSimilarity;
+
     public function index(Request $request)
     {
         $topicsFilter = $request->input('topics', []);
@@ -45,16 +48,19 @@ class HomeController extends Controller
                     $request->category
                 )
             )
+            // Filter berdasarkan provinsi
             ->when(filled($provinceId), function ($q) use ($provinceId) {
                 $q->whereHas('detail.location.district', function ($district) use ($provinceId) {
                     $district->where('province_id', $provinceId);
                 });
             })
+            // Filter berdasarkan kota/kabupaten
             ->when(filled($regencyId), function ($q) use ($regencyId) {
                 $q->whereHas('detail.location', function ($location) use ($regencyId) {
                     $location->where('district_id', $regencyId);
                 });
             })
+            // Filter berdasarkan rentang harga
             ->when(
                 filled($minPrice) || filled($maxPrice),
                 function ($q) use ($minPrice, $maxPrice) {
@@ -79,6 +85,7 @@ class HomeController extends Controller
                     });
                 }
             )
+            // Filter berdasarkan topik
             ->when(
                 !empty($topicsFilter),
                 fn ($query) => $query->whereHas(
@@ -93,6 +100,7 @@ class HomeController extends Controller
                     })
                 )
             )
+            // Filter tanggal mulai
             ->when(
                 filled($request->dateFrom),
                 fn ($query) => $query->whereDate(
@@ -101,6 +109,7 @@ class HomeController extends Controller
                     $request->dateFrom
                 )
             )
+            // Filter tanggal akhir
             ->when(
                 filled($request->dateTo),
                 fn ($query) => $query->whereDate(
@@ -110,6 +119,7 @@ class HomeController extends Controller
                 )
             );
 
+        // Topics
         $topics = Topics::query()
             ->whereIn('product_id', (clone $query)->select('id'))
             ->pluck('name')
@@ -124,10 +134,12 @@ class HomeController extends Controller
             ])
             ->values();
 
+        // Categories
         $categories = Category::query()
             ->whereNull('deleted_at')
             ->get(['id', 'name']);
 
+        // Provinces
         $provinces = Province::query()
             ->orderBy('province')
             ->get([
@@ -135,6 +147,7 @@ class HomeController extends Controller
                 'province as name',
             ]);
 
+        // Regencies
         $regencies = Regency::query()
             ->when(
                 filled($provinceId),
@@ -163,13 +176,18 @@ class HomeController extends Controller
                     ])
                     ->with([
                         'topics:id,product_id,name',
-                        'detail' => fn ($query) => $query->select([
-                            'trx_product_prices.id',
-                            'trx_product_prices.product_id',
-                            'trx_product_prices.prices',
-                            'trx_product_prices.location_id',
-                        ]),
-                        'detail.location',
+
+                        'detail' => fn ($query) => $query
+                            ->select([
+                                'trx_product_prices.id',
+                                'trx_product_prices.product_id',
+                                'trx_product_prices.prices',
+                                'trx_product_prices.location_id',
+                            ])
+                            ->with([
+                                'location:id,district_id',
+                                'location.district:id,city_name,type',
+                            ]),
                     ])
                     ->orderBy('name', $sort)
                     ->orderBy('id', $sort)
@@ -182,9 +200,9 @@ class HomeController extends Controller
             'regencies' => $regencies,
         ]);
     }
-    
+
     /**
-     * Mengambil produk dengan related yang sama.
+     * Mengambil produk identik dan produk rekomendasi.
      */
     public function relatedProducts(Request $request)
     {
@@ -193,45 +211,17 @@ class HomeController extends Controller
         ]);
 
         $product = Product::query()
-            ->select(['id', 'name', 'related'])
-            ->findOrFail($request->product);
-
-        if (!filled($product->related)) {
-            return response()->json([
-                'data' => [],
-                'total' => 0,
-            ]);
-        }
-
-        $relatedProducts = Product::query()
             ->select([
                 'id',
                 'name',
-                'slug',
-                'link',
-                'affiliate_link',
                 'related',
             ])
-            ->where('id', '!=', $product->id)
-            ->where('related', $product->related)
-            ->with([
-                'detail' => fn ($query) => $query->select([
-                    'trx_product_prices.id',
-                    'trx_product_prices.product_id',
-                    'trx_product_prices.prices',
-                    'trx_product_prices.location_id',
-                ]),
-            ])
-            ->orderBy('name')
-            ->limit(50)
-            ->get();
+            ->findOrFail($request->product);
 
-        return response()->json([
-            'data' => $relatedProducts,
-            'total' => $relatedProducts->count(),
-        ]);
+        return response()->json(
+            $this->getSimilarProducts($product)
+        );
     }
-
 
     public function autocomplete(Request $request)
     {

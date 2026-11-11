@@ -17,6 +17,12 @@ type Product = {
     related: string | null;
     detail: {
         prices: number;
+        location?: {
+            district?: {
+                city_name: string;
+                type: string;
+            } | null;
+        } | null;
     } | null;
 };
 

@@ -9,6 +9,9 @@ import {
     ExternalLink,
     Layers3,
     Tag,
+    Sparkles,
+    CheckCircle2,
+    MapPin,
 } from 'lucide-react';
 
 type Product = {
@@ -17,8 +20,15 @@ type Product = {
     link: string;
     affiliate_link: string;
     related: string | null;
+    similarity?: number;
     detail: {
         prices: number;
+        location?: {
+            district?: {
+                city_name: string;
+                type: string;
+            } | null;
+        } | null;
     } | null;
 };
 
@@ -31,10 +41,191 @@ type Props = {
     };
 };
 
-type RelatedResponse = {
+type RelatedGroup = {
     data: Product[];
     total: number;
 };
+
+type RelatedResponse = {
+    identical: RelatedGroup;
+    recommended: RelatedGroup;
+};
+
+type ProductGroupProps = {
+    title: string;
+    description: string;
+    products: Product[];
+    total: number;
+    loading: boolean;
+    icon: React.ReactNode;
+    type: 'identical' | 'recommended';
+};
+
+// Mengambil nama kota/kabupaten dari relasi produk.
+function getProductCity(item: Product): string | null {
+    const district = item.detail?.location?.district;
+
+    if (!district?.city_name) {
+        return null;
+    }
+
+    return `${district.type || 'Kota'} ${district.city_name}`;
+}
+
+// Tampilan harga dan lokasi.
+function ProductPrice({ item }: { item: Product }) {
+    const city = getProductCity(item);
+
+    return (
+        <div className="mb-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+            <p className="text-xs font-bold text-[#d46f69]">
+                {item.detail?.prices != null
+                    ? `Rp ${Number(item.detail.prices).toLocaleString('id-ID')}`
+                    : 'Harga belum tersedia'}
+            </p>
+
+            {city && (
+                <span className="inline-flex min-w-0 items-center gap-0.5 text-[9px] font-medium text-[#8295a7]">
+                    <MapPin className="size-3 shrink-0 text-[#7b9bb7]" />
+                    <span className="truncate">{city}</span>
+                </span>
+            )}
+        </div>
+    );
+}
+
+function ProductGroup({
+    title,
+    description,
+    products,
+    total,
+    loading,
+    icon,
+    type,
+}: ProductGroupProps) {
+    const isIdentical = type === 'identical';
+
+    return (
+        <section className="mb-4 overflow-hidden rounded-sm border border-[#dce4ec] bg-white">
+            {/* Group Header */}
+            <div className="flex items-center justify-between border-b border-[#e2e8ef] bg-gradient-to-b from-white to-[#f5f8fb] px-3 py-2">
+                <div className="flex min-w-0 items-center gap-2">
+                    <div
+                        className={`flex size-7 shrink-0 items-center justify-center rounded-sm border ${
+                            isIdentical
+                                ? 'border-[#b9dfc9] bg-[#edf8f1] text-[#579875]'
+                                : 'border-[#c5d9eb] bg-[#edf4fa] text-[#6487a5]'
+                        }`}
+                    >
+                        {icon}
+                    </div>
+
+                    <div className="min-w-0">
+                        <h4 className="text-[10px] font-bold text-[#40566b]">
+                            {title}
+                        </h4>
+
+                        <p className="text-[9px] text-[#91a1b1]">
+                            {description}
+                        </p>
+                    </div>
+                </div>
+
+                <span
+                    className={`shrink-0 rounded-sm px-2 py-1 text-[9px] font-bold ${
+                        isIdentical
+                            ? 'bg-[#edf8f1] text-[#579875]'
+                            : 'bg-[#eaf1f7] text-[#6487a5]'
+                    }`}
+                >
+                    {loading ? 'MEMUAT...' : `${total} PRODUK`}
+                </span>
+            </div>
+
+            {/* Product Grid */}
+            <div className="p-2">
+                {loading ? (
+                    <div className="flex min-h-[120px] flex-col items-center justify-center">
+                        <div className="mb-2 size-6 animate-spin rounded-full border-2 border-[#dce4ec] border-t-[#5286b1]" />
+
+                        <p className="text-[10px] text-[#91a1b1]">
+                            Mencari produk...
+                        </p>
+                    </div>
+                ) : products.length > 0 ? (
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
+                        {products.map((item) => (
+                            <div
+                                key={item.id}
+                                className="group flex min-w-0 flex-col overflow-hidden rounded-sm border border-[#dce4ec] bg-white transition hover:border-[#a9c8e0] hover:shadow-sm"
+                            >
+                                {/* Image */}
+                                <div className="relative h-28 overflow-hidden border-b border-[#e8edf2] bg-[#f0f3f6]">
+                                    {item.link ? (
+                                        <img
+                                            src={item.link}
+                                            alt={item.name}
+                                            loading="lazy"
+                                            referrerPolicy="no-referrer"
+                                            className="size-full object-cover transition duration-300 group-hover:scale-105"
+                                        />
+                                    ) : (
+                                        <div className="flex size-full items-center justify-center">
+                                            <ShoppingBag className="size-7 text-[#b7c8d8]" />
+                                        </div>
+                                    )}
+
+                                    {item.similarity != null && (
+                                        <span
+                                            className={`absolute top-1.5 left-1.5 rounded-sm px-1.5 py-1 text-[9px] font-bold shadow-sm ${
+                                                isIdentical
+                                                    ? 'bg-[#e5f5eb] text-[#438663]'
+                                                    : 'bg-[#eaf1f7] text-[#527fa4]'
+                                            }`}
+                                        >
+                                            {item.similarity}% MIRIP
+                                        </span>
+                                    )}
+                                </div>
+
+                                {/* Product Info */}
+                                <div className="flex flex-1 flex-col p-2">
+                                    <ProductPrice item={item} />
+
+                                    <h4 className="mb-2 line-clamp-3 min-h-[48px] text-[10px] leading-4 text-[#566779]">
+                                        {item.name}
+                                    </h4>
+
+                                    <a
+                                        href={item.affiliate_link || item.link}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="mt-auto flex items-center justify-center gap-1 rounded-sm border border-[#e6b98d] bg-gradient-to-b from-[#fff5e9] to-[#f8dfc4] px-1 py-1.5 text-[9px] font-bold text-[#a86d39] transition hover:to-[#f4d1ad]"
+                                    >
+                                        <ExternalLink className="size-3" />
+                                        LIHAT PRODUK
+                                    </a>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="flex min-h-[100px] flex-col items-center justify-center text-center">
+                        <ShoppingBag className="mb-2 size-6 text-[#b7c8d8]" />
+
+                        <p className="text-[10px] font-bold text-[#566779]">
+                            Belum ada produk ditemukan
+                        </p>
+
+                        <p className="mt-1 text-[9px] text-[#91a1b1]">
+                            Belum ditemukan produk dalam kelompok ini.
+                        </p>
+                    </div>
+                )}
+            </div>
+        </section>
+    );
+}
 
 export default function Items({ products }: Props) {
     const { url } = usePage();
@@ -42,7 +233,15 @@ export default function Items({ products }: Props) {
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(
         null,
     );
-    const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+
+    const [identicalProducts, setIdenticalProducts] = useState<Product[]>([]);
+    const [recommendedProducts, setRecommendedProducts] = useState<Product[]>(
+        [],
+    );
+
+    const [identicalTotal, setIdenticalTotal] = useState(0);
+    const [recommendedTotal, setRecommendedTotal] = useState(0);
+
     const [relatedLoading, setRelatedLoading] = useState(false);
     const [relatedError, setRelatedError] = useState<string | null>(null);
 
@@ -66,11 +265,13 @@ export default function Items({ products }: Props) {
         );
     };
 
-    // Ambil produk terkait langsung dari database melalui Laravel.
-    // Tidak menggunakan products.data karena hanya berisi produk pada halaman yang sedang dimuat.
+    // Mengambil produk identik dan rekomendasi dari Laravel.
     useEffect(() => {
         if (!selectedProduct) {
-            setRelatedProducts([]);
+            setIdenticalProducts([]);
+            setRecommendedProducts([]);
+            setIdenticalTotal(0);
+            setRecommendedTotal(0);
             setRelatedError(null);
             setRelatedLoading(false);
             return;
@@ -81,7 +282,11 @@ export default function Items({ products }: Props) {
         const fetchRelatedProducts = async () => {
             setRelatedLoading(true);
             setRelatedError(null);
-            setRelatedProducts([]);
+
+            setIdenticalProducts([]);
+            setRecommendedProducts([]);
+            setIdenticalTotal(0);
+            setRecommendedTotal(0);
 
             try {
                 const params = new URLSearchParams({
@@ -108,8 +313,16 @@ export default function Items({ products }: Props) {
 
                 const result: RelatedResponse = await response.json();
 
-                setRelatedProducts(
-                    Array.isArray(result.data) ? result.data : [],
+                const identical = result.identical?.data ?? [];
+                const recommended = result.recommended?.data ?? [];
+
+                setIdenticalProducts(identical);
+                setRecommendedProducts(recommended);
+
+                setIdenticalTotal(result.identical?.total ?? identical.length);
+
+                setRecommendedTotal(
+                    result.recommended?.total ?? recommended.length,
                 );
             } catch (error) {
                 if (error instanceof Error && error.name === 'AbortError') {
@@ -133,7 +346,7 @@ export default function Items({ products }: Props) {
         return () => controller.abort();
     }, [selectedProduct]);
 
-    // Tutup modal dengan tombol Escape dan kunci scroll halaman.
+    // Tutup modal dengan Escape dan kunci scroll halaman.
     useEffect(() => {
         if (!selectedProduct) return;
 
@@ -163,6 +376,7 @@ export default function Items({ products }: Props) {
                         <h3 className="text-xs font-bold text-[#40566b]">
                             Barang Terbaru
                         </h3>
+
                         <p className="text-[10px] text-[#91a1b1]">
                             Temukan barang pilihan
                         </p>
@@ -232,25 +446,19 @@ export default function Items({ products }: Props) {
                                 </span>
 
                                 {/* Related Button */}
-                                {item.related?.trim() && (
-                                    <button
-                                        type="button"
-                                        onClick={() => setSelectedProduct(item)}
-                                        className="absolute right-1.5 bottom-1.5 flex items-center gap-1 rounded-sm border border-white/70 bg-white/95 px-2 py-1 text-[9px] font-bold text-[#5286b1] shadow-sm backdrop-blur transition hover:bg-[#5286b1] hover:text-white active:scale-95"
-                                    >
-                                        <Layers3 className="size-3" />
-                                        TERKAIT
-                                    </button>
-                                )}
+                                <button
+                                    type="button"
+                                    onClick={() => setSelectedProduct(item)}
+                                    className="absolute right-1.5 bottom-1.5 flex items-center gap-1 rounded-sm border border-white/70 bg-white/95 px-2 py-1 text-[9px] font-bold text-[#5286b1] shadow-sm backdrop-blur transition hover:bg-[#5286b1] hover:text-white active:scale-95"
+                                >
+                                    <Layers3 className="size-3" />
+                                    TERKAIT
+                                </button>
                             </div>
 
                             {/* Product Info */}
                             <div className="flex min-h-[90px] w-full flex-col bg-gradient-to-b from-white to-[#fbfcfd] p-1.5">
-                                <p className="mb-1 text-xs font-bold text-[#d46f69]">
-                                    {item.detail?.prices != null
-                                        ? `Rp ${Number(item.detail.prices).toLocaleString('id-ID')}`
-                                        : 'Harga belum tersedia'}
-                                </p>
+                                <ProductPrice item={item} />
 
                                 <h4 className="line-clamp-2 min-h-8 text-[11px] leading-4 text-[#566779] transition group-hover:text-[#4b83ad]">
                                     {item.name}
@@ -276,6 +484,7 @@ export default function Items({ products }: Props) {
                 {products.data.length === 0 && (
                     <div className="flex min-h-[200px] flex-col items-center justify-center rounded-sm border border-dashed border-[#d5e0e9] bg-white">
                         <ShoppingBag className="mb-2 size-7 text-[#91afc8]" />
+
                         <p className="text-xs text-[#91a1b1]">
                             Belum ada barang ditemukan.
                         </p>
@@ -315,6 +524,7 @@ export default function Items({ products }: Props) {
                                     <h3 className="text-sm font-bold text-[#40566b]">
                                         Produk Terkait
                                     </h3>
+
                                     <p className="truncate text-[10px] text-[#91a1b1]">
                                         {selectedProduct.name}
                                     </p>
@@ -356,119 +566,68 @@ export default function Items({ products }: Props) {
                                     {selectedProduct.name}
                                 </h4>
 
-                                <p className="mt-1 text-xs font-bold text-[#d46f69]">
-                                    {selectedProduct.detail?.prices != null
-                                        ? `Rp ${Number(selectedProduct.detail.prices).toLocaleString('id-ID')}`
-                                        : 'Harga belum tersedia'}
-                                </p>
+                                <div className="mt-1">
+                                    <ProductPrice item={selectedProduct} />
+                                </div>
                             </div>
                         </div>
 
-                        {/* Related Header */}
-                        <div className="flex items-center justify-between border-b border-[#e2e8ef] px-4 py-2">
-                            <div className="flex items-center gap-1.5">
-                                <Tag className="size-3.5 text-[#6487a5]" />
-                                <span className="text-[10px] font-bold text-[#566779]">
-                                    BARANG DENGAN KARAKTERISTIK SAMA
-                                </span>
-                            </div>
-
-                            <span className="rounded-sm bg-[#eaf1f7] px-2 py-1 text-[9px] font-bold text-[#6487a5]">
-                                {relatedLoading
-                                    ? 'MEMUAT...'
-                                    : `${relatedProducts.length} PRODUK`}
-                            </span>
-                        </div>
-
-                        {/* Related Product Grid */}
+                        {/* Modal Content */}
                         <div className="min-h-0 flex-1 overflow-y-auto p-3">
                             {relatedLoading ? (
-                                <div className="flex min-h-[180px] flex-col items-center justify-center text-center">
+                                <div className="flex min-h-[220px] flex-col items-center justify-center text-center">
                                     <div className="mb-3 size-7 animate-spin rounded-full border-2 border-[#dce4ec] border-t-[#5286b1]" />
+
                                     <p className="text-xs text-[#91a1b1]">
-                                        Mencari produk terkait...
+                                        Menganalisis nama dan spesifikasi
+                                        produk...
                                     </p>
                                 </div>
                             ) : relatedError ? (
                                 <div className="flex min-h-[180px] flex-col items-center justify-center text-center">
                                     <ShoppingBag className="mb-2 size-8 text-[#d46f69]" />
+
                                     <p className="text-xs font-bold text-[#566779]">
                                         Gagal mengambil produk terkait
                                     </p>
+
                                     <p className="mt-1 max-w-xs text-[10px] text-[#91a1b1]">
                                         {relatedError}
                                     </p>
                                 </div>
-                            ) : relatedProducts.length > 0 ? (
-                                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
-                                    {relatedProducts.map((item) => (
-                                        <div
-                                            key={item.id}
-                                            className="group flex min-w-0 flex-col overflow-hidden rounded-sm border border-[#dce4ec] bg-white transition hover:border-[#a9c8e0] hover:shadow-sm"
-                                        >
-                                            <div className="h-28 overflow-hidden border-b border-[#e8edf2] bg-[#f0f3f6]">
-                                                {item.link ? (
-                                                    <img
-                                                        src={item.link}
-                                                        alt={item.name}
-                                                        loading="lazy"
-                                                        referrerPolicy="no-referrer"
-                                                        className="size-full object-cover transition duration-300 group-hover:scale-105"
-                                                    />
-                                                ) : (
-                                                    <div className="flex size-full items-center justify-center">
-                                                        <ShoppingBag className="size-7 text-[#b7c8d8]" />
-                                                    </div>
-                                                )}
-                                            </div>
-
-                                            <div className="flex flex-1 flex-col p-2">
-                                                <p className="mb-1 text-[11px] font-bold text-[#d46f69]">
-                                                    {item.detail?.prices != null
-                                                        ? `Rp ${Number(item.detail.prices).toLocaleString('id-ID')}`
-                                                        : 'Harga belum tersedia'}
-                                                </p>
-
-                                                <h4 className="line-clamp-3 min-h-[48px] text-[10px] leading-4 text-[#566779]">
-                                                    {item.name}
-                                                </h4>
-
-                                                <a
-                                                    href={
-                                                        item.affiliate_link ||
-                                                        item.link
-                                                    }
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="mt-auto flex items-center justify-center gap-1 rounded-sm border border-[#e6b98d] bg-gradient-to-b from-[#fff5e9] to-[#f8dfc4] px-1 py-1.5 text-[9px] font-bold text-[#a86d39] transition hover:to-[#f4d1ad]"
-                                                >
-                                                    <ExternalLink className="size-3" />
-                                                    LIHAT PRODUK
-                                                </a>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
                             ) : (
-                                <div className="flex min-h-[180px] flex-col items-center justify-center text-center">
-                                    <ShoppingBag className="mb-2 size-8 text-[#b7c8d8]" />
+                                <>
+                                    {/* Identical Products */}
+                                    <ProductGroup
+                                        title="PRODUK IDENTIK"
+                                        description="Model dan spesifikasi yang cocok"
+                                        products={identicalProducts}
+                                        total={identicalTotal}
+                                        loading={relatedLoading}
+                                        icon={
+                                            <CheckCircle2 className="size-4" />
+                                        }
+                                        type="identical"
+                                    />
 
-                                    <p className="text-xs font-bold text-[#566779]">
-                                        Belum ada produk terkait
-                                    </p>
-
-                                    <p className="mt-1 max-w-xs text-[10px] text-[#91a1b1]">
-                                        Tidak ditemukan produk lain dengan nilai
-                                        related yang sama di database.
-                                    </p>
-                                </div>
+                                    {/* Recommended Products */}
+                                    <ProductGroup
+                                        title="REKOMENDASI PRODUK"
+                                        description="Produk sejenis dengan model atau spesifikasi berbeda"
+                                        products={recommendedProducts}
+                                        total={recommendedTotal}
+                                        loading={relatedLoading}
+                                        icon={<Sparkles className="size-4" />}
+                                        type="recommended"
+                                    />
+                                </>
                             )}
                         </div>
 
                         {/* Modal Footer */}
                         <div className="flex items-center justify-between border-t border-[#dce4ec] bg-white px-4 py-2">
                             <span className="text-[9px] text-[#91a1b1]">
-                                Menampilkan produk dengan related yang sama
+                                Pencocokan berdasarkan nama produk
                             </span>
 
                             <button

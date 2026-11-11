@@ -47,6 +47,13 @@ export default function SearchForm({
 }: SearchFormProps) {
     const [showCalendar, setShowCalendar] = useState(false);
 
+    // Keyword input: langsung mengambil nilai dari URL saat halaman dibuka
+    const [inputKeyword, setInputKeyword] = useState(() => {
+        const params = new URLSearchParams(window.location.search);
+
+        return params.get('keyword') ?? keyword;
+    });
+
     // Autocomplete
     const [suggestions, setSuggestions] = useState<ProductSuggestion[]>([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
@@ -57,6 +64,28 @@ export default function SearchForm({
     const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const requestRef = useRef<AbortController | null>(null);
     const selectedKeywordRef = useRef(false);
+
+    // Sinkronisasi keyword dari URL dengan state parent
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+
+        const urlKeyword = params.get('keyword');
+        const urlSearchType = params.get('searchType');
+
+        if (urlKeyword !== null) {
+            setInputKeyword(urlKeyword);
+            setKeyword(urlKeyword);
+        }
+
+        if (urlSearchType === 'keyword' || urlKeyword !== null) {
+            setSearchType('keyword');
+        }
+    }, []);
+
+    // Sinkronisasi jika keyword parent berubah dari luar komponen
+    useEffect(() => {
+        setInputKeyword(keyword);
+    }, [keyword]);
 
     // Request autocomplete
     useEffect(() => {
@@ -73,7 +102,7 @@ export default function SearchForm({
             return;
         }
 
-        if (searchType !== 'keyword' || keyword.trim().length < 2) {
+        if (searchType !== 'keyword' || inputKeyword.trim().length < 2) {
             setSuggestions([]);
             setShowSuggestions(false);
             setLoadingSuggestions(false);
@@ -88,7 +117,7 @@ export default function SearchForm({
 
             try {
                 const response = await fetch(
-                    `/autocomplete/products?keyword=${encodeURIComponent(keyword.trim())}`,
+                    `/autocomplete/products?keyword=${encodeURIComponent(inputKeyword.trim())}`,
                     {
                         headers: {
                             Accept: 'application/json',
@@ -127,7 +156,7 @@ export default function SearchForm({
 
             requestRef.current?.abort();
         };
-    }, [keyword, searchType]);
+    }, [inputKeyword, searchType]);
 
     // Tutup dropdown ketika klik di luar
     useEffect(() => {
@@ -151,6 +180,7 @@ export default function SearchForm({
     const selectSuggestion = (item: ProductSuggestion) => {
         selectedKeywordRef.current = true;
 
+        setInputKeyword(item.name);
         setKeyword(item.name);
         setShowSuggestions(false);
         setSuggestions([]);
@@ -210,7 +240,6 @@ export default function SearchForm({
 
     const handleDateSelect = (selected: DateRange | undefined) => {
         setDateFrom(selected?.from ? format(selected.from, 'yyyy-MM-dd') : '');
-
         setDateTo(selected?.to ? format(selected.to, 'yyyy-MM-dd') : '');
     };
 
@@ -285,13 +314,16 @@ export default function SearchForm({
 
                             <input
                                 type="text"
-                                value={keyword}
+                                value={inputKeyword}
                                 onChange={(e) => {
-                                    setKeyword(e.target.value);
+                                    const value = e.target.value;
+
+                                    setInputKeyword(value);
+                                    setKeyword(value);
                                     setShowSuggestions(true);
                                 }}
                                 onFocus={() => {
-                                    if (keyword.trim().length >= 2) {
+                                    if (inputKeyword.trim().length >= 2) {
                                         setShowSuggestions(true);
                                     }
                                 }}
@@ -309,10 +341,11 @@ export default function SearchForm({
                                 </div>
                             )}
 
-                            {keyword && (
+                            {inputKeyword && (
                                 <button
                                     type="button"
                                     onClick={() => {
+                                        setInputKeyword('');
                                         setKeyword('');
                                         setSuggestions([]);
                                         setShowSuggestions(false);
@@ -326,7 +359,7 @@ export default function SearchForm({
                         </div>
 
                         {/* Autocomplete Dropdown */}
-                        {showSuggestions && keyword.trim().length >= 2 && (
+                        {showSuggestions && inputKeyword.trim().length >= 2 && (
                             <div className="absolute top-full right-0 left-0 z-[60] mt-1 overflow-hidden rounded-sm border border-[#d4e0eb] bg-white shadow-[0_5px_18px_rgba(50,80,110,0.16)]">
                                 {loadingSuggestions ? (
                                     <div className="flex items-center justify-center gap-2 px-3 py-5 text-xs text-[#8296a9]">
