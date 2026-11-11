@@ -14,3 +14,6 @@ Route::get('/autocomplete/products', [
     HomeController::class,
     'autocomplete',
 ])->name('front.products.autocomplete');
+
+Route::get('/related-products', [HomeController::class, 'relatedProducts'])
+    ->name('front.related-products');

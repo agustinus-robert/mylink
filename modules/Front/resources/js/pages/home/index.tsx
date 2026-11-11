@@ -14,6 +14,7 @@ type Product = {
     name: string;
     link: string;
     affiliate_link: string;
+    related: string | null;
     detail: {
         prices: number;
     } | null;

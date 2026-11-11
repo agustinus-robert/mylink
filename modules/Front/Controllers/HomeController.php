@@ -153,6 +153,14 @@ class HomeController extends Controller
 
             'products' => Inertia::scroll(
                 fn () => (clone $query)
+                    ->select([
+                        'id',
+                        'name',
+                        'slug',
+                        'link',
+                        'affiliate_link',
+                        'related',
+                    ])
                     ->with([
                         'topics:id,product_id,name',
                         'detail' => fn ($query) => $query->select([
@@ -174,6 +182,56 @@ class HomeController extends Controller
             'regencies' => $regencies,
         ]);
     }
+    
+    /**
+     * Mengambil produk dengan related yang sama.
+     */
+    public function relatedProducts(Request $request)
+    {
+        $request->validate([
+            'product' => ['required', 'integer', 'exists:mst_products,id'],
+        ]);
+
+        $product = Product::query()
+            ->select(['id', 'name', 'related'])
+            ->findOrFail($request->product);
+
+        if (!filled($product->related)) {
+            return response()->json([
+                'data' => [],
+                'total' => 0,
+            ]);
+        }
+
+        $relatedProducts = Product::query()
+            ->select([
+                'id',
+                'name',
+                'slug',
+                'link',
+                'affiliate_link',
+                'related',
+            ])
+            ->where('id', '!=', $product->id)
+            ->where('related', $product->related)
+            ->with([
+                'detail' => fn ($query) => $query->select([
+                    'trx_product_prices.id',
+                    'trx_product_prices.product_id',
+                    'trx_product_prices.prices',
+                    'trx_product_prices.location_id',
+                ]),
+            ])
+            ->orderBy('name')
+            ->limit(50)
+            ->get();
+
+        return response()->json([
+            'data' => $relatedProducts,
+            'total' => $relatedProducts->count(),
+        ]);
+    }
+
 
     public function autocomplete(Request $request)
     {

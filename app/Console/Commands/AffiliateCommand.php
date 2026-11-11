@@ -24,10 +24,8 @@ class AffiliateCommand extends Command
     /**
      * Parse satu baris CSV Shopee.
      *
-     * Menangani format:
-     * "Product ID,""Shop ID"",""Nama Produk""..."
-     *
-     * serta format CSV standar.
+     * Menangani format CSV standar dan format
+     * yang seluruh barisnya dibungkus tanda kutip.
      */
     private function parseCsvLine(string $line): array
     {
@@ -50,6 +48,37 @@ class AffiliateCommand extends Command
         }
 
         return str_getcsv($line, ',', '"', '');
+    }
+
+    /**
+     * Perbaiki kolom nama produk jika terdapat koma
+     * tanpa tanda kutip pada nama produk.
+     */
+    private function repairProductNameColumn(
+        array $row,
+        int $totalColumns,
+        int $nameIndex
+    ): array {
+        if (count($row) > $totalColumns) {
+            $extraColumns = count($row) - $totalColumns;
+
+            $productNameParts = array_slice(
+                $row,
+                $nameIndex,
+                $extraColumns + 1
+            );
+
+            $productName = implode(',', $productNameParts);
+
+            array_splice(
+                $row,
+                $nameIndex,
+                $extraColumns + 1,
+                [$productName]
+            );
+        }
+
+        return $row;
     }
 
     public function handle(): int
@@ -192,7 +221,93 @@ class AffiliateCommand extends Command
         $this->info("Jumlah header: {$totalColumns}");
         $this->info("Index Nama Produk: {$nameIndex}");
         $this->info("Kategori: {$categoryName}");
-        $this->info('Memulai import CSV...');
+
+        // =====================================
+        // HITUNG JUMLAH PRODUK PER RELATED
+        // =====================================
+
+        $this->newLine();
+        $this->info('Memeriksa kelompok produk terkait...');
+
+        $relatedProducts = [];
+
+        $scanFile = fopen($filePath, 'r');
+
+        if (!$scanFile) {
+            $this->error('Gagal membaca file CSV untuk pemeriksaan related.');
+            fclose($file);
+
+            return self::FAILURE;
+        }
+
+        // Lewati header.
+        fgets($scanFile);
+
+        $scanRowNumber = 1;
+
+        while (($scanLine = fgets($scanFile)) !== false) {
+            $scanRowNumber++;
+
+            if (trim($scanLine) === '') {
+                continue;
+            }
+
+            $scanRow = $this->parseCsvLine($scanLine);
+
+            $scanRow = $this->repairProductNameColumn(
+                $scanRow,
+                $totalColumns,
+                $nameIndex
+            );
+
+            if (count($scanRow) !== $totalColumns) {
+                continue;
+            }
+
+            $scanData = array_combine($headers, $scanRow);
+
+            $name = trim($scanData['Nama Produk'] ?? '');
+            $related = trim($scanData['Keyword'] ?? '');
+
+            // Related kosong tidak perlu dikelompokkan.
+            if ($related === '' || $name === '') {
+                continue;
+            }
+
+            $relatedKey = Str::lower(Str::squish($related));
+            $slug = Str::slug($name);
+
+            if ($slug === '') {
+                continue;
+            }
+
+            // Produk unik berdasarkan slug.
+            $relatedProducts[$relatedKey][$slug] = true;
+        }
+
+        fclose($scanFile);
+
+        // Hitung jumlah produk unik setiap kelompok.
+        $relatedCounts = [];
+
+        foreach ($relatedProducts as $relatedKey => $products) {
+            $relatedCounts[$relatedKey] = count($products);
+        }
+
+        $eligibleRelated = 0;
+        $singleRelated = 0;
+
+        foreach ($relatedCounts as $count) {
+            if ($count > 1) {
+                $eligibleRelated++;
+            } else {
+                $singleRelated++;
+            }
+        }
+
+        $this->info('Pemeriksaan related selesai.');
+        $this->line('Kelompok related layak import : ' . $eligibleRelated);
+        $this->line('Kelompok related hanya 1 produk: ' . $singleRelated);
 
         // =====================================
         // COUNTER
@@ -202,6 +317,9 @@ class AffiliateCommand extends Command
         $skipped = 0;
         $failed = 0;
         $rowNumber = 1;
+
+        $this->newLine();
+        $this->info('Memulai import CSV...');
 
         // =====================================
         // BACA SETIAP BARIS CSV
@@ -217,30 +335,12 @@ class AffiliateCommand extends Command
             // Parse baris menggunakan parser yang sama.
             $row = $this->parseCsvLine($line);
 
-            // =====================================
-            // PERBAIKI KOLOM NAMA PRODUK
-            // =====================================
-
-            // Jika terdapat koma tanpa tanda kutip pada nama produk,
-            // gabungkan kembali ke kolom Nama Produk.
-            if (count($row) > $totalColumns) {
-                $extraColumns = count($row) - $totalColumns;
-
-                $productNameParts = array_slice(
-                    $row,
-                    $nameIndex,
-                    $extraColumns + 1
-                );
-
-                $productName = implode(',', $productNameParts);
-
-                array_splice(
-                    $row,
-                    $nameIndex,
-                    $extraColumns + 1,
-                    [$productName]
-                );
-            }
+            // Perbaiki kolom nama produk.
+            $row = $this->repairProductNameColumn(
+                $row,
+                $totalColumns,
+                $nameIndex
+            );
 
             // =====================================
             // VALIDASI JUMLAH KOLOM
@@ -250,6 +350,7 @@ class AffiliateCommand extends Command
                 $failed++;
 
                 $this->newLine();
+
                 $this->error(
                     "Baris {$rowNumber}: Jumlah kolom tidak cocok."
                 );
@@ -268,6 +369,27 @@ class AffiliateCommand extends Command
             $data = array_combine($headers, $row);
 
             $productName = trim($data['Nama Produk'] ?? '');
+            $related = trim($data['Keyword'] ?? '');
+
+            // =====================================
+            // CEK JUMLAH PRODUK TERKAIT
+            // =====================================
+
+            if ($related !== '') {
+                $relatedKey = Str::lower(Str::squish($related));
+
+                $relatedCount = $relatedCounts[$relatedKey] ?? 0;
+
+                if ($relatedCount <= 1) {
+                    $skipped++;
+
+                    $this->comment(
+                        "DILEWATI: Related hanya ditemukan pada {$relatedCount} produk. Produk: {$productName}"
+                    );
+
+                    continue;
+                }
+            }
 
             $step = 'Memulai transaksi';
 
@@ -555,7 +677,6 @@ class AffiliateCommand extends Command
                         'DILEWATI: Slug produk sudah tersedia.'
                     );
                 }
-
             } catch (\Throwable $e) {
                 $failed++;
 
@@ -580,6 +701,7 @@ class AffiliateCommand extends Command
         // =====================================
 
         $this->newLine();
+
         $this->info('=================================');
         $this->info('IMPORT SELESAI');
         $this->info('=================================');

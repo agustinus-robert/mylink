@@ -1,9 +1,14 @@
+import { useEffect, useState } from 'react';
 import { InfiniteScroll, router, usePage } from '@inertiajs/react';
 import {
     Hand,
     ShoppingBag,
     ArrowDownWideNarrow,
     ArrowUpWideNarrow,
+    X,
+    ExternalLink,
+    Layers3,
+    Tag,
 } from 'lucide-react';
 
 type Product = {
@@ -11,6 +16,7 @@ type Product = {
     name: string;
     link: string;
     affiliate_link: string;
+    related: string | null;
     detail: {
         prices: number;
     } | null;
@@ -25,8 +31,20 @@ type Props = {
     };
 };
 
+type RelatedResponse = {
+    data: Product[];
+    total: number;
+};
+
 export default function Items({ products }: Props) {
     const { url } = usePage();
+
+    const [selectedProduct, setSelectedProduct] = useState<Product | null>(
+        null,
+    );
+    const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+    const [relatedLoading, setRelatedLoading] = useState(false);
+    const [relatedError, setRelatedError] = useState<string | null>(null);
 
     const currentUrl = new URL(url, window.location.origin);
     const sort = currentUrl.searchParams.get('sort') || 'desc';
@@ -47,6 +65,92 @@ export default function Items({ products }: Props) {
             },
         );
     };
+
+    // Ambil produk terkait langsung dari database melalui Laravel.
+    // Tidak menggunakan products.data karena hanya berisi produk pada halaman yang sedang dimuat.
+    useEffect(() => {
+        if (!selectedProduct) {
+            setRelatedProducts([]);
+            setRelatedError(null);
+            setRelatedLoading(false);
+            return;
+        }
+
+        const controller = new AbortController();
+
+        const fetchRelatedProducts = async () => {
+            setRelatedLoading(true);
+            setRelatedError(null);
+            setRelatedProducts([]);
+
+            try {
+                const params = new URLSearchParams({
+                    product: String(selectedProduct.id),
+                });
+
+                const response = await fetch(
+                    `/related-products?${params.toString()}`,
+                    {
+                        method: 'GET',
+                        headers: {
+                            Accept: 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                        signal: controller.signal,
+                    },
+                );
+
+                if (!response.ok) {
+                    throw new Error(
+                        `Gagal mengambil produk terkait (${response.status}).`,
+                    );
+                }
+
+                const result: RelatedResponse = await response.json();
+
+                setRelatedProducts(
+                    Array.isArray(result.data) ? result.data : [],
+                );
+            } catch (error) {
+                if (error instanceof Error && error.name === 'AbortError') {
+                    return;
+                }
+
+                setRelatedError(
+                    error instanceof Error
+                        ? error.message
+                        : 'Terjadi kesalahan saat mengambil produk terkait.',
+                );
+            } finally {
+                if (!controller.signal.aborted) {
+                    setRelatedLoading(false);
+                }
+            }
+        };
+
+        fetchRelatedProducts();
+
+        return () => controller.abort();
+    }, [selectedProduct]);
+
+    // Tutup modal dengan tombol Escape dan kunci scroll halaman.
+    useEffect(() => {
+        if (!selectedProduct) return;
+
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') {
+                setSelectedProduct(null);
+            }
+        };
+
+        document.body.style.overflow = 'hidden';
+        window.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            document.body.style.overflow = '';
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [selectedProduct]);
 
     return (
         <div className="flex w-full flex-col">
@@ -102,11 +206,8 @@ export default function Items({ products }: Props) {
                     className="grid min-h-[500px] auto-rows-max grid-cols-2 content-start items-start gap-2"
                 >
                     {products.data.map((item) => (
-                        <a
-                            href={item.affiliate_link || item.link}
+                        <div
                             key={item.id}
-                            target="_blank"
-                            rel="noopener noreferrer"
                             className="group flex h-auto min-w-0 flex-col self-start overflow-hidden rounded-sm border border-[#dce4ec] bg-white shadow-[0_1px_3px_rgba(50,80,110,0.05)] transition hover:border-[#a9c8e0] hover:shadow-sm"
                         >
                             {/* Image */}
@@ -129,6 +230,18 @@ export default function Items({ products }: Props) {
                                 <span className="absolute top-1.5 left-0 rounded-r-sm bg-gradient-to-b from-[#e98b86] to-[#d66d68] px-1.5 py-0.5 text-[8px] font-bold text-white">
                                     BARU
                                 </span>
+
+                                {/* Related Button */}
+                                {item.related?.trim() && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setSelectedProduct(item)}
+                                        className="absolute right-1.5 bottom-1.5 flex items-center gap-1 rounded-sm border border-white/70 bg-white/95 px-2 py-1 text-[9px] font-bold text-[#5286b1] shadow-sm backdrop-blur transition hover:bg-[#5286b1] hover:text-white active:scale-95"
+                                    >
+                                        <Layers3 className="size-3" />
+                                        TERKAIT
+                                    </button>
+                                )}
                             </div>
 
                             {/* Product Info */}
@@ -144,13 +257,18 @@ export default function Items({ products }: Props) {
                                 </h4>
 
                                 <div className="mt-auto border-t border-dashed border-[#e2e8ef] pt-1.5">
-                                    <span className="flex items-center justify-center gap-1 rounded-sm border border-[#e6b98d] bg-gradient-to-b from-[#fff5e9] to-[#f8dfc4] px-1.5 py-1 text-[9px] font-bold text-[#a86d39] transition group-hover:to-[#f4d1ad]">
+                                    <a
+                                        href={item.affiliate_link || item.link}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center justify-center gap-1 rounded-sm border border-[#e6b98d] bg-gradient-to-b from-[#fff5e9] to-[#f8dfc4] px-1.5 py-1 text-[9px] font-bold text-[#a86d39] transition hover:to-[#f4d1ad]"
+                                    >
                                         <ShoppingBag className="size-3" />
                                         LIHAT PRODUK
-                                    </span>
+                                    </a>
                                 </div>
                             </div>
-                        </a>
+                        </div>
                     ))}
                 </InfiniteScroll>
 
@@ -175,6 +293,195 @@ export default function Items({ products }: Props) {
                     </span>
                 </div>
             </div>
+
+            {/* Related Products Modal */}
+            {selectedProduct && (
+                <div
+                    onClick={() => setSelectedProduct(null)}
+                    className="fixed inset-0 z-[100] flex items-center justify-center bg-[#263747]/60 p-3 backdrop-blur-sm sm:p-6"
+                >
+                    <div
+                        onClick={(event) => event.stopPropagation()}
+                        className="flex max-h-[85vh] w-full max-w-4xl flex-col overflow-hidden rounded-md border border-[#dce4ec] bg-[#f7f9fb] shadow-2xl"
+                    >
+                        {/* Modal Header */}
+                        <div className="flex items-center justify-between border-b border-[#dce4ec] bg-white px-4 py-3">
+                            <div className="flex min-w-0 items-center gap-2">
+                                <div className="flex size-9 shrink-0 items-center justify-center rounded-sm border border-[#dce4ec] bg-gradient-to-b from-white to-[#edf3f8] text-[#5286b1]">
+                                    <Layers3 className="size-4" />
+                                </div>
+
+                                <div className="min-w-0">
+                                    <h3 className="text-sm font-bold text-[#40566b]">
+                                        Produk Terkait
+                                    </h3>
+                                    <p className="truncate text-[10px] text-[#91a1b1]">
+                                        {selectedProduct.name}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={() => setSelectedProduct(null)}
+                                aria-label="Tutup modal"
+                                className="flex size-8 shrink-0 items-center justify-center rounded-sm border border-[#dce4ec] bg-white text-[#8295a7] transition hover:border-[#e5a5a0] hover:bg-[#fff2f0] hover:text-[#d46f69]"
+                            >
+                                <X className="size-4" />
+                            </button>
+                        </div>
+
+                        {/* Selected Product */}
+                        <div className="flex items-center gap-3 border-b border-[#e2e8ef] bg-white px-4 py-3">
+                            <div className="size-14 shrink-0 overflow-hidden rounded-sm border border-[#e2e8ef] bg-[#f0f3f6]">
+                                {selectedProduct.link ? (
+                                    <img
+                                        src={selectedProduct.link}
+                                        alt={selectedProduct.name}
+                                        className="size-full object-cover"
+                                    />
+                                ) : (
+                                    <div className="flex size-full items-center justify-center">
+                                        <ShoppingBag className="size-5 text-[#b7c8d8]" />
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="min-w-0 flex-1">
+                                <span className="mb-1 block text-[9px] font-bold tracking-wide text-[#91a1b1] uppercase">
+                                    Produk yang dipilih
+                                </span>
+
+                                <h4 className="line-clamp-2 text-xs font-bold text-[#566779]">
+                                    {selectedProduct.name}
+                                </h4>
+
+                                <p className="mt-1 text-xs font-bold text-[#d46f69]">
+                                    {selectedProduct.detail?.prices != null
+                                        ? `Rp ${Number(selectedProduct.detail.prices).toLocaleString('id-ID')}`
+                                        : 'Harga belum tersedia'}
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Related Header */}
+                        <div className="flex items-center justify-between border-b border-[#e2e8ef] px-4 py-2">
+                            <div className="flex items-center gap-1.5">
+                                <Tag className="size-3.5 text-[#6487a5]" />
+                                <span className="text-[10px] font-bold text-[#566779]">
+                                    BARANG DENGAN KARAKTERISTIK SAMA
+                                </span>
+                            </div>
+
+                            <span className="rounded-sm bg-[#eaf1f7] px-2 py-1 text-[9px] font-bold text-[#6487a5]">
+                                {relatedLoading
+                                    ? 'MEMUAT...'
+                                    : `${relatedProducts.length} PRODUK`}
+                            </span>
+                        </div>
+
+                        {/* Related Product Grid */}
+                        <div className="min-h-0 flex-1 overflow-y-auto p-3">
+                            {relatedLoading ? (
+                                <div className="flex min-h-[180px] flex-col items-center justify-center text-center">
+                                    <div className="mb-3 size-7 animate-spin rounded-full border-2 border-[#dce4ec] border-t-[#5286b1]" />
+                                    <p className="text-xs text-[#91a1b1]">
+                                        Mencari produk terkait...
+                                    </p>
+                                </div>
+                            ) : relatedError ? (
+                                <div className="flex min-h-[180px] flex-col items-center justify-center text-center">
+                                    <ShoppingBag className="mb-2 size-8 text-[#d46f69]" />
+                                    <p className="text-xs font-bold text-[#566779]">
+                                        Gagal mengambil produk terkait
+                                    </p>
+                                    <p className="mt-1 max-w-xs text-[10px] text-[#91a1b1]">
+                                        {relatedError}
+                                    </p>
+                                </div>
+                            ) : relatedProducts.length > 0 ? (
+                                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
+                                    {relatedProducts.map((item) => (
+                                        <div
+                                            key={item.id}
+                                            className="group flex min-w-0 flex-col overflow-hidden rounded-sm border border-[#dce4ec] bg-white transition hover:border-[#a9c8e0] hover:shadow-sm"
+                                        >
+                                            <div className="h-28 overflow-hidden border-b border-[#e8edf2] bg-[#f0f3f6]">
+                                                {item.link ? (
+                                                    <img
+                                                        src={item.link}
+                                                        alt={item.name}
+                                                        loading="lazy"
+                                                        referrerPolicy="no-referrer"
+                                                        className="size-full object-cover transition duration-300 group-hover:scale-105"
+                                                    />
+                                                ) : (
+                                                    <div className="flex size-full items-center justify-center">
+                                                        <ShoppingBag className="size-7 text-[#b7c8d8]" />
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div className="flex flex-1 flex-col p-2">
+                                                <p className="mb-1 text-[11px] font-bold text-[#d46f69]">
+                                                    {item.detail?.prices != null
+                                                        ? `Rp ${Number(item.detail.prices).toLocaleString('id-ID')}`
+                                                        : 'Harga belum tersedia'}
+                                                </p>
+
+                                                <h4 className="line-clamp-3 min-h-[48px] text-[10px] leading-4 text-[#566779]">
+                                                    {item.name}
+                                                </h4>
+
+                                                <a
+                                                    href={
+                                                        item.affiliate_link ||
+                                                        item.link
+                                                    }
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="mt-auto flex items-center justify-center gap-1 rounded-sm border border-[#e6b98d] bg-gradient-to-b from-[#fff5e9] to-[#f8dfc4] px-1 py-1.5 text-[9px] font-bold text-[#a86d39] transition hover:to-[#f4d1ad]"
+                                                >
+                                                    <ExternalLink className="size-3" />
+                                                    LIHAT PRODUK
+                                                </a>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="flex min-h-[180px] flex-col items-center justify-center text-center">
+                                    <ShoppingBag className="mb-2 size-8 text-[#b7c8d8]" />
+
+                                    <p className="text-xs font-bold text-[#566779]">
+                                        Belum ada produk terkait
+                                    </p>
+
+                                    <p className="mt-1 max-w-xs text-[10px] text-[#91a1b1]">
+                                        Tidak ditemukan produk lain dengan nilai
+                                        related yang sama di database.
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Modal Footer */}
+                        <div className="flex items-center justify-between border-t border-[#dce4ec] bg-white px-4 py-2">
+                            <span className="text-[9px] text-[#91a1b1]">
+                                Menampilkan produk dengan related yang sama
+                            </span>
+
+                            <button
+                                type="button"
+                                onClick={() => setSelectedProduct(null)}
+                                className="rounded-sm border border-[#dce4ec] bg-gradient-to-b from-white to-[#edf3f8] px-3 py-1.5 text-[10px] font-bold text-[#6487a5] transition hover:border-[#a9c8e0]"
+                            >
+                                TUTUP
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
