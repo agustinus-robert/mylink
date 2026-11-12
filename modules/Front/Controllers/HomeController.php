@@ -4,6 +4,7 @@ namespace Modules\Front\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Modules\Transaction\Models\Product;
 use Modules\Master\Models\Category;
@@ -25,7 +26,10 @@ class HomeController extends Controller
         $minPrice = $request->input('minPrice');
         $maxPrice = $request->input('maxPrice');
 
-        // Sorting
+        // Filter related lebih dari satu.
+        $relatedFilter = $request->boolean('related');
+
+        // Sorting.
         $sort = $request->input('sort', 'desc');
 
         if (!in_array($sort, ['asc', 'desc'], true)) {
@@ -48,19 +52,31 @@ class HomeController extends Controller
                     $request->category
                 )
             )
-            // Filter berdasarkan provinsi
+
+            // Filter produk dengan related lebih dari satu.
+            ->when($relatedFilter, function ($query) {
+                $query->whereNotNull('related')
+                    ->whereRaw("TRIM(related) <> ''")
+                    ->whereRaw(
+                        "(LENGTH(related) - LENGTH(REPLACE(related, ',', '')) + 1) > 1"
+                    );
+            })
+
+            // Filter berdasarkan provinsi.
             ->when(filled($provinceId), function ($q) use ($provinceId) {
                 $q->whereHas('detail.location.district', function ($district) use ($provinceId) {
                     $district->where('province_id', $provinceId);
                 });
             })
-            // Filter berdasarkan kota/kabupaten
+
+            // Filter berdasarkan kota/kabupaten.
             ->when(filled($regencyId), function ($q) use ($regencyId) {
                 $q->whereHas('detail.location', function ($location) use ($regencyId) {
                     $location->where('district_id', $regencyId);
                 });
             })
-            // Filter berdasarkan rentang harga
+
+            // Filter berdasarkan rentang harga.
             ->when(
                 filled($minPrice) || filled($maxPrice),
                 function ($q) use ($minPrice, $maxPrice) {
@@ -85,7 +101,8 @@ class HomeController extends Controller
                     });
                 }
             )
-            // Filter berdasarkan topik
+
+            // Filter berdasarkan topik.
             ->when(
                 !empty($topicsFilter),
                 fn ($query) => $query->whereHas(
@@ -100,7 +117,8 @@ class HomeController extends Controller
                     })
                 )
             )
-            // Filter tanggal mulai
+
+            // Filter tanggal mulai.
             ->when(
                 filled($request->dateFrom),
                 fn ($query) => $query->whereDate(
@@ -109,7 +127,8 @@ class HomeController extends Controller
                     $request->dateFrom
                 )
             )
-            // Filter tanggal akhir
+
+            // Filter tanggal akhir.
             ->when(
                 filled($request->dateTo),
                 fn ($query) => $query->whereDate(
@@ -119,7 +138,7 @@ class HomeController extends Controller
                 )
             );
 
-        // Topics
+        // Topics.
         $topics = Topics::query()
             ->whereIn('product_id', (clone $query)->select('id'))
             ->pluck('name')
@@ -134,12 +153,12 @@ class HomeController extends Controller
             ])
             ->values();
 
-        // Categories
+        // Categories.
         $categories = Category::query()
             ->whereNull('deleted_at')
             ->get(['id', 'name']);
 
-        // Provinces
+        // Provinces.
         $provinces = Province::query()
             ->orderBy('province')
             ->get([
@@ -147,7 +166,7 @@ class HomeController extends Controller
                 'province as name',
             ]);
 
-        // Regencies
+        // Regencies.
         $regencies = Regency::query()
             ->when(
                 filled($provinceId),
@@ -198,6 +217,9 @@ class HomeController extends Controller
             'categories' => $categories,
             'provinces' => $provinces,
             'regencies' => $regencies,
+
+            // Status filter untuk frontend.
+            'relatedFilter' => $relatedFilter,
         ]);
     }
 

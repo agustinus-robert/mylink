@@ -18,24 +18,24 @@ export default function NavOne() {
         <nav className="fixed inset-x-0 bottom-0 z-50 mx-auto w-full max-w-[400px] border-t border-[#c9dbea] bg-gradient-to-b from-[#fafdff] to-[#e8f0f7] shadow-[0_-2px_8px_rgba(50,80,110,0.08)]">
             <div className="relative">
                 <div
-                    className={`absolute bottom-full left-0 mb-3 w-full transition-all duration-200 ${
+                    className={`absolute bottom-full left-0 mb-2 w-full transition-all duration-200 ${
                         showNav
                             ? 'visible translate-y-0 opacity-100'
                             : 'invisible translate-y-3 opacity-0'
                     }`}
                 >
-                    <div className="mx-auto flex max-w-80 items-end justify-center gap-3">
+                    <div className="mx-auto flex max-w-80 items-end justify-center gap-2">
                         {centerMenus.map(({ label, icon: Icon }, index) => (
                             <button
                                 key={label}
                                 type="button"
                                 disabled
-                                className={`flex min-w-0 flex-1 flex-col items-center justify-center rounded-sm border border-[#d4e0eb] bg-gradient-to-b from-white to-[#edf3f8] px-2 py-3 text-[#9aabba] opacity-60 shadow-[0_2px_6px_rgba(50,80,110,0.10)] ${
-                                    index === 1 ? '-translate-y-4' : ''
+                                className={`flex min-w-0 flex-1 flex-col items-center justify-center rounded-sm border border-[#d4e0eb] bg-gradient-to-b from-white to-[#edf3f8] px-2 py-2 text-[#9aabba] opacity-60 shadow-[0_2px_6px_rgba(50,80,110,0.10)] ${
+                                    index === 1 ? '-translate-y-3' : ''
                                 }`}
                             >
-                                <Icon className="size-6" />
-                                <span className="mt-1 text-xs font-medium">
+                                <Icon className="size-5" />
+                                <span className="mt-1 text-[10px] font-medium">
                                     {label}
                                 </span>
                             </button>
@@ -43,19 +43,19 @@ export default function NavOne() {
                     </div>
                 </div>
 
-                <div className="grid h-16 grid-cols-3 items-center">
+                <div className="grid h-14 grid-cols-3 items-center">
                     <Link
                         href="beranda"
                         className={navLink}
                         aria-label="Beranda"
                     >
-                        <Home className="size-6" />
+                        <Home className="size-5" />
                     </Link>
 
                     <button
                         type="button"
                         onClick={() => setShowNav(!showNav)}
-                        className={`mx-auto flex size-12 items-center justify-center rounded-full border shadow-sm transition ${
+                        className={`mx-auto flex size-10 items-center justify-center rounded-full border shadow-sm transition ${
                             showNav
                                 ? 'border-[#e6c99f] bg-gradient-to-b from-[#fff9ef] to-[#f8ead5] text-[#a77a45]'
                                 : 'border-[#c9dbea] bg-gradient-to-b from-white to-[#dfebf5] text-[#5286b1] hover:to-[#d5e6f3]'
@@ -64,9 +64,9 @@ export default function NavOne() {
                         aria-expanded={showNav}
                     >
                         {showNav ? (
-                            <X className="size-6" />
+                            <X className="size-5" />
                         ) : (
-                            <Menu className="size-6" />
+                            <Menu className="size-5" />
                         )}
                     </button>
 
@@ -75,7 +75,7 @@ export default function NavOne() {
                         className={navLink}
                         aria-label="Notifikasi"
                     >
-                        <Bell className="size-6" />
+                        <Bell className="size-5" />
                     </Link>
                 </div>
             </div>

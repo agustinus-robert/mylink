@@ -2,16 +2,17 @@ import { useEffect, useState } from 'react';
 import { InfiniteScroll, router, usePage } from '@inertiajs/react';
 import {
     Hand,
+    Check,
     ShoppingBag,
     ArrowDownWideNarrow,
     ArrowUpWideNarrow,
     X,
     ExternalLink,
     Layers3,
-    Tag,
     Sparkles,
     CheckCircle2,
     MapPin,
+    Filter,
 } from 'lucide-react';
 
 type Product = {
@@ -246,13 +247,43 @@ export default function Items({ products }: Props) {
     const [relatedError, setRelatedError] = useState<string | null>(null);
 
     const currentUrl = new URL(url, window.location.origin);
+
+    // Sorting.
     const sort = currentUrl.searchParams.get('sort') || 'desc';
 
+    // Status filter related dari URL.
+    const relatedFilter = currentUrl.searchParams.get('related') === '1';
+
+    // Mengaktifkan / menonaktifkan filter related.
+    const handleRelatedFilter = () => {
+        const params = new URLSearchParams(currentUrl.search);
+
+        if (relatedFilter) {
+            params.delete('related');
+        } else {
+            params.set('related', '1');
+        }
+
+        params.delete('page');
+
+        router.get(
+            `${currentUrl.pathname}?${params.toString()}`,
+            {},
+            {
+                preserveState: true,
+                preserveScroll: true,
+                replace: true,
+            },
+        );
+    };
+
+    // Sorting tetap mempertahankan seluruh filter aktif.
     const handleSort = () => {
         const nextSort = sort === 'desc' ? 'asc' : 'desc';
 
         const params = new URLSearchParams(currentUrl.search);
         params.set('sort', nextSort);
+        params.delete('page');
 
         router.get(
             `${currentUrl.pathname}?${params.toString()}`,
@@ -384,9 +415,34 @@ export default function Items({ products }: Props) {
                 </div>
 
                 <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-bold text-[#6487a5]">
-                        {products.total.toLocaleString('id-ID')} PRODUK
-                    </span>
+                    {/* Filter Related */}
+                    <button
+                        type="button"
+                        onClick={handleRelatedFilter}
+                        title={
+                            relatedFilter
+                                ? 'Tampilkan semua produk'
+                                : 'Tampilkan produk dengan related lebih dari satu'
+                        }
+                        aria-label="Filter produk related lebih dari satu"
+                        aria-pressed={relatedFilter}
+                        className={`flex h-7 items-center gap-1 rounded-sm border px-2 text-[9px] font-bold shadow-sm transition active:scale-95 ${
+                            relatedFilter
+                                ? 'border-[#b9dfc9] bg-[#edf8f1] text-[#579875]'
+                                : 'border-[#dce4ec] bg-gradient-to-b from-white to-[#edf3f8] text-[#6487a5] hover:border-[#a9c8e0]'
+                        }`}
+                    >
+                        <Filter className="size-3" />
+
+                        <div className="flex items-center gap-1">
+                            Produk Lainnya
+                            {relatedFilter ? (
+                                <Check className="size-4 text-green-600" />
+                            ) : (
+                                <X className="size-4 text-red-500" />
+                            )}
+                        </div>
+                    </button>
 
                     {/* Sorting */}
                     <button
@@ -486,20 +542,42 @@ export default function Items({ products }: Props) {
                         <ShoppingBag className="mb-2 size-7 text-[#91afc8]" />
 
                         <p className="text-xs text-[#91a1b1]">
-                            Belum ada barang ditemukan.
+                            {relatedFilter
+                                ? 'Belum ada produk dengan related lebih dari satu.'
+                                : 'Belum ada barang ditemukan.'}
                         </p>
+
+                        {relatedFilter && (
+                            <button
+                                type="button"
+                                onClick={handleRelatedFilter}
+                                className="mt-3 rounded-sm border border-[#dce4ec] bg-white px-3 py-1.5 text-[10px] font-bold text-[#6487a5] hover:bg-[#f0f4f8]"
+                            >
+                                HAPUS FILTER
+                            </button>
+                        )}
                     </div>
                 )}
+            </div>
 
-                {/* Total */}
-                <div className="mt-2 flex items-center justify-between border-t border-[#dce4ec] px-2 py-2">
-                    <span className="text-[10px] font-semibold text-[#91a1b1]">
-                        TOTAL BARANG DITEMUKAN
-                    </span>
+            {/* Floating Total Produk - Kanan Bawah */}
+            <div className="pointer-events-none fixed inset-x-0 bottom-[56px] z-40">
+                <div className="pointer-events-auto mx-auto flex h-10 w-full max-w-[400px] items-center justify-between border-t border-[#eadfca] bg-[#faf5e9]/95 px-4 shadow-[0_-2px_8px_rgba(120,100,60,0.06)] backdrop-blur-md">
+                    <div className="flex items-center gap-2 text-[#9a8565]">
+                        <ShoppingBag className="size-3.5" />
+                        <span className="text-[10px] font-semibold tracking-wide">
+                            {relatedFilter ? 'PRODUK RELATED' : 'TOTAL PRODUK'}
+                        </span>
+                    </div>
 
-                    <span className="text-xs font-bold text-[#6487a5]">
-                        {products.total.toLocaleString('id-ID')} produk
-                    </span>
+                    <div className="flex items-center gap-1">
+                        <span className="text-xs font-bold text-[#766044]">
+                            {products.total.toLocaleString('id-ID')}
+                        </span>
+                        <span className="text-[10px] text-[#a99a80]">
+                            produk
+                        </span>
+                    </div>
                 </div>
             </div>
 
