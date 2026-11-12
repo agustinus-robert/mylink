@@ -5,6 +5,7 @@ namespace Modules\Front\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Modules\Transaction\Models\Product;
 use Modules\Master\Models\Category;
@@ -19,6 +20,65 @@ class HomeController extends Controller
 
     public function index(Request $request)
     {
+        /*
+        |--------------------------------------------------------------------------
+        | DEBUG RELATED SAAT HALAMAN DIBUKA
+        |--------------------------------------------------------------------------
+        */
+
+        $totalProducts = Product::count();
+
+        $totalRelatedProducts = DB::table('mst_products')
+            ->whereNull('deleted_at')
+            ->whereNotNull('related')
+            ->whereRaw("TRIM(related) <> ''")
+            ->count();
+
+        $relatedGroups = DB::table('mst_products')
+            ->selectRaw('BINARY related AS related_key, COUNT(*) AS total')
+            ->whereNull('deleted_at')
+            ->whereNotNull('related')
+            ->whereRaw("TRIM(related) <> ''")
+            ->groupByRaw('BINARY related');
+
+        $multipleRelatedGroups = (clone $relatedGroups)
+            ->havingRaw('COUNT(*) > 1');
+
+        $singleRelatedGroups = (clone $relatedGroups)
+            ->havingRaw('COUNT(*) = 1');
+
+        $totalMultipleGroups = DB::query()
+            ->fromSub(clone $multipleRelatedGroups, 'related_groups')
+            ->count();
+
+        $totalProductsInMultipleGroups = DB::query()
+            ->fromSub(clone $multipleRelatedGroups, 'related_groups')
+            ->sum('total');
+
+        $totalSingleGroups = DB::query()
+            ->fromSub(clone $singleRelatedGroups, 'related_groups')
+            ->count();
+
+        $totalMainProducts = $totalMultipleGroups;
+
+        Log::info('========== RELATED PRODUCT DEBUG ==========', [
+            'url' => $request->fullUrl(),
+            'related_filter' => $request->boolean('related'),
+            'total_active_products' => $totalProducts,
+            'total_products_with_related' => $totalRelatedProducts,
+            'total_related_groups_more_than_one' => $totalMultipleGroups,
+            'total_products_in_multiple_groups' => $totalProductsInMultipleGroups,
+            'total_main_products_expected' => $totalMainProducts,
+            'total_related_groups_only_one' => $totalSingleGroups,
+            'total_products_without_related' => $totalProducts - $totalRelatedProducts,
+        ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | FILTER
+        |--------------------------------------------------------------------------
+        */
+
         $topicsFilter = $request->input('topics', []);
         $provinceId = $request->input('province');
         $regencyId = $request->input('regency');
@@ -26,15 +86,19 @@ class HomeController extends Controller
         $minPrice = $request->input('minPrice');
         $maxPrice = $request->input('maxPrice');
 
-        // Filter related lebih dari satu.
         $relatedFilter = $request->boolean('related');
 
-        // Sorting.
         $sort = $request->input('sort', 'desc');
 
         if (!in_array($sort, ['asc', 'desc'], true)) {
             $sort = 'desc';
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | PRODUCT QUERY
+        |--------------------------------------------------------------------------
+        */
 
         $query = Product::query()
             ->when(
@@ -53,30 +117,46 @@ class HomeController extends Controller
                 )
             )
 
-            // Filter produk dengan related lebih dari satu.
+            /*
+            |--------------------------------------------------------------------------
+            | FILTER RELATED
+            |--------------------------------------------------------------------------
+            |
+            | 1. Kelompokkan produk berdasarkan related.
+            | 2. Ambil kelompok yang mempunyai lebih dari satu produk.
+            | 3. Ambil satu produk utama menggunakan MIN(id).
+            | 4. Hanya produk utama yang dimasukkan ke hasil query.
+            |
+            */
+
             ->when($relatedFilter, function ($query) {
-                $query->whereNotNull('related')
-                    ->whereRaw("TRIM(related) <> ''")
-                    ->whereRaw(
-                        "(LENGTH(related) - LENGTH(REPLACE(related, ',', '')) + 1) > 1"
-                    );
+                $query->whereIn('mst_products.id', function ($subquery) {
+                    $subquery
+                        ->selectRaw('MIN(id)')
+                        ->from('mst_products')
+                        ->whereNull('deleted_at')
+                        ->whereNotNull('related')
+                        ->whereRaw("TRIM(related) <> ''")
+                        ->groupByRaw('BINARY related')
+                        ->havingRaw('COUNT(*) > 1');
+                });
             })
 
-            // Filter berdasarkan provinsi.
+            // Filter provinsi.
             ->when(filled($provinceId), function ($q) use ($provinceId) {
                 $q->whereHas('detail.location.district', function ($district) use ($provinceId) {
                     $district->where('province_id', $provinceId);
                 });
             })
 
-            // Filter berdasarkan kota/kabupaten.
+            // Filter kota/kabupaten.
             ->when(filled($regencyId), function ($q) use ($regencyId) {
                 $q->whereHas('detail.location', function ($location) use ($regencyId) {
                     $location->where('district_id', $regencyId);
                 });
             })
 
-            // Filter berdasarkan rentang harga.
+            // Filter harga.
             ->when(
                 filled($minPrice) || filled($maxPrice),
                 function ($q) use ($minPrice, $maxPrice) {
@@ -84,25 +164,17 @@ class HomeController extends Controller
                         $price
                             ->when(
                                 filled($minPrice),
-                                fn ($price) => $price->where(
-                                    'prices',
-                                    '>=',
-                                    $minPrice
-                                )
+                                fn ($price) => $price->where('prices', '>=', $minPrice)
                             )
                             ->when(
                                 filled($maxPrice),
-                                fn ($price) => $price->where(
-                                    'prices',
-                                    '<=',
-                                    $maxPrice
-                                )
+                                fn ($price) => $price->where('prices', '<=', $maxPrice)
                             );
                     });
                 }
             )
 
-            // Filter berdasarkan topik.
+            // Filter topik.
             ->when(
                 !empty($topicsFilter),
                 fn ($query) => $query->whereHas(
@@ -138,7 +210,29 @@ class HomeController extends Controller
                 )
             );
 
-        // Topics.
+        /*
+        |--------------------------------------------------------------------------
+        | DEBUG HASIL QUERY FILTER
+        |--------------------------------------------------------------------------
+        */
+
+        $filteredProductCount = (clone $query)
+            ->count('mst_products.id');
+
+        Log::info('========== FILTERED PRODUCT DEBUG ==========', [
+            'url' => $request->fullUrl(),
+            'related_filter' => $relatedFilter,
+            'filtered_product_count' => $filteredProductCount,
+            'sql' => $query->toSql(),
+            'bindings' => $query->getBindings(),
+        ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | TOPICS
+        |--------------------------------------------------------------------------
+        */
+
         $topics = Topics::query()
             ->whereIn('product_id', (clone $query)->select('id'))
             ->pluck('name')
@@ -156,7 +250,10 @@ class HomeController extends Controller
         // Categories.
         $categories = Category::query()
             ->whereNull('deleted_at')
-            ->get(['id', 'name']);
+            ->get([
+                'id',
+                'name',
+            ]);
 
         // Provinces.
         $provinces = Province::query()
@@ -180,11 +277,17 @@ class HomeController extends Controller
                 'city_name as name',
             ]);
 
+        /*
+        |--------------------------------------------------------------------------
+        | RESPONSE
+        |--------------------------------------------------------------------------
+        */
+
         return Inertia::render('front/home/index', [
             'topics' => $topics,
 
-            'products' => Inertia::scroll(
-                fn () => (clone $query)
+            'products' => Inertia::scroll(function () use ($query, $sort, $request) {
+                $paginator = (clone $query)
                     ->select([
                         'id',
                         'name',
@@ -195,7 +298,6 @@ class HomeController extends Controller
                     ])
                     ->with([
                         'topics:id,product_id,name',
-
                         'detail' => fn ($query) => $query
                             ->select([
                                 'trx_product_prices.id',
@@ -211,14 +313,26 @@ class HomeController extends Controller
                     ->orderBy('name', $sort)
                     ->orderBy('id', $sort)
                     ->paginate(10)
-                    ->withQueryString()
-            ),
+                    ->withQueryString();
+
+                Log::info('========== PRODUCTS PAGINATION DEBUG ==========', [
+                    'url' => $request->fullUrl(),
+                    'related_filter' => $request->boolean('related'),
+                    'total' => $paginator->total(),
+                    'count' => $paginator->count(),
+                    'current_page' => $paginator->currentPage(),
+                    'last_page' => $paginator->lastPage(),
+                    'first_product_id' => $paginator->first()?->id,
+                    'product_ids' => $paginator->getCollection()->pluck('id')->toArray(),
+                ]);
+
+                return $paginator;
+            }),
 
             'categories' => $categories,
             'provinces' => $provinces,
             'regencies' => $regencies,
 
-            // Status filter untuk frontend.
             'relatedFilter' => $relatedFilter,
         ]);
     }

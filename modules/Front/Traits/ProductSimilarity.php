@@ -288,6 +288,7 @@ trait ProductSimilarity
     /**
      * Mengambil produk identik dan rekomendasi.
      */
+        
     private function getSimilarProducts(Product $product): array
     {
         $mainName = $product->name;
@@ -298,10 +299,70 @@ trait ProductSimilarity
 
         $mainBrand = $this->detectProductBrand($mainName);
 
+        /*
+        * ==========================================
+        * PRODUK IDENTIK
+        * ==========================================
+        *
+        * Identik ditentukan langsung berdasarkan
+        * nilai related yang sama.
+        *
+        * Tidak bergantung pada merek, kategori,
+        * token, maupun cosine similarity.
+        */
+
+        $identicalQuery = Product::query()
+            ->select([
+                'id',
+                'name',
+                'slug',
+                'link',
+                'affiliate_link',
+                'related',
+            ])
+            ->where('id', '!=', $product->id)
+            ->whereNotNull('related')
+            ->whereRaw("TRIM(related) <> ''")
+            ->whereRaw('BINARY related = BINARY ?', [
+                $product->related,
+            ])
+            ->with([
+                'detail' => fn ($query) => $query->select([
+                    'trx_product_prices.id',
+                    'trx_product_prices.product_id',
+                    'trx_product_prices.prices',
+                    'trx_product_prices.location_id',
+                ])->with([
+                    'location:id,district_id',
+                    'location.district:id,city_name,type',
+                ]),
+            ])
+            ->orderBy('id');
+
+        $identicalTotal = (clone $identicalQuery)->count();
+
+        $identical = (clone $identicalQuery)
+            ->limit(50)
+            ->get()
+            ->map(function ($item) {
+                $data = $item->toArray();
+
+                $data['similarity'] = 100;
+
+                return $data;
+            })
+            ->values();
+
+        /*
+        * Hasil awal.
+        *
+        * Produk identik tetap ditampilkan meskipun
+        * merek atau kategori tidak dikenali.
+        */
         $emptyResult = [
             'identical' => [
-                'data' => [],
-                'total' => 0,
+                'data' => $identical,
+                'total' => $identicalTotal,
             ],
             'recommended' => [
                 'data' => [],
@@ -310,9 +371,14 @@ trait ProductSimilarity
         ];
 
         /*
-         * Wajib mengenali merek dan jenis produk.
-         * Produk yang tidak dikenali tidak dicampurkan.
-         */
+        * ==========================================
+        * REKOMENDASI PRODUK
+        * ==========================================
+        *
+        * Bagian ini tetap menggunakan algoritma
+        * similarity yang sudah ada.
+        */
+
         if (
             empty($mainTokens) ||
             $mainCategory === null ||
@@ -321,13 +387,6 @@ trait ProductSimilarity
             return $emptyResult;
         }
 
-        /*
-         * Ambil kandidat berdasarkan:
-         * 1. Related yang sama.
-         * 2. Token penting dari nama produk.
-         *
-         * Related hanya sumber pencarian kandidat.
-         */
         $searchTokens = collect($mainTokens)
             ->filter(fn ($token) => mb_strlen($token) >= 3)
             ->take(8)
@@ -378,8 +437,8 @@ trait ProductSimilarity
         }
 
         /*
-         * Corpus untuk perhitungan IDF.
-         */
+        * Corpus untuk perhitungan IDF.
+        */
         $documents = collect([$mainName])
             ->merge($candidates->pluck('name'))
             ->map(
@@ -403,8 +462,6 @@ trait ProductSimilarity
             $documentCount
         );
 
-        $identical = [];
-
         $recommended = [];
 
         foreach ($candidates as $candidate) {
@@ -423,21 +480,15 @@ trait ProductSimilarity
             );
 
             /*
-             * WAJIB sama merek.
-             *
-             * Apple tidak boleh mendapatkan Lenovo.
-             * Logitech tidak boleh mendapatkan Rexus.
-             */
+            * Wajib sama merek.
+            */
             if ($candidateBrand !== $mainBrand) {
                 continue;
             }
 
             /*
-             * WAJIB sama jenis barang.
-             *
-             * Laptop tidak boleh mendapatkan RAM,
-             * mouse tidak boleh mendapatkan keyboard.
-             */
+            * Wajib sama jenis barang.
+            */
             if ($candidateCategory !== $mainCategory) {
                 continue;
             }
@@ -448,17 +499,11 @@ trait ProductSimilarity
                 $documentCount
             );
 
-            /*
-             * Cosine Similarity.
-             */
             $similarity = $this->cosineSimilarity(
                 $mainVector,
                 $candidateVector
             );
 
-            /*
-             * Periksa konflik spesifikasi.
-             */
             $conflicts = $this->hasSpecificationConflict(
                 $mainName,
                 $candidateName,
@@ -470,9 +515,6 @@ trait ProductSimilarity
                 $candidateTokens
             );
 
-            /*
-             * Periksa atribut yang sama.
-             */
             $hasSharedAttribute = $this->hasSharedAttribute(
                 $mainName,
                 $candidateName,
@@ -480,38 +522,13 @@ trait ProductSimilarity
             );
 
             /*
-             * IDENTIK
-             *
-             * - Merek sama.
-             * - Jenis produk sama.
-             * - Similarity minimal 80%.
-             * - Tidak ada konflik spesifikasi.
-             * - Memiliki atribut yang sama.
-             */
+            * Produk identik sudah diambil dari related.
+            * Di sini hanya menghitung rekomendasi.
+            */
             if (
-                $similarity >= 0.80 &&
-                !$conflicts &&
-                $hasSharedAttribute &&
-                count($sharedTokens) >= 2
+                $similarity >= 0.18 &&
+                !$conflicts
             ) {
-                $identical[] = [
-                    'product' => $candidate,
-                    'similarity' => $similarity,
-                ];
-
-                continue;
-            }
-
-            /*
-             * REKOMENDASI
-             *
-             * - Merek sama.
-             * - Jenis produk sama.
-             * - Similarity minimal 18%.
-             *
-             * Spesifikasi boleh berbeda.
-             */
-            if ($similarity >= 0.18) {
                 $recommended[] = [
                     'product' => $candidate,
                     'similarity' => $similarity,
@@ -520,13 +537,8 @@ trait ProductSimilarity
         }
 
         /*
-         * Urutkan berdasarkan kemiripan tertinggi.
-         */
-        $identical = collect($identical)
-            ->sortByDesc('similarity')
-            ->take(50)
-            ->values();
-
+        * Urutkan rekomendasi berdasarkan similarity.
+        */
         $recommended = collect($recommended)
             ->sortByDesc('similarity')
             ->take(50)
@@ -534,13 +546,8 @@ trait ProductSimilarity
 
         return [
             'identical' => [
-                'data' => $identical
-                    ->map(
-                        fn ($item) => $this->formatSimilarProduct($item)
-                    )
-                    ->values(),
-
-                'total' => $identical->count(),
+                'data' => $identical,
+                'total' => $identicalTotal,
             ],
 
             'recommended' => [
@@ -554,6 +561,7 @@ trait ProductSimilarity
             ],
         ];
     }
+
 
     /**
      * Normalisasi dan tokenisasi nama produk.

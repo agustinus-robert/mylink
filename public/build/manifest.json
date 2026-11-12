@@ -492,8 +492,8 @@
       "_createLucideIcon-Cxe8N201.js"
     ]
   },
-  "_sparkles-ukNYL9bd.js": {
-    "file": "assets/sparkles-ukNYL9bd.js",
+  "_sparkles-BhFv112i.js": {
+    "file": "assets/sparkles-BhFv112i.js",
     "name": "sparkles",
     "imports": [
       "_createLucideIcon-Cxe8N201.js"
@@ -724,7 +724,7 @@
     ]
   },
   "modules/Front/resources/js/pages/home/index.tsx": {
-    "file": "assets/home-BXDgyntk.js",
+    "file": "assets/home-BdF_E8dL.js",
     "name": "home",
     "src": "modules/Front/resources/js/pages/home/index.tsx",
     "isDynamicEntry": true,
@@ -738,7 +738,7 @@
     ]
   },
   "modules/Front/resources/js/pages/home/items.tsx": {
-    "file": "assets/items-DfCvQalZ.js",
+    "file": "assets/items-CTqT48q_.js",
     "name": "items",
     "src": "modules/Front/resources/js/pages/home/items.tsx",
     "isDynamicEntry": true,
@@ -747,7 +747,8 @@
       "_compiler-runtime-kM0e9lBH.js",
       "_dist-Df1h54Lp.js",
       "_createLucideIcon-Cxe8N201.js",
-      "_sparkles-ukNYL9bd.js",
+      "_sparkles-BhFv112i.js",
+      "_check-CJI-d5KA.js",
       "_map-pin-DVSZuc_4.js",
       "_shopping-bag-Bt4Nrb5I.js",
       "_x-CW-A98Gz.js"
@@ -1088,7 +1089,7 @@
     ]
   },
   "modules/Hotel/resources/js/pages/master/room-amnities/amenities/form.tsx": {
-    "file": "assets/form-CU334e_U.js",
+    "file": "assets/form-D_LbeTt0.js",
     "name": "form",
     "src": "modules/Hotel/resources/js/pages/master/room-amnities/amenities/form.tsx",
     "isDynamicEntry": true,
@@ -1098,7 +1099,7 @@
       "_dist-Df1h54Lp.js",
       "_dist-CUJNuOSB.js",
       "_createLucideIcon-Cxe8N201.js",
-      "_sparkles-ukNYL9bd.js",
+      "_sparkles-BhFv112i.js",
       "_arrow-left-Dpba2kOC.js",
       "_bell-DyqgVYVI.js",
       "_user-round-5rap9ieC.js",
@@ -1510,7 +1511,7 @@
     "src": "node_modules/@blocknote/core/src/fonts/inter-v12-latin/inter-v12-latin-regular.woff2"
   },
   "resources/css/app.css": {
-    "file": "assets/app-9O0hSG6P.css",
+    "file": "assets/app-QtfHCGGh.css",
     "name": "app",
     "names": [
       "app.css"
@@ -1539,7 +1540,7 @@
     ]
   },
   "resources/js/app.tsx": {
-    "file": "assets/app-CngNal6T.js",
+    "file": "assets/app--FOIJfMQ.js",
     "name": "app",
     "src": "resources/js/app.tsx",
     "isEntry": true,

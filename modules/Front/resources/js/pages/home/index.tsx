@@ -1,4 +1,4 @@
-import { router } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import { route } from 'ziggy-js';
 import { useState, useEffect, useRef } from 'react';
 import Searching from './search';
@@ -68,6 +68,13 @@ export default function Home({
     provinces,
     regencies,
 }: Props) {
+    const { url } = usePage();
+
+    const currentUrl = new URL(url, window.location.origin);
+
+    const relatedFilter = currentUrl.searchParams.get('related') === '1';
+    const sort = currentUrl.searchParams.get('sort') || 'desc';
+
     const [searchType, setSearchType] = useState<'keyword' | 'category'>(
         'keyword',
     );
@@ -105,6 +112,7 @@ export default function Home({
                         : {
                               category: category.length ? category : undefined,
                           }),
+
                     dateFrom: dateFrom || undefined,
                     dateTo: dateTo || undefined,
                     topics: selectedTopics.length ? selectedTopics : undefined,
@@ -112,6 +120,12 @@ export default function Home({
                     regency: regency || undefined,
                     minPrice: minPrice || undefined,
                     maxPrice: maxPrice || undefined,
+
+                    // Pertahankan filter Related.
+                    related: relatedFilter ? 1 : undefined,
+
+                    // Pertahankan sorting.
+                    sort,
                 },
                 {
                     only: ['products', 'topics', 'regencies'],
@@ -143,6 +157,8 @@ export default function Home({
         regency,
         minPrice,
         maxPrice,
+        relatedFilter,
+        sort,
     ]);
 
     return (
