@@ -12,10 +12,10 @@ export default function NavOne() {
     const [showNav, setShowNav] = useState(false);
 
     const navLink =
-        'flex h-full items-center justify-center text-[#6487a5] transition hover:bg-[#e1edf6] hover:text-[#426f94]';
+        'flex h-full items-center justify-center text-[#A98263] transition hover:bg-[#FFF1E5] hover:text-[#B66B35]';
 
     return (
-        <nav className="fixed inset-x-0 bottom-0 z-50 mx-auto w-full max-w-[400px] border-t border-[#c9dbea] bg-gradient-to-b from-[#fafdff] to-[#e8f0f7] shadow-[0_-2px_8px_rgba(50,80,110,0.08)]">
+        <nav className="fixed inset-x-0 bottom-0 z-50 mx-auto w-full max-w-[400px] border-t border-[#EAE2D9] bg-gradient-to-b from-[#FDFBF8] to-[#F7F3EE] shadow-[0_-2px_8px_rgba(100,75,50,0.08)]">
             <div className="relative">
                 <div
                     className={`absolute bottom-full left-0 mb-2 w-full transition-all duration-200 ${
@@ -30,7 +30,7 @@ export default function NavOne() {
                                 key={label}
                                 type="button"
                                 disabled
-                                className={`flex min-w-0 flex-1 flex-col items-center justify-center rounded-sm border border-[#d4e0eb] bg-gradient-to-b from-white to-[#edf3f8] px-2 py-2 text-[#9aabba] opacity-60 shadow-[0_2px_6px_rgba(50,80,110,0.10)] ${
+                                className={`flex min-w-0 flex-1 flex-col items-center justify-center rounded-sm border border-[#EAE2D9] bg-gradient-to-b from-white to-[#F7F3EE] px-2 py-2 text-[#A99B8D] opacity-60 shadow-[0_2px_6px_rgba(100,75,50,0.10)] ${
                                     index === 1 ? '-translate-y-3' : ''
                                 }`}
                             >
@@ -57,8 +57,8 @@ export default function NavOne() {
                         onClick={() => setShowNav(!showNav)}
                         className={`mx-auto flex size-10 items-center justify-center rounded-full border shadow-sm transition ${
                             showNav
-                                ? 'border-[#e6c99f] bg-gradient-to-b from-[#fff9ef] to-[#f8ead5] text-[#a77a45]'
-                                : 'border-[#c9dbea] bg-gradient-to-b from-white to-[#dfebf5] text-[#5286b1] hover:to-[#d5e6f3]'
+                                ? 'border-[#E8C3A3] bg-gradient-to-b from-[#FFF8F0] to-[#FFF1E5] text-[#B66B35]'
+                                : 'border-[#EAE2D9] bg-gradient-to-b from-white to-[#F7F3EE] text-[#C4773D] hover:to-[#F5E9DC]'
                         }`}
                         aria-label={showNav ? 'Tutup menu' : 'Buka menu'}
                         aria-expanded={showNav}

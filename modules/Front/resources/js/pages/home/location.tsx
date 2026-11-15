@@ -43,27 +43,29 @@ export default function Location({
     );
 
     const selectClass =
-        'h-9 w-full rounded-sm border border-[#d4e0eb] bg-white px-2 text-xs text-[#566779] shadow-inner outline-none transition focus:border-[#a9c8e0] focus:ring-1 focus:ring-[#dcebf6]';
+        'h-9 w-full rounded-sm border border-[#EAE2D9] bg-white px-2 text-xs text-[#665548] shadow-inner outline-none transition focus:border-[#D69B70] focus:ring-1 focus:ring-[#F5DCC7] disabled:cursor-not-allowed disabled:bg-[#F3EFEA] disabled:text-[#B5A99D]';
 
     return (
-        <div className="border-t border-[#dce4ec] bg-[#f7f9fb]">
+        <div className="border-t border-[#EAE2D9] bg-[#FAF8F5]">
             {/* Header */}
             <button
                 type="button"
                 onClick={() => setIsOpen((prev) => !prev)}
-                className={`flex w-full items-center justify-between gap-2 bg-gradient-to-b from-white to-[#f0f4f8] px-3 text-left transition-all duration-300 ${
+                className={`flex w-full items-center justify-between gap-2 bg-gradient-to-b from-white to-[#F7F3EE] px-3 text-left transition-all duration-300 hover:to-[#FAF0E6] ${
                     compact ? 'py-2' : 'py-2.5'
                 }`}
             >
                 <div className="flex min-w-0 items-center gap-2">
-                    <MapPin className="size-4 shrink-0 text-[#91afc8]" />
+                    <div className="flex size-8 shrink-0 items-center justify-center rounded-sm border border-[#E8C3A3] bg-[#FFF1E5]">
+                        <MapPin className="size-4 text-[#C4773D]" />
+                    </div>
 
                     <div className="min-w-0">
-                        <p className="text-xs font-bold text-[#566779]">
+                        <p className="text-xs font-bold text-[#665548]">
                             Lokasi toko
                         </p>
 
-                        <p className="truncate text-[10px] text-[#91a1b1]">
+                        <p className="truncate text-[10px] text-[#A99B8D]">
                             {selectedProvince?.name ?? 'Semua provinsi'}
                             {selectedRegency
                                 ? ` · ${selectedRegency.type} ${selectedRegency.name}`
@@ -73,7 +75,7 @@ export default function Location({
                 </div>
 
                 <ChevronDown
-                    className={`size-4 shrink-0 text-[#8296a9] transition-transform duration-300 ${
+                    className={`size-4 shrink-0 text-[#C4773D] transition-transform duration-300 ${
                         isOpen ? 'rotate-180' : ''
                     }`}
                 />
@@ -88,10 +90,10 @@ export default function Location({
                 }`}
             >
                 <div className="overflow-hidden">
-                    <div className="grid grid-cols-2 gap-2 border-t border-[#e2e8ef] bg-[#fbfcfd] p-3">
+                    <div className="grid grid-cols-2 gap-2 border-t border-[#EAE2D9] bg-[#FDFBF8] p-3">
                         {/* Province */}
                         <div className="min-w-0">
-                            <label className="mb-1.5 block text-[10px] font-bold text-[#8296a9]">
+                            <label className="mb-1.5 block text-[10px] font-bold text-[#928477]">
                                 Provinsi
                             </label>
 
@@ -115,7 +117,7 @@ export default function Location({
 
                         {/* Regency */}
                         <div className="min-w-0">
-                            <label className="mb-1.5 block text-[10px] font-bold text-[#8296a9]">
+                            <label className="mb-1.5 block text-[10px] font-bold text-[#928477]">
                                 Kabupaten / Kota
                             </label>
 
@@ -123,7 +125,7 @@ export default function Location({
                                 value={regency}
                                 onChange={(e) => setRegency(e.target.value)}
                                 disabled={!province}
-                                className={`${selectClass} disabled:cursor-not-allowed disabled:bg-[#f0f3f6] disabled:text-[#aab6c2]`}
+                                className={selectClass}
                             >
                                 <option value="">Semua kabupaten / kota</option>
 
@@ -137,14 +139,14 @@ export default function Location({
 
                         {/* Reset */}
                         {(province || regency) && (
-                            <div className="col-span-2 flex justify-end">
+                            <div className="col-span-2 flex justify-end border-t border-[#EAE2D9] pt-2">
                                 <button
                                     type="button"
                                     onClick={() => {
                                         setProvince('');
                                         setRegency('');
                                     }}
-                                    className="text-[10px] font-semibold text-[#b17b55] transition hover:text-[#95603c]"
+                                    className="flex items-center gap-1 rounded-sm px-2 py-1 text-[10px] font-semibold text-[#C4773D] transition hover:bg-[#FFF1E5] hover:text-[#A95E2D]"
                                 >
                                     Reset lokasi
                                 </button>

@@ -91,7 +91,6 @@ export default function Searching(props: SearchingProps) {
     const [isSearching, setIsSearching] = useState(false);
     const [showTopics, setShowTopics] = useState(false);
 
-    // Sinkronisasi keyword dan searchType dari URL.
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
 
@@ -110,33 +109,30 @@ export default function Searching(props: SearchingProps) {
     }, []);
 
     const toggleCategory = (id: number) => {
-        props.setCategory((prev) => {
-            const next = prev.includes(id)
-                ? prev.filter((item) => item !== id)
-                : [...prev, id];
+        const next = props.category.includes(id)
+            ? props.category.filter((item) => item !== id)
+            : [...props.category, id];
 
-            // Kosongkan subcategory jika tidak lagi sesuai kategori.
+        props.setCategory(next);
+
+        if (props.subCategory !== '') {
+            const selectedSubCategory = props.subCategories.find(
+                (item) => item.id === props.subCategory,
+            );
+
             if (
-                props.subCategory !== '' &&
-                !next.includes(
-                    props.subCategories.find(
-                        (item) => item.id === props.subCategory,
-                    )?.category_id ?? -1,
-                )
+                !selectedSubCategory ||
+                !next.includes(selectedSubCategory.category_id)
             ) {
                 props.setSubCategory('');
             }
-
-            return next;
-        });
+        }
     };
 
-    // Subcategory hanya dari kategori yang dipilih.
     const filteredSubCategories = props.subCategories.filter((item) =>
         props.category.includes(item.category_id),
     );
 
-    // Pastikan subcategory masih sesuai dengan kategori yang dipilih.
     useEffect(() => {
         if (props.subCategory === '') return;
 
@@ -153,28 +149,28 @@ export default function Searching(props: SearchingProps) {
     }, [props.category, props.subCategories]);
 
     return (
-        <div className="relative min-h-screen bg-[#f5f7fa]">
+        <div className="relative min-h-screen bg-[#FAF8F5]">
             {!isSearching && (
                 <div className="mx-auto w-full">
                     {/* Search Bar */}
-                    <div className="sticky top-0 z-40 border-b border-[#dce4ec] bg-white shadow-sm">
+                    <div className="sticky top-0 z-40 border-b border-[#EAE2D9] bg-white shadow-[0_2px_8px_rgba(90,65,40,0.04)]">
                         <Brands />
 
                         <div className="px-3 py-3">
                             <button
                                 type="button"
                                 onClick={() => setIsSearching(true)}
-                                className="flex h-11 w-full items-center gap-3 rounded-md border border-[#d4e0eb] bg-[#f8fafc] px-3 text-left shadow-inner transition hover:border-[#a9c8e0]"
+                                className="flex h-11 w-full items-center gap-3 rounded-md border border-[#E9DED3] bg-[#FAF8F5] px-3 text-left shadow-inner transition hover:border-[#D8A47D] hover:bg-[#FFFDFB]"
                             >
-                                <Search className="size-5 shrink-0 text-[#6487a5]" />
+                                <Search className="size-5 shrink-0 text-[#C4773D]" />
 
-                                <span className="flex-1 truncate text-sm text-[#91a1b1]">
+                                <span className="flex-1 truncate text-sm text-[#A99B8D]">
                                     {props.keyword ||
                                         'Cari produk yang Anda inginkan...'}
                                 </span>
 
                                 {props.keyword && (
-                                    <span className="text-xs text-[#6487a5]">
+                                    <span className="text-xs font-semibold text-[#C4773D]">
                                         Ubah
                                     </span>
                                 )}
@@ -183,13 +179,13 @@ export default function Searching(props: SearchingProps) {
                     </div>
 
                     {/* Categories */}
-                    <div className="border-b border-[#dce4ec] bg-white px-3 py-3">
+                    <div className="border-b border-[#EAE2D9] bg-white px-3 py-3">
                         <div className="mb-2 flex items-center justify-between">
-                            <h3 className="text-xs font-bold text-[#566779]">
+                            <h3 className="text-xs font-bold text-[#665548]">
                                 Kategori
                             </h3>
 
-                            <span className="text-[10px] text-[#91a1b1]">
+                            <span className="text-[10px] text-[#A99B8D]">
                                 {props.category.length} dipilih
                             </span>
                         </div>
@@ -205,8 +201,8 @@ export default function Searching(props: SearchingProps) {
                                         onClick={() => toggleCategory(item.id)}
                                         className={`shrink-0 rounded-sm border px-3 py-1.5 text-xs font-semibold transition ${
                                             active
-                                                ? 'border-[#e6c99f] bg-[#fff3df] text-[#986b37]'
-                                                : 'border-[#dce4ec] bg-white text-[#8296a9] hover:border-[#c5d9e9]'
+                                                ? 'border-[#E8C3A3] bg-[#FFF1E5] text-[#B66B35]'
+                                                : 'border-[#EAE2D9] bg-white text-[#928477] hover:border-[#D8A47D] hover:bg-[#FAF5EF]'
                                         }`}
                                     >
                                         {item.name}
@@ -219,13 +215,13 @@ export default function Searching(props: SearchingProps) {
                     {/* Sub Categories */}
                     {props.category.length > 0 &&
                         filteredSubCategories.length > 0 && (
-                            <div className="border-b border-[#dce4ec] bg-[#fbfdff] px-3 py-3">
+                            <div className="border-b border-[#EAE2D9] bg-[#FDFBF8] px-3 py-3">
                                 <div className="mb-2 flex items-center justify-between">
-                                    <h3 className="text-xs font-bold text-[#566779]">
+                                    <h3 className="text-xs font-bold text-[#665548]">
                                         Sub Kategori
                                     </h3>
 
-                                    <span className="text-[10px] text-[#91a1b1]">
+                                    <span className="text-[10px] text-[#A99B8D]">
                                         {props.subCategory !== ''
                                             ? '1 dipilih'
                                             : 'Semua sub kategori'}
@@ -238,8 +234,8 @@ export default function Searching(props: SearchingProps) {
                                         onClick={() => props.setSubCategory('')}
                                         className={`shrink-0 rounded-sm border px-3 py-1.5 text-xs font-semibold transition ${
                                             props.subCategory === ''
-                                                ? 'border-[#a9c8e0] bg-[#eaf3fa] text-[#4b83ad]'
-                                                : 'border-[#dce4ec] bg-white text-[#8296a9] hover:border-[#c5d9e9]'
+                                                ? 'border-[#E8C3A3] bg-[#FFF1E5] text-[#B66B35]'
+                                                : 'border-[#EAE2D9] bg-white text-[#928477] hover:border-[#D8A47D]'
                                         }`}
                                     >
                                         Semua
@@ -260,8 +256,8 @@ export default function Searching(props: SearchingProps) {
                                                 }
                                                 className={`shrink-0 rounded-sm border px-3 py-1.5 text-xs font-semibold transition ${
                                                     active
-                                                        ? 'border-[#e6c99f] bg-[#fff3df] text-[#986b37]'
-                                                        : 'border-[#dce4ec] bg-white text-[#8296a9] hover:border-[#c5d9e9]'
+                                                        ? 'border-[#E8C3A3] bg-[#FFF1E5] text-[#B66B35]'
+                                                        : 'border-[#EAE2D9] bg-white text-[#928477] hover:border-[#D8A47D]'
                                                 }`}
                                             >
                                                 {item.name}
@@ -273,14 +269,14 @@ export default function Searching(props: SearchingProps) {
                         )}
 
                     {/* Popular Topics Toggle */}
-                    {/* <div className="border-b border-[#dce4ec] bg-white px-3 py-2">
+                    {/* <div className="border-b border-[#EAE2D9] bg-white px-3 py-2">
                         <button
                             type="button"
                             onClick={() => setShowTopics((prev) => !prev)}
                             className={`flex w-full items-center justify-between rounded-sm px-2 py-2 transition ${
                                 showTopics
-                                    ? 'bg-[#eef4f9] text-[#4b83ad]'
-                                    : 'text-[#64788b] hover:bg-[#f5f8fb]'
+                                    ? 'bg-[#FFF1E5] text-[#B66B35]'
+                                    : 'text-[#806F60] hover:bg-[#FAF5EF]'
                             }`}
                         >
                             <span className="flex items-center gap-2">
@@ -289,7 +285,7 @@ export default function Searching(props: SearchingProps) {
                                 <span className="text-xs font-bold">Topik</span>
 
                                 {props.selectedTopics.length > 0 && (
-                                    <span className="rounded-full bg-[#e5eff8] px-2 py-0.5 text-[10px] font-semibold text-[#4b83ad]">
+                                    <span className="rounded-full bg-[#FFF1E5] px-2 py-0.5 text-[10px] font-semibold text-[#B66B35]">
                                         {props.selectedTopics.length}
                                     </span>
                                 )}
@@ -321,23 +317,23 @@ export default function Searching(props: SearchingProps) {
 
             {/* Fullscreen Search View */}
             {isSearching && (
-                <div className="fixed inset-0 z-[100] flex flex-col overflow-y-auto bg-[#f5f7fa]">
+                <div className="fixed inset-0 z-[100] flex flex-col overflow-y-auto bg-[#FAF8F5]">
                     {/* Search Header */}
-                    <div className="sticky top-0 z-50 flex items-center gap-2 border-b border-[#dce4ec] bg-white px-3 py-3 shadow-sm">
+                    <div className="sticky top-0 z-50 flex items-center gap-2 border-b border-[#EAE2D9] bg-white px-3 py-3 shadow-sm">
                         <button
                             type="button"
                             onClick={() => setIsSearching(false)}
-                            className="flex size-9 shrink-0 items-center justify-center rounded-sm border border-[#dce4ec] bg-[#f8fafc] text-[#6487a5]"
+                            className="flex size-9 shrink-0 items-center justify-center rounded-sm border border-[#EAE2D9] bg-[#FAF8F5] text-[#B66B35] transition hover:bg-[#FFF1E5]"
                         >
                             <ArrowLeft className="size-5" />
                         </button>
 
                         <div className="min-w-0 flex-1">
-                            <h3 className="text-sm font-bold text-[#40566b]">
+                            <h3 className="text-sm font-bold text-[#665548]">
                                 Pencarian Produk
                             </h3>
 
-                            <p className="text-[10px] text-[#91a1b1]">
+                            <p className="text-[10px] text-[#A99B8D]">
                                 Cari dan atur filter produk
                             </p>
                         </div>
@@ -345,7 +341,7 @@ export default function Searching(props: SearchingProps) {
                         <button
                             type="button"
                             onClick={() => setIsSearching(false)}
-                            className="flex size-9 shrink-0 items-center justify-center rounded-sm text-[#8296a9] hover:bg-[#f0f4f8]"
+                            className="flex size-9 shrink-0 items-center justify-center rounded-sm text-[#928477] transition hover:bg-[#FAF5EF]"
                         >
                             <X className="size-5" />
                         </button>
@@ -392,7 +388,7 @@ export default function Searching(props: SearchingProps) {
                             <button
                                 type="button"
                                 onClick={() => setIsSearching(false)}
-                                className="w-full rounded-sm border border-[#a9c8e0] bg-gradient-to-b from-[#fafdff] to-[#dfedf8] px-4 py-3 text-sm font-bold text-[#4b83ad] shadow-sm transition hover:to-[#d5e8f6]"
+                                className="w-full rounded-sm border border-[#D69B70] bg-[#C4773D] px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#AD6331]"
                             >
                                 Tampilkan Produk
                             </button>
