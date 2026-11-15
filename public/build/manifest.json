@@ -724,7 +724,7 @@
     ]
   },
   "modules/Front/resources/js/pages/home/index.tsx": {
-    "file": "assets/home-BdF_E8dL.js",
+    "file": "assets/home-JI_0Cw9Y.js",
     "name": "home",
     "src": "modules/Front/resources/js/pages/home/index.tsx",
     "isDynamicEntry": true,
@@ -755,7 +755,7 @@
     ]
   },
   "modules/Front/resources/js/pages/home/search.tsx": {
-    "file": "assets/search-DaKkKVcL.js",
+    "file": "assets/search-DrvNZyVL.js",
     "name": "search",
     "src": "modules/Front/resources/js/pages/home/search.tsx",
     "isDynamicEntry": true,
@@ -1511,7 +1511,7 @@
     "src": "node_modules/@blocknote/core/src/fonts/inter-v12-latin/inter-v12-latin-regular.woff2"
   },
   "resources/css/app.css": {
-    "file": "assets/app-QtfHCGGh.css",
+    "file": "assets/app-C_B51vuI.css",
     "name": "app",
     "names": [
       "app.css"
@@ -1540,7 +1540,7 @@
     ]
   },
   "resources/js/app.tsx": {
-    "file": "assets/app--FOIJfMQ.js",
+    "file": "assets/app-Cj3MQ5k9.js",
     "name": "app",
     "src": "resources/js/app.tsx",
     "isEntry": true,
