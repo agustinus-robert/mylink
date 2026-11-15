@@ -41,6 +41,12 @@ type Category = {
     name: string;
 };
 
+type SubCategory = {
+    id: number;
+    category_id: number;
+    name: string;
+};
+
 type Province = {
     id: number;
     name: string;
@@ -57,6 +63,8 @@ type Props = {
     topics: Topic[];
     products: Pagination<Product>;
     categories: Category[];
+    subCategories: SubCategory[];
+    subCategoryId: number | string | null;
     provinces: Province[];
     regencies: Regency[];
 };
@@ -65,6 +73,8 @@ export default function Home({
     topics,
     products,
     categories,
+    subCategories,
+    subCategoryId,
     provinces,
     regencies,
 }: Props) {
@@ -81,6 +91,10 @@ export default function Home({
 
     const [keyword, setKeyword] = useState('');
     const [category, setCategory] = useState<number[]>([]);
+    const [subCategory, setSubCategory] = useState<number | ''>(
+        subCategoryId ? Number(subCategoryId) : '',
+    );
+
     const [dateFrom, setDateFrom] = useState('');
     const [dateTo, setDateTo] = useState('');
     const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
@@ -107,17 +121,25 @@ export default function Home({
                 route('home'),
                 {
                     searchType,
+
                     ...(searchType === 'keyword'
-                        ? { keyword: keyword || undefined }
+                        ? {
+                              keyword: keyword || undefined,
+                          }
                         : {
                               category: category.length ? category : undefined,
                           }),
 
+                    subCategory: subCategory || undefined,
+
                     dateFrom: dateFrom || undefined,
                     dateTo: dateTo || undefined,
+
                     topics: selectedTopics.length ? selectedTopics : undefined,
+
                     province: province || undefined,
                     regency: regency || undefined,
+
                     minPrice: minPrice || undefined,
                     maxPrice: maxPrice || undefined,
 
@@ -128,7 +150,7 @@ export default function Home({
                     sort,
                 },
                 {
-                    only: ['products', 'topics', 'regencies'],
+                    only: ['products', 'topics', 'regencies', 'subCategories'],
                     reset: ['products'],
                     preserveState: true,
                     preserveScroll: true,
@@ -150,6 +172,7 @@ export default function Home({
         searchType,
         keyword,
         category,
+        subCategory,
         dateFrom,
         dateTo,
         selectedTopics,
@@ -172,6 +195,9 @@ export default function Home({
                     setKeyword={setKeyword}
                     category={category}
                     setCategory={setCategory}
+                    subCategory={subCategory}
+                    setSubCategory={setSubCategory}
+                    subCategories={subCategories}
                     dateFrom={dateFrom}
                     dateTo={dateTo}
                     setDateFrom={setDateFrom}

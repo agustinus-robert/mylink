@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Modules\Transaction\Models\Product;
 use Modules\Master\Models\Category;
+use Modules\Master\Models\SubCategory;
 use Modules\Front\Traits\ProductSimilarity;
 use Modules\Transaction\Models\Topics;
 use Modules\Master\Models\Province;
@@ -80,8 +81,12 @@ class HomeController extends Controller
         */
 
         $topicsFilter = $request->input('topics', []);
+
         $provinceId = $request->input('province');
         $regencyId = $request->input('regency');
+
+        $categoryIds = $request->input('category', []);
+        $subCategoryId = $request->input('subCategory');
 
         $minPrice = $request->input('minPrice');
         $maxPrice = $request->input('maxPrice');
@@ -94,6 +99,11 @@ class HomeController extends Controller
             $sort = 'desc';
         }
 
+        // Pastikan category selalu berbentuk array.
+        $categoryIds = is_array($categoryIds)
+            ? $categoryIds
+            : (filled($categoryIds) ? [$categoryIds] : []);
+
         /*
         |--------------------------------------------------------------------------
         | PRODUCT QUERY
@@ -101,6 +111,8 @@ class HomeController extends Controller
         */
 
         $query = Product::query()
+
+            // Filter keyword.
             ->when(
                 $request->searchType === 'keyword' && filled($request->keyword),
                 fn ($query) => $query->where(
@@ -109,11 +121,22 @@ class HomeController extends Controller
                     "%{$request->keyword}%"
                 )
             )
+
+            // Filter category.
             ->when(
-                $request->searchType === 'category' && filled($request->category),
+                $request->searchType === 'category' && !empty($categoryIds),
                 fn ($query) => $query->whereIn(
                     'category_id',
-                    $request->category
+                    $categoryIds
+                )
+            )
+
+            // Filter sub category.
+            ->when(
+                filled($subCategoryId),
+                fn ($query) => $query->where(
+                    'sub_category_id',
+                    $subCategoryId
                 )
             )
 
@@ -222,6 +245,8 @@ class HomeController extends Controller
         Log::info('========== FILTERED PRODUCT DEBUG ==========', [
             'url' => $request->fullUrl(),
             'related_filter' => $relatedFilter,
+            'category_filter' => $categoryIds,
+            'sub_category_filter' => $subCategoryId,
             'filtered_product_count' => $filteredProductCount,
             'sql' => $query->toSql(),
             'bindings' => $query->getBindings(),
@@ -247,15 +272,46 @@ class HomeController extends Controller
             ])
             ->values();
 
-        // Categories.
+        /*
+        |--------------------------------------------------------------------------
+        | CATEGORIES
+        |--------------------------------------------------------------------------
+        */
+
         $categories = Category::query()
-            ->whereNull('deleted_at')
+            ->orderBy('name')
             ->get([
                 'id',
                 'name',
             ]);
 
-        // Provinces.
+        /*
+        |--------------------------------------------------------------------------
+        | SUB CATEGORIES
+        |--------------------------------------------------------------------------
+        */
+
+        $subCategories = SubCategory::query()
+            ->when(
+                !empty($categoryIds),
+                fn ($query) => $query->whereIn(
+                    'category_id',
+                    $categoryIds
+                )
+            )
+            ->orderBy('name')
+            ->get([
+                'id',
+                'category_id',
+                'name',
+            ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | PROVINCES
+        |--------------------------------------------------------------------------
+        */
+
         $provinces = Province::query()
             ->orderBy('province')
             ->get([
@@ -263,7 +319,12 @@ class HomeController extends Controller
                 'province as name',
             ]);
 
-        // Regencies.
+        /*
+        |--------------------------------------------------------------------------
+        | REGENCIES
+        |--------------------------------------------------------------------------
+        */
+
         $regencies = Regency::query()
             ->when(
                 filled($provinceId),
@@ -330,6 +391,9 @@ class HomeController extends Controller
             }),
 
             'categories' => $categories,
+            'subCategories' => $subCategories,
+            'subCategoryId' => $subCategoryId,
+
             'provinces' => $provinces,
             'regencies' => $regencies,
 

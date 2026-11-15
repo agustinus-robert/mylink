@@ -24,6 +24,12 @@ type Category = {
     name: string;
 };
 
+type SubCategory = {
+    id: number;
+    category_id: number;
+    name: string;
+};
+
 type Province = {
     id: number;
     name: string;
@@ -47,6 +53,10 @@ type SearchingProps = {
 
     category: number[];
     setCategory: React.Dispatch<React.SetStateAction<number[]>>;
+
+    subCategory: number | '';
+    setSubCategory: React.Dispatch<React.SetStateAction<number | ''>>;
+    subCategories: SubCategory[];
 
     dateFrom: string;
     dateTo: string;
@@ -81,7 +91,7 @@ export default function Searching(props: SearchingProps) {
     const [isSearching, setIsSearching] = useState(false);
     const [showTopics, setShowTopics] = useState(false);
 
-    // Sinkronisasi keyword dan searchType dari URL
+    // Sinkronisasi keyword dan searchType dari URL.
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
 
@@ -100,12 +110,47 @@ export default function Searching(props: SearchingProps) {
     }, []);
 
     const toggleCategory = (id: number) => {
-        props.setCategory((prev) =>
-            prev.includes(id)
+        props.setCategory((prev) => {
+            const next = prev.includes(id)
                 ? prev.filter((item) => item !== id)
-                : [...prev, id],
-        );
+                : [...prev, id];
+
+            // Kosongkan subcategory jika tidak lagi sesuai kategori.
+            if (
+                props.subCategory !== '' &&
+                !next.includes(
+                    props.subCategories.find(
+                        (item) => item.id === props.subCategory,
+                    )?.category_id ?? -1,
+                )
+            ) {
+                props.setSubCategory('');
+            }
+
+            return next;
+        });
     };
+
+    // Subcategory hanya dari kategori yang dipilih.
+    const filteredSubCategories = props.subCategories.filter((item) =>
+        props.category.includes(item.category_id),
+    );
+
+    // Pastikan subcategory masih sesuai dengan kategori yang dipilih.
+    useEffect(() => {
+        if (props.subCategory === '') return;
+
+        const selectedSubCategory = props.subCategories.find(
+            (item) => item.id === props.subCategory,
+        );
+
+        if (
+            !selectedSubCategory ||
+            !props.category.includes(selectedSubCategory.category_id)
+        ) {
+            props.setSubCategory('');
+        }
+    }, [props.category, props.subCategories]);
 
     return (
         <div className="relative min-h-screen bg-[#f5f7fa]">
@@ -170,6 +215,62 @@ export default function Searching(props: SearchingProps) {
                             })}
                         </div>
                     </div>
+
+                    {/* Sub Categories */}
+                    {props.category.length > 0 &&
+                        filteredSubCategories.length > 0 && (
+                            <div className="border-b border-[#dce4ec] bg-[#fbfdff] px-3 py-3">
+                                <div className="mb-2 flex items-center justify-between">
+                                    <h3 className="text-xs font-bold text-[#566779]">
+                                        Sub Kategori
+                                    </h3>
+
+                                    <span className="text-[10px] text-[#91a1b1]">
+                                        {props.subCategory !== ''
+                                            ? '1 dipilih'
+                                            : 'Semua sub kategori'}
+                                    </span>
+                                </div>
+
+                                <div className="thin-scrollbar flex gap-2 overflow-x-auto pb-1">
+                                    <button
+                                        type="button"
+                                        onClick={() => props.setSubCategory('')}
+                                        className={`shrink-0 rounded-sm border px-3 py-1.5 text-xs font-semibold transition ${
+                                            props.subCategory === ''
+                                                ? 'border-[#a9c8e0] bg-[#eaf3fa] text-[#4b83ad]'
+                                                : 'border-[#dce4ec] bg-white text-[#8296a9] hover:border-[#c5d9e9]'
+                                        }`}
+                                    >
+                                        Semua
+                                    </button>
+
+                                    {filteredSubCategories.map((item) => {
+                                        const active =
+                                            props.subCategory === item.id;
+
+                                        return (
+                                            <button
+                                                key={item.id}
+                                                type="button"
+                                                onClick={() =>
+                                                    props.setSubCategory(
+                                                        active ? '' : item.id,
+                                                    )
+                                                }
+                                                className={`shrink-0 rounded-sm border px-3 py-1.5 text-xs font-semibold transition ${
+                                                    active
+                                                        ? 'border-[#e6c99f] bg-[#fff3df] text-[#986b37]'
+                                                        : 'border-[#dce4ec] bg-white text-[#8296a9] hover:border-[#c5d9e9]'
+                                                }`}
+                                            >
+                                                {item.name}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
 
                     {/* Popular Topics Toggle */}
                     {/* <div className="border-b border-[#dce4ec] bg-white px-3 py-2">
