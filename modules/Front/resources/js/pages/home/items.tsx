@@ -79,15 +79,15 @@ function ProductPrice({ item }: { item: Product }) {
 
     return (
         <div className="mb-1 flex flex-wrap items-center gap-x-2 gap-y-1">
-            <p className="text-xs font-bold text-[#C4773D]">
+            <p className="text-xs font-bold text-[#F07818]">
                 {item.detail?.prices != null
                     ? `Rp ${Number(item.detail.prices).toLocaleString('id-ID')}`
                     : 'Harga belum tersedia'}
             </p>
 
             {city && (
-                <span className="inline-flex min-w-0 items-center gap-0.5 text-[9px] font-medium text-[#A99B8D]">
-                    <MapPin className="size-3 shrink-0 text-[#C4773D]" />
+                <span className="inline-flex min-w-0 items-center gap-0.5 text-[9px] font-medium text-[#77716B]">
+                    <MapPin className="size-3 shrink-0 text-[#F07818]" />
                     <span className="truncate">{city}</span>
                 </span>
             )}
@@ -107,26 +107,26 @@ function ProductGroup({
     const isIdentical = type === 'identical';
 
     return (
-        <section className="mb-4 overflow-hidden rounded-sm border border-[#EAE2D9] bg-white">
+        <section className="mb-4 overflow-hidden rounded-sm border border-[#DEDAD4] bg-white">
             {/* Group Header */}
-            <div className="flex items-center justify-between border-b border-[#EAE2D9] bg-gradient-to-b from-white to-[#F7F3EE] px-3 py-2">
+            <div className="flex items-center justify-between border-b border-[#DEDAD4] bg-gradient-to-b from-white to-[#F5F4F1] px-3 py-2">
                 <div className="flex min-w-0 items-center gap-2">
                     <div
                         className={`flex size-7 shrink-0 items-center justify-center rounded-sm border ${
                             isIdentical
-                                ? 'border-[#E8C3A3] bg-[#FFF1E5] text-[#C4773D]'
-                                : 'border-[#EAE2D9] bg-[#F5F1EB] text-[#928477]'
+                                ? 'border-[#D9630B] bg-[#F07818] text-white'
+                                : 'border-[#DEDAD4] bg-[#F5F4F1] text-[#77716B]'
                         }`}
                     >
                         {icon}
                     </div>
 
                     <div className="min-w-0">
-                        <h4 className="text-[10px] font-bold text-[#665548]">
+                        <h4 className="text-[10px] font-bold text-[#292522]">
                             {title}
                         </h4>
 
-                        <p className="text-[9px] text-[#A99B8D]">
+                        <p className="text-[9px] text-[#77716B]">
                             {description}
                         </p>
                     </div>
@@ -135,8 +135,8 @@ function ProductGroup({
                 <span
                     className={`shrink-0 rounded-sm px-2 py-1 text-[9px] font-bold ${
                         isIdentical
-                            ? 'bg-[#FFF1E5] text-[#B66B35]'
-                            : 'bg-[#F3EFEA] text-[#928477]'
+                            ? 'bg-[#FFF0E2] text-[#D9630B]'
+                            : 'bg-[#F0EEEA] text-[#77716B]'
                     }`}
                 >
                     {loading ? 'MEMUAT...' : `${total} PRODUK`}
@@ -147,9 +147,9 @@ function ProductGroup({
             <div className="p-2">
                 {loading ? (
                     <div className="flex min-h-[120px] flex-col items-center justify-center">
-                        <div className="mb-2 size-6 animate-spin rounded-full border-2 border-[#EAE2D9] border-t-[#C4773D]" />
+                        <div className="mb-2 size-6 animate-spin rounded-full border-2 border-[#DEDAD4] border-t-[#F07818]" />
 
-                        <p className="text-[10px] text-[#A99B8D]">
+                        <p className="text-[10px] text-[#77716B]">
                             Mencari produk...
                         </p>
                     </div>
@@ -158,10 +158,10 @@ function ProductGroup({
                         {products.map((item) => (
                             <div
                                 key={item.id}
-                                className="group flex min-w-0 flex-col overflow-hidden rounded-sm border border-[#EAE2D9] bg-white transition hover:border-[#D8A47D] hover:shadow-sm"
+                                className="group flex min-w-0 flex-col overflow-hidden rounded-sm border border-[#DEDAD4] bg-white transition hover:border-[#F07818] hover:shadow-sm"
                             >
                                 {/* Image */}
-                                <div className="relative h-28 overflow-hidden border-b border-[#EAE2D9] bg-[#F5F1EB]">
+                                <div className="relative h-28 overflow-hidden border-b border-[#DEDAD4] bg-[#F5F4F1]">
                                     {item.link ? (
                                         <img
                                             src={item.link}
@@ -172,7 +172,7 @@ function ProductGroup({
                                         />
                                     ) : (
                                         <div className="flex size-full items-center justify-center">
-                                            <ShoppingBag className="size-7 text-[#C9BBAE]" />
+                                            <ShoppingBag className="size-7 text-[#C5BEB5]" />
                                         </div>
                                     )}
 
@@ -180,8 +180,8 @@ function ProductGroup({
                                         <span
                                             className={`absolute top-1.5 left-1.5 rounded-sm px-1.5 py-1 text-[9px] font-bold shadow-sm ${
                                                 isIdentical
-                                                    ? 'bg-[#FFF1E5] text-[#B66B35]'
-                                                    : 'bg-[#F3EFEA] text-[#806F60]'
+                                                    ? 'bg-[#F07818] text-white'
+                                                    : 'bg-[#F0EEEA] text-[#625B54]'
                                             }`}
                                         >
                                             {item.similarity}% MIRIP
@@ -193,7 +193,7 @@ function ProductGroup({
                                 <div className="flex flex-1 flex-col p-2">
                                     <ProductPrice item={item} />
 
-                                    <h4 className="mb-2 line-clamp-3 min-h-[48px] text-[10px] leading-4 text-[#665548]">
+                                    <h4 className="mb-2 line-clamp-3 min-h-[48px] text-[10px] leading-4 text-[#292522]">
                                         {item.name}
                                     </h4>
 
@@ -201,7 +201,7 @@ function ProductGroup({
                                         href={item.affiliate_link || item.link}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="mt-auto flex items-center justify-center gap-1 rounded-sm border border-[#E8C3A3] bg-gradient-to-b from-[#FFF8F0] to-[#FFF1E5] px-1 py-1.5 text-[9px] font-bold text-[#B66B35] transition hover:border-[#D8A47D] hover:to-[#F8E5D2]"
+                                        className="mt-auto flex items-center justify-center gap-1 rounded-sm border border-[#F07818] bg-[#FFF0E2] px-1 py-1.5 text-[9px] font-bold text-[#D9630B] transition hover:border-[#D9630B] hover:bg-[#F07818] hover:text-white"
                                     >
                                         <ExternalLink className="size-3" />
                                         LIHAT PRODUK
@@ -212,13 +212,13 @@ function ProductGroup({
                     </div>
                 ) : (
                     <div className="flex min-h-[100px] flex-col items-center justify-center text-center">
-                        <ShoppingBag className="mb-2 size-6 text-[#C9BBAE]" />
+                        <ShoppingBag className="mb-2 size-6 text-[#C5BEB5]" />
 
-                        <p className="text-[10px] font-bold text-[#665548]">
+                        <p className="text-[10px] font-bold text-[#292522]">
                             Belum ada produk ditemukan
                         </p>
 
-                        <p className="mt-1 text-[9px] text-[#A99B8D]">
+                        <p className="mt-1 text-[9px] text-[#77716B]">
                             Belum ditemukan produk dalam kelompok ini.
                         </p>
                     </div>
@@ -477,16 +477,16 @@ export default function Items({ products }: Props) {
     return (
         <div className="flex w-full flex-col">
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-[#EAE2D9] bg-white px-3 py-2">
+            <div className="flex items-center justify-between border-b border-[#DEDAD4] bg-white px-3 py-2">
                 <div className="flex items-center gap-2">
-                    <Hand className="size-4 text-[#C4773D]" />
+                    <Hand className="size-4 text-[#F07818]" />
 
                     <div>
-                        <h3 className="text-xs font-bold text-[#665548]">
+                        <h3 className="text-xs font-bold text-[#292522]">
                             Barang Terbaru
                         </h3>
 
-                        <p className="text-[10px] text-[#A99B8D]">
+                        <p className="text-[10px] text-[#77716B]">
                             Temukan barang pilihan
                         </p>
                     </div>
@@ -507,8 +507,8 @@ export default function Items({ products }: Props) {
                         aria-pressed={relatedFilter}
                         className={`flex h-7 items-center gap-1 rounded-sm border px-2 text-[9px] font-bold shadow-sm transition active:scale-95 disabled:cursor-wait disabled:opacity-50 ${
                             relatedFilter
-                                ? 'border-[#E8C3A3] bg-[#FFF1E5] text-[#B66B35]'
-                                : 'border-[#EAE2D9] bg-gradient-to-b from-white to-[#F7F3EE] text-[#928477] hover:border-[#D8A47D] hover:text-[#B66B35]'
+                                ? 'border-[#D9630B] bg-[#F07818] text-white'
+                                : 'border-[#DEDAD4] bg-white text-[#77716B] hover:border-[#F07818] hover:bg-[#FFF0E2] hover:text-[#D9630B]'
                         }`}
                     >
                         <Filter className="size-3" />
@@ -516,9 +516,9 @@ export default function Items({ products }: Props) {
                         <div className="flex items-center gap-1">
                             Produk Lainnya
                             {relatedFilter ? (
-                                <Check className="size-4 text-[#C4773D]" />
+                                <Check className="size-4 text-white" />
                             ) : (
-                                <X className="size-4 text-[#A99B8D]" />
+                                <X className="size-4 text-[#A39B92]" />
                             )}
                         </div>
                     </button>
@@ -536,7 +536,7 @@ export default function Items({ products }: Props) {
                         aria-label={
                             sort === 'desc' ? 'Ascending' : 'Descending'
                         }
-                        className="flex size-7 items-center justify-center rounded-sm border border-[#EAE2D9] bg-gradient-to-b from-white to-[#F7F3EE] text-[#928477] shadow-sm transition hover:border-[#D8A47D] hover:bg-[#FFF1E5] hover:text-[#B66B35] active:scale-95 disabled:cursor-wait disabled:opacity-50"
+                        className="flex size-7 items-center justify-center rounded-sm border border-[#DEDAD4] bg-white text-[#77716B] shadow-sm transition hover:border-[#F07818] hover:bg-[#FFF0E2] hover:text-[#D9630B] active:scale-95 disabled:cursor-wait disabled:opacity-50"
                     >
                         {sort === 'desc' ? (
                             <ArrowDownWideNarrow className="size-4" />
@@ -566,10 +566,10 @@ export default function Items({ products }: Props) {
                         {products.data.map((item) => (
                             <div
                                 key={item.id}
-                                className="group flex h-auto min-w-0 flex-col self-start overflow-hidden rounded-sm border border-[#EAE2D9] bg-white shadow-[0_1px_3px_rgba(100,75,45,0.05)] transition hover:border-[#D8A47D] hover:shadow-sm"
+                                className="group flex h-auto min-w-0 flex-col self-start overflow-hidden rounded-sm border border-[#DEDAD4] bg-white shadow-[0_1px_3px_rgba(41,37,34,0.05)] transition hover:border-[#F07818] hover:shadow-sm"
                             >
                                 {/* Image */}
-                                <div className="relative h-32 w-full shrink-0 overflow-hidden border-b border-[#EAE2D9] bg-[#F5F1EB]">
+                                <div className="relative h-32 w-full shrink-0 overflow-hidden border-b border-[#DEDAD4] bg-[#F5F4F1]">
                                     {item.link ? (
                                         <img
                                             src={item.link}
@@ -579,13 +579,13 @@ export default function Items({ products }: Props) {
                                             className="block h-full w-full object-cover transition duration-300 group-hover:scale-105"
                                         />
                                     ) : (
-                                        <div className="flex h-full flex-col items-center justify-center gap-1 text-[10px] text-[#A99B8D]">
-                                            <ShoppingBag className="size-6 text-[#C9BBAE]" />
+                                        <div className="flex h-full flex-col items-center justify-center gap-1 text-[10px] text-[#77716B]">
+                                            <ShoppingBag className="size-6 text-[#C5BEB5]" />
                                             Gambar tidak tersedia
                                         </div>
                                     )}
 
-                                    <span className="absolute top-1.5 left-0 rounded-r-sm bg-gradient-to-b from-[#D89563] to-[#C4773D] px-1.5 py-0.5 text-[8px] font-bold text-white">
+                                    <span className="absolute top-1.5 left-0 rounded-r-sm bg-gradient-to-b from-[#F07818] to-[#D9630B] px-1.5 py-0.5 text-[8px] font-bold text-white">
                                         BARU
                                     </span>
 
@@ -593,7 +593,7 @@ export default function Items({ products }: Props) {
                                     <button
                                         type="button"
                                         onClick={() => setSelectedProduct(item)}
-                                        className="absolute right-1.5 bottom-1.5 flex items-center gap-1 rounded-sm border border-white/70 bg-white/95 px-2 py-1 text-[9px] font-bold text-[#B66B35] shadow-sm backdrop-blur transition hover:border-[#C4773D] hover:bg-[#C4773D] hover:text-white active:scale-95"
+                                        className="absolute right-1.5 bottom-1.5 flex items-center gap-1 rounded-sm border border-white/70 bg-white/95 px-2 py-1 text-[9px] font-bold text-[#D9630B] shadow-sm backdrop-blur transition hover:border-[#D9630B] hover:bg-[#F07818] hover:text-white active:scale-95"
                                     >
                                         <Layers3 className="size-3" />
                                         TERKAIT
@@ -601,21 +601,21 @@ export default function Items({ products }: Props) {
                                 </div>
 
                                 {/* Product Info */}
-                                <div className="flex min-h-[90px] w-full flex-col bg-gradient-to-b from-white to-[#FDFBF8] p-1.5">
+                                <div className="flex min-h-[90px] w-full flex-col bg-gradient-to-b from-white to-[#F5F4F1] p-1.5">
                                     <ProductPrice item={item} />
 
-                                    <h4 className="line-clamp-2 min-h-8 text-[11px] leading-4 text-[#665548] transition group-hover:text-[#B66B35]">
+                                    <h4 className="line-clamp-2 min-h-8 text-[11px] leading-4 text-[#292522] transition group-hover:text-[#D9630B]">
                                         {item.name}
                                     </h4>
 
-                                    <div className="mt-auto border-t border-dashed border-[#EAE2D9] pt-1.5">
+                                    <div className="mt-auto border-t border-dashed border-[#DEDAD4] pt-1.5">
                                         <a
                                             href={
                                                 item.affiliate_link || item.link
                                             }
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="flex items-center justify-center gap-1 rounded-sm border border-[#E8C3A3] bg-gradient-to-b from-[#FFF8F0] to-[#FFF1E5] px-1.5 py-1 text-[9px] font-bold text-[#B66B35] transition hover:border-[#D8A47D] hover:to-[#F8E5D2]"
+                                            className="flex items-center justify-center gap-1 rounded-sm border border-[#F07818] bg-[#FFF0E2] px-1.5 py-1 text-[9px] font-bold text-[#D9630B] transition hover:border-[#D9630B] hover:bg-[#F07818] hover:text-white"
                                         >
                                             <ShoppingBag className="size-3" />
                                             LIHAT PRODUK
@@ -629,10 +629,10 @@ export default function Items({ products }: Props) {
 
                 {/* Empty State */}
                 {products.data.length === 0 && !productsLoading && (
-                    <div className="flex min-h-[200px] flex-col items-center justify-center rounded-sm border border-dashed border-[#E8DCCF] bg-white">
-                        <ShoppingBag className="mb-2 size-7 text-[#C9BBAE]" />
+                    <div className="flex min-h-[200px] flex-col items-center justify-center rounded-sm border border-dashed border-[#DEDAD4] bg-white">
+                        <ShoppingBag className="mb-2 size-7 text-[#C5BEB5]" />
 
-                        <p className="text-xs text-[#A99B8D]">
+                        <p className="text-xs text-[#77716B]">
                             {relatedFilter
                                 ? 'Belum ada produk dengan related lebih dari satu.'
                                 : 'Belum ada barang ditemukan.'}
@@ -642,7 +642,7 @@ export default function Items({ products }: Props) {
                             <button
                                 type="button"
                                 onClick={handleRelatedFilter}
-                                className="mt-3 rounded-sm border border-[#E8C3A3] bg-[#FFF1E5] px-3 py-1.5 text-[10px] font-bold text-[#B66B35] transition hover:bg-[#F8E5D2]"
+                                className="mt-3 rounded-sm border border-[#F07818] bg-[#FFF0E2] px-3 py-1.5 text-[10px] font-bold text-[#D9630B] transition hover:bg-[#F07818] hover:text-white"
                             >
                                 HAPUS FILTER
                             </button>
@@ -652,16 +652,16 @@ export default function Items({ products }: Props) {
 
                 {/* Full Loading Overlay */}
                 {productsLoading && (
-                    <div className="absolute inset-2 z-30 flex min-h-[500px] flex-col items-center justify-center rounded-sm border border-[#EAE2D9] bg-[#FAF8F5]/90 backdrop-blur-[2px]">
-                        <div className="mb-3 flex size-12 items-center justify-center rounded-full border border-[#E8C3A3] bg-white shadow-sm">
-                            <div className="size-6 animate-spin rounded-full border-[3px] border-[#F1E5D9] border-t-[#C4773D]" />
+                    <div className="absolute inset-2 z-30 flex min-h-[500px] flex-col items-center justify-center rounded-sm border border-[#DEDAD4] bg-white/90 backdrop-blur-[2px]">
+                        <div className="mb-3 flex size-12 items-center justify-center rounded-full border border-[#DEDAD4] bg-white shadow-sm">
+                            <div className="size-6 animate-spin rounded-full border-[3px] border-[#F5F4F1] border-t-[#F07818]" />
                         </div>
 
-                        <p className="text-xs font-bold tracking-wide text-[#80634D]">
+                        <p className="text-xs font-bold tracking-wide text-[#292522]">
                             MEMUAT PRODUK
                         </p>
 
-                        <p className="mt-1 text-[10px] text-[#A99B8D]">
+                        <p className="mt-1 text-[10px] text-[#77716B]">
                             Sedang memperbarui daftar produk...
                         </p>
                     </div>
@@ -670,9 +670,9 @@ export default function Items({ products }: Props) {
 
             {/* Floating Total Produk */}
             <div className="pointer-events-none fixed inset-x-0 bottom-[56px] z-40">
-                <div className="pointer-events-auto mx-auto flex h-10 w-full max-w-[400px] items-center justify-between border-t border-[#EAE2D9] bg-[#FAF8F5]/95 px-4 shadow-[0_-2px_8px_rgba(100,75,45,0.06)] backdrop-blur-md">
-                    <div className="flex items-center gap-2 text-[#928477]">
-                        <ShoppingBag className="size-3.5 text-[#C4773D]" />
+                <div className="pointer-events-auto mx-auto flex h-10 w-full max-w-[400px] items-center justify-between border-t border-[#DEDAD4] bg-white/95 px-4 shadow-[0_-2px_8px_rgba(41,37,34,0.06)] backdrop-blur-md">
+                    <div className="flex items-center gap-2 text-[#77716B]">
+                        <ShoppingBag className="size-3.5 text-[#F07818]" />
 
                         <span className="text-[10px] font-semibold tracking-wide">
                             {relatedFilter ? 'PRODUK RELATED' : 'TOTAL PRODUK'}
@@ -680,11 +680,11 @@ export default function Items({ products }: Props) {
                     </div>
 
                     <div className="flex items-center gap-1">
-                        <span className="text-xs font-bold text-[#665548]">
+                        <span className="text-xs font-bold text-[#292522]">
                             {products.total.toLocaleString('id-ID')}
                         </span>
 
-                        <span className="text-[10px] text-[#A99B8D]">
+                        <span className="text-[10px] text-[#77716B]">
                             produk
                         </span>
                     </div>
@@ -695,25 +695,25 @@ export default function Items({ products }: Props) {
             {selectedProduct && (
                 <div
                     onClick={() => setSelectedProduct(null)}
-                    className="fixed inset-0 z-[100] flex items-center justify-center bg-[#3D342C]/60 p-3 backdrop-blur-sm sm:p-6"
+                    className="fixed inset-0 z-[100] flex items-center justify-center bg-[#292522]/60 p-3 backdrop-blur-sm sm:p-6"
                 >
                     <div
                         onClick={(event) => event.stopPropagation()}
-                        className="flex max-h-[85vh] w-full max-w-4xl flex-col overflow-hidden rounded-md border border-[#EAE2D9] bg-[#FAF8F5] shadow-2xl"
+                        className="flex max-h-[85vh] w-full max-w-4xl flex-col overflow-hidden rounded-md border border-[#DEDAD4] bg-[#F5F4F1] shadow-2xl"
                     >
                         {/* Modal Header */}
-                        <div className="flex items-center justify-between border-b border-[#EAE2D9] bg-white px-4 py-3">
+                        <div className="flex items-center justify-between border-b border-[#DEDAD4] bg-white px-4 py-3">
                             <div className="flex min-w-0 items-center gap-2">
-                                <div className="flex size-9 shrink-0 items-center justify-center rounded-sm border border-[#E8C3A3] bg-[#FFF1E5] text-[#C4773D]">
+                                <div className="flex size-9 shrink-0 items-center justify-center rounded-sm border border-[#D9630B] bg-[#F07818] text-white">
                                     <Layers3 className="size-4" />
                                 </div>
 
                                 <div className="min-w-0">
-                                    <h3 className="text-sm font-bold text-[#665548]">
+                                    <h3 className="text-sm font-bold text-[#292522]">
                                         Produk Terkait
                                     </h3>
 
-                                    <p className="truncate text-[10px] text-[#A99B8D]">
+                                    <p className="truncate text-[10px] text-[#77716B]">
                                         {selectedProduct.name}
                                     </p>
                                 </div>
@@ -723,15 +723,15 @@ export default function Items({ products }: Props) {
                                 type="button"
                                 onClick={() => setSelectedProduct(null)}
                                 aria-label="Tutup modal"
-                                className="flex size-8 shrink-0 items-center justify-center rounded-sm border border-[#EAE2D9] bg-white text-[#928477] transition hover:border-[#E8C3A3] hover:bg-[#FFF1E5] hover:text-[#B66B35]"
+                                className="flex size-8 shrink-0 items-center justify-center rounded-sm border border-[#DEDAD4] bg-white text-[#77716B] transition hover:border-[#F07818] hover:bg-[#FFF0E2] hover:text-[#D9630B]"
                             >
                                 <X className="size-4" />
                             </button>
                         </div>
 
                         {/* Selected Product */}
-                        <div className="flex items-center gap-3 border-b border-[#EAE2D9] bg-white px-4 py-3">
-                            <div className="size-14 shrink-0 overflow-hidden rounded-sm border border-[#EAE2D9] bg-[#F5F1EB]">
+                        <div className="flex items-center gap-3 border-b border-[#DEDAD4] bg-white px-4 py-3">
+                            <div className="size-14 shrink-0 overflow-hidden rounded-sm border border-[#DEDAD4] bg-[#F5F4F1]">
                                 {selectedProduct.link ? (
                                     <img
                                         src={selectedProduct.link}
@@ -740,17 +740,17 @@ export default function Items({ products }: Props) {
                                     />
                                 ) : (
                                     <div className="flex size-full items-center justify-center">
-                                        <ShoppingBag className="size-5 text-[#C9BBAE]" />
+                                        <ShoppingBag className="size-5 text-[#C5BEB5]" />
                                     </div>
                                 )}
                             </div>
 
                             <div className="min-w-0 flex-1">
-                                <span className="mb-1 block text-[9px] font-bold tracking-wide text-[#A99B8D] uppercase">
+                                <span className="mb-1 block text-[9px] font-bold tracking-wide text-[#77716B] uppercase">
                                     Produk yang dipilih
                                 </span>
 
-                                <h4 className="line-clamp-2 text-xs font-bold text-[#665548]">
+                                <h4 className="line-clamp-2 text-xs font-bold text-[#292522]">
                                     {selectedProduct.name}
                                 </h4>
 
@@ -764,22 +764,22 @@ export default function Items({ products }: Props) {
                         <div className="min-h-0 flex-1 overflow-y-auto p-3">
                             {relatedLoading ? (
                                 <div className="flex min-h-[220px] flex-col items-center justify-center text-center">
-                                    <div className="mb-3 size-7 animate-spin rounded-full border-2 border-[#EAE2D9] border-t-[#C4773D]" />
+                                    <div className="mb-3 size-7 animate-spin rounded-full border-2 border-[#DEDAD4] border-t-[#F07818]" />
 
-                                    <p className="text-xs text-[#A99B8D]">
+                                    <p className="text-xs text-[#77716B]">
                                         Menganalisis nama dan spesifikasi
                                         produk...
                                     </p>
                                 </div>
                             ) : relatedError ? (
                                 <div className="flex min-h-[180px] flex-col items-center justify-center text-center">
-                                    <ShoppingBag className="mb-2 size-8 text-[#C4773D]" />
+                                    <ShoppingBag className="mb-2 size-8 text-[#F07818]" />
 
-                                    <p className="text-xs font-bold text-[#665548]">
+                                    <p className="text-xs font-bold text-[#292522]">
                                         Gagal mengambil produk terkait
                                     </p>
 
-                                    <p className="mt-1 max-w-xs text-[10px] text-[#A99B8D]">
+                                    <p className="mt-1 max-w-xs text-[10px] text-[#77716B]">
                                         {relatedError}
                                     </p>
                                 </div>
@@ -811,15 +811,15 @@ export default function Items({ products }: Props) {
                         </div>
 
                         {/* Modal Footer */}
-                        <div className="flex items-center justify-between border-t border-[#EAE2D9] bg-white px-4 py-2">
-                            <span className="text-[9px] text-[#A99B8D]">
+                        <div className="flex items-center justify-between border-t border-[#DEDAD4] bg-white px-4 py-2">
+                            <span className="text-[9px] text-[#77716B]">
                                 Pencocokan berdasarkan nama produk
                             </span>
 
                             <button
                                 type="button"
                                 onClick={() => setSelectedProduct(null)}
-                                className="rounded-sm border border-[#E8C3A3] bg-gradient-to-b from-[#FFF8F0] to-[#FFF1E5] px-3 py-1.5 text-[10px] font-bold text-[#B66B35] transition hover:border-[#D8A47D]"
+                                className="rounded-sm border border-[#F07818] bg-[#FFF0E2] px-3 py-1.5 text-[10px] font-bold text-[#D9630B] transition hover:border-[#D9630B] hover:bg-[#F07818] hover:text-white"
                             >
                                 TUTUP
                             </button>

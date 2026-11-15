@@ -248,21 +248,21 @@ export default function SearchForm({
         : 'Pilih rentang tanggal';
 
     const tabClass = (active: boolean) =>
-        `flex items-center justify-center gap-2 rounded-sm border font-bold transition-all duration-300 ease-in-out ${
+        `flex items-center justify-center gap-2 rounded-sm border font-bold transition-all duration-200 ${
             compact ? 'px-2 py-1.5 text-xs' : 'px-3 py-3 text-sm'
         } ${
             active
-                ? 'border-[#E8C3A3] bg-gradient-to-b from-[#FFF8F0] to-[#FFF1E5] text-[#B66B35] shadow-inner'
-                : 'border-[#EAE2D9] bg-gradient-to-b from-white to-[#F7F3EE] text-[#928477] hover:border-[#D8A47D] hover:from-white hover:to-[#FAF0E6]'
+                ? 'border-[#D9630B] bg-[#F07818] text-white shadow-sm'
+                : 'border-[#DEDAD4] bg-white text-[#625B54] hover:border-[#F07818] hover:text-[#E66B0B]'
         }`;
 
     const buttonClass =
-        'rounded-sm border border-[#EAE2D9] bg-gradient-to-b from-white to-[#F7F3EE] px-3 py-2 text-sm font-semibold text-[#806F60] shadow-sm transition hover:border-[#D8A47D] hover:to-[#FAF0E6] active:translate-y-px';
+        'rounded-sm border border-[#DEDAD4] bg-white px-3 py-2 text-sm font-semibold text-[#625B54] shadow-sm transition hover:border-[#F07818] hover:text-[#D9630B] active:translate-y-px';
 
     return (
         <>
             {/* Search Type */}
-            <div className="grid grid-cols-2 gap-1 border-b border-[#EAE2D9] bg-[#F3EDE6] p-1">
+            <div className="grid grid-cols-2 gap-1 border-b border-[#DEDAD4] bg-[#F0EEEA] p-1">
                 <button
                     type="button"
                     onClick={() => setSearchType('keyword')}
@@ -285,7 +285,7 @@ export default function SearchForm({
             {/* Keyword */}
             {searchType === 'keyword' ? (
                 <div
-                    className={`border-t border-white bg-[#FDFBF8] transition-[padding] duration-300 ease-in-out ${
+                    className={`border-t border-white bg-white transition-[padding] duration-300 ease-in-out ${
                         compact ? 'p-2' : 'p-3'
                     }`}
                 >
@@ -297,7 +297,7 @@ export default function SearchForm({
                         }`}
                     >
                         <div className="overflow-hidden">
-                            <label className="mb-2 block text-xs font-bold text-[#665548]">
+                            <label className="mb-2 block text-xs font-bold text-[#292522]">
                                 Kata kunci pencarian
                             </label>
                         </div>
@@ -305,9 +305,9 @@ export default function SearchForm({
 
                     {/* Search Input + Autocomplete */}
                     <div ref={searchRef} className="relative">
-                        <div className="flex rounded-sm border border-[#E8DCCF] bg-white shadow-inner transition focus-within:border-[#D69B70] focus-within:ring-1 focus-within:ring-[#F5DCC7]">
-                            <div className="flex items-center border-r border-[#EAE2D9] bg-gradient-to-b from-white to-[#F7F3EE] px-3">
-                                <Search className="size-4 text-[#C4773D]" />
+                        <div className="flex rounded-sm border border-[#DAD5CE] bg-white shadow-inner transition focus-within:border-[#F07818] focus-within:ring-1 focus-within:ring-[#F07818]/30">
+                            <div className="flex items-center border-r border-[#DEDAD4] bg-[#F5F4F1] px-3">
+                                <Search className="size-4 text-[#F07818]" />
                             </div>
 
                             <input
@@ -326,7 +326,7 @@ export default function SearchForm({
                                     }
                                 }}
                                 onKeyDown={handleSuggestionKeyDown}
-                                className={`min-w-0 flex-1 border-0 bg-transparent px-3 text-sm text-[#665548] transition-[height] duration-300 ease-in-out outline-none placeholder:text-[#B5A99D] focus:ring-0 ${
+                                className={`min-w-0 flex-1 border-0 bg-transparent px-3 text-sm text-[#292522] transition-[height] duration-300 ease-in-out outline-none placeholder:text-[#A39B92] focus:ring-0 ${
                                     compact ? 'h-8' : 'h-10'
                                 }`}
                                 placeholder="Nama produk atau kode produk..."
@@ -335,7 +335,7 @@ export default function SearchForm({
 
                             {loadingSuggestions && (
                                 <div className="flex items-center px-3">
-                                    <Loader2 className="size-4 animate-spin text-[#C4773D]" />
+                                    <Loader2 className="size-4 animate-spin text-[#F07818]" />
                                 </div>
                             )}
 
@@ -348,7 +348,7 @@ export default function SearchForm({
                                         setSuggestions([]);
                                         setShowSuggestions(false);
                                     }}
-                                    className="flex items-center px-3 text-[#A99B8D] transition hover:text-[#C4773D]"
+                                    className="flex items-center px-3 text-[#888078] transition hover:text-[#E66B0B]"
                                     aria-label="Hapus pencarian"
                                 >
                                     <X className="size-4" />
@@ -358,16 +358,16 @@ export default function SearchForm({
 
                         {/* Autocomplete Dropdown */}
                         {showSuggestions && inputKeyword.trim().length >= 2 && (
-                            <div className="absolute top-full right-0 left-0 z-[60] mt-1 overflow-hidden rounded-sm border border-[#E8DCCF] bg-white shadow-[0_5px_18px_rgba(100,75,50,0.13)]">
+                            <div className="absolute top-full right-0 left-0 z-[60] mt-1 overflow-hidden rounded-sm border border-[#DEDAD4] bg-white shadow-[0_5px_18px_rgba(40,30,20,0.15)]">
                                 {loadingSuggestions ? (
-                                    <div className="flex items-center justify-center gap-2 px-3 py-5 text-xs text-[#928477]">
-                                        <Loader2 className="size-4 animate-spin text-[#C4773D]" />
+                                    <div className="flex items-center justify-center gap-2 px-3 py-5 text-xs text-[#77716B]">
+                                        <Loader2 className="size-4 animate-spin text-[#F07818]" />
                                         Mencari produk...
                                     </div>
                                 ) : suggestions.length > 0 ? (
                                     <>
-                                        <div className="border-b border-[#EAE2D9] bg-[#FAF6F1] px-3 py-2">
-                                            <span className="text-[10px] font-bold tracking-wider text-[#A18F7F] uppercase">
+                                        <div className="border-b border-[#DEDAD4] bg-[#F5F4F1] px-3 py-2">
+                                            <span className="text-[10px] font-bold tracking-wider text-[#77716B] uppercase">
                                                 Rekomendasi produk
                                             </span>
                                         </div>
@@ -383,24 +383,24 @@ export default function SearchForm({
                                                     onClick={() =>
                                                         selectSuggestion(item)
                                                     }
-                                                    className={`flex w-full items-center gap-3 border-b border-[#F0EBE5] px-3 py-2.5 text-left transition last:border-0 ${
+                                                    className={`flex w-full items-center gap-3 border-b border-[#F0EEEA] px-3 py-2.5 text-left transition last:border-0 ${
                                                         activeSuggestion ===
                                                         index
-                                                            ? 'bg-[#FFF1E5]'
-                                                            : 'bg-white hover:bg-[#FAF6F1]'
+                                                            ? 'bg-[#FFF0E2]'
+                                                            : 'bg-white hover:bg-[#FFF7F0]'
                                                     }`}
                                                 >
-                                                    <div className="flex size-8 shrink-0 items-center justify-center rounded-sm border border-[#EAE2D9] bg-gradient-to-b from-white to-[#F7F3EE]">
-                                                        <Search className="size-4 text-[#C4773D]" />
+                                                    <div className="flex size-8 shrink-0 items-center justify-center rounded-sm border border-[#F07818] bg-[#F07818]">
+                                                        <Search className="size-4 text-white" />
                                                     </div>
 
                                                     <div className="min-w-0 flex-1">
-                                                        <p className="truncate text-xs font-semibold text-[#665548]">
+                                                        <p className="truncate text-xs font-semibold text-[#292522]">
                                                             {item.name}
                                                         </p>
 
                                                         {item.code && (
-                                                            <p className="mt-0.5 text-[10px] text-[#A99B8D]">
+                                                            <p className="mt-0.5 text-[10px] text-[#77716B]">
                                                                 Kode:{' '}
                                                                 {item.code}
                                                             </p>
@@ -410,8 +410,8 @@ export default function SearchForm({
                                             ))}
                                         </div>
 
-                                        <div className="border-t border-[#EAE2D9] bg-[#FAF6F1] px-3 py-1.5">
-                                            <p className="text-[10px] text-[#A99B8D]">
+                                        <div className="border-t border-[#DEDAD4] bg-[#F5F4F1] px-3 py-1.5">
+                                            <p className="text-[10px] text-[#77716B]">
                                                 Gunakan ↑ ↓ untuk memilih dan
                                                 Enter untuk menggunakan.
                                             </p>
@@ -419,13 +419,13 @@ export default function SearchForm({
                                     </>
                                 ) : (
                                     <div className="px-3 py-5 text-center">
-                                        <Search className="mx-auto mb-2 size-5 text-[#C9B9A9]" />
+                                        <Search className="mx-auto mb-2 size-5 text-[#F07818]" />
 
-                                        <p className="text-xs font-semibold text-[#806F60]">
+                                        <p className="text-xs font-semibold text-[#292522]">
                                             Produk tidak ditemukan
                                         </p>
 
-                                        <p className="mt-1 text-[10px] text-[#A99B8D]">
+                                        <p className="mt-1 text-[10px] text-[#77716B]">
                                             Coba kata kunci lainnya.
                                         </p>
                                     </div>
@@ -442,7 +442,7 @@ export default function SearchForm({
                         }`}
                     >
                         <div className="overflow-hidden">
-                            <p className="mt-2 text-[10px] text-[#A99B8D]">
+                            <p className="mt-2 text-[10px] text-[#77716B]">
                                 Masukkan nama atau kode produk yang ingin
                                 dicari.
                             </p>
@@ -452,17 +452,17 @@ export default function SearchForm({
             ) : (
                 <>
                     {/* Category */}
-                    <div className="border-t border-white bg-[#FDFBF8]">
+                    <div className="border-t border-white bg-white">
                         <div
-                            className={`flex items-center justify-between border-b border-[#EAE2D9] bg-gradient-to-b from-white to-[#F7F3EE] px-3 transition-[padding] duration-300 ${
+                            className={`flex items-center justify-between border-b border-[#DEDAD4] bg-[#F5F4F1] px-3 transition-[padding] duration-300 ${
                                 compact ? 'py-1.5' : 'py-2'
                             }`}
                         >
-                            <p className="text-xs font-bold text-[#665548]">
+                            <p className="text-xs font-bold text-[#292522]">
                                 Pilih kategori produk
                             </p>
 
-                            <span className="rounded-sm border border-[#E8C3A3] bg-[#FFF1E5] px-2 py-0.5 text-[10px] font-semibold text-[#B66B35]">
+                            <span className="rounded-sm border border-[#F07818] bg-[#F07818] px-2 py-0.5 text-[10px] font-bold text-white">
                                 {category.length} dipilih
                             </span>
                         </div>
@@ -480,14 +480,14 @@ export default function SearchForm({
                                         key={item.id}
                                         type="button"
                                         onClick={() => toggleCategory(item.id)}
-                                        className={`shrink-0 rounded-sm border font-semibold shadow-sm transition-all duration-200 ${
+                                        className={`shrink-0 rounded-sm border font-bold shadow-sm transition-all duration-200 ${
                                             compact
                                                 ? 'px-2 py-1 text-[10px]'
                                                 : 'px-3 py-1.5 text-xs'
                                         } ${
                                             active
-                                                ? 'border-[#E8C3A3] bg-gradient-to-b from-[#FFF8F0] to-[#FFF1E5] text-[#B66B35]'
-                                                : 'border-[#EAE2D9] bg-gradient-to-b from-white to-[#F7F3EE] text-[#928477] hover:border-[#D8A47D] hover:to-[#FAF0E6]'
+                                                ? 'border-[#D9630B] bg-[#F07818] text-white'
+                                                : 'border-[#DEDAD4] bg-white text-[#625B54] hover:border-[#F07818] hover:text-[#E66B0B]'
                                         }`}
                                     >
                                         {item.name}
@@ -498,7 +498,7 @@ export default function SearchForm({
 
                         {/* Date Filter */}
                         <div
-                            className={`relative border-t border-[#EAE2D9] bg-[#FAF6F1] transition-[padding] duration-300 ${
+                            className={`relative border-t border-[#DEDAD4] bg-[#F5F4F1] transition-[padding] duration-300 ${
                                 compact ? 'p-2' : 'p-3'
                             }`}
                         >
@@ -510,7 +510,7 @@ export default function SearchForm({
                                 }`}
                             >
                                 <div className="overflow-hidden">
-                                    <label className="mb-2 block text-xs font-bold text-[#665548]">
+                                    <label className="mb-2 block text-xs font-bold text-[#292522]">
                                         Filter tanggal
                                     </label>
                                 </div>
@@ -519,11 +519,11 @@ export default function SearchForm({
                             <button
                                 type="button"
                                 onClick={() => setShowCalendar((prev) => !prev)}
-                                className={`flex w-full items-center gap-2 rounded-sm border border-[#E8DCCF] bg-white px-3 text-left text-sm text-[#806F60] shadow-inner transition-all duration-300 hover:border-[#D69B70] ${
+                                className={`flex w-full items-center gap-2 rounded-sm border border-[#DAD5CE] bg-white px-3 text-left text-sm text-[#625B54] shadow-inner transition-all duration-300 hover:border-[#F07818] ${
                                     compact ? 'h-8' : 'h-10'
                                 }`}
                             >
-                                <Calendar className="size-4 shrink-0 text-[#C4773D]" />
+                                <Calendar className="size-4 shrink-0 text-[#F07818]" />
 
                                 <span className="flex-1 truncate">
                                     {dateLabel}
@@ -531,8 +531,8 @@ export default function SearchForm({
                             </button>
 
                             {showCalendar && (
-                                <div className="absolute top-full right-0 left-0 z-50 mt-1 rounded-sm border border-[#E8DCCF] bg-[#FDFBF8] p-3 shadow-[0_4px_12px_rgba(100,75,50,0.13)]">
-                                    <div className="mb-2 border-b border-[#EAE2D9] pb-2 text-xs font-bold text-[#665548]">
+                                <div className="absolute top-full right-0 left-0 z-50 mt-1 rounded-sm border border-[#DEDAD4] bg-white p-3 shadow-[0_4px_12px_rgba(40,30,20,0.15)]">
+                                    <div className="mb-2 border-b border-[#DEDAD4] pb-2 text-xs font-bold text-[#292522]">
                                         Pilih rentang tanggal
                                     </div>
 
@@ -551,23 +551,23 @@ export default function SearchForm({
                                                 'w-full table-fixed border-collapse',
                                             weekdays: 'w-full',
                                             weekday:
-                                                'p-1 text-center text-xs font-bold text-[#A99B8D]',
+                                                'p-1 text-center text-xs font-bold text-[#77716B]',
                                             week: 'w-full',
                                             day: 'p-0 text-center',
                                             day_button:
-                                                'mx-auto flex size-8 items-center justify-center rounded-sm border border-transparent text-sm text-[#665548] hover:border-[#E8C3A3] hover:bg-[#FFF1E5]',
+                                                'mx-auto flex size-8 items-center justify-center rounded-sm border border-transparent text-sm text-[#292522] hover:border-[#F07818] hover:bg-[#FFF0E2]',
                                             selected:
-                                                'bg-[#FBE4D1] text-[#A95E2D]',
+                                                'bg-[#FFE0C5] text-[#A94F08]',
                                             range_start:
-                                                'rounded-sm bg-[#C4773D] text-white',
+                                                'rounded-sm bg-[#F07818] text-white',
                                             range_end:
-                                                'rounded-sm bg-[#C4773D] text-white',
+                                                'rounded-sm bg-[#F07818] text-white',
                                             range_middle:
-                                                'bg-[#FFF1E5] text-[#A95E2D]',
+                                                'bg-[#FFF0E2] text-[#A94F08]',
                                         }}
                                     />
 
-                                    <div className="flex justify-end gap-2 border-t border-[#EAE2D9] pt-3">
+                                    <div className="flex justify-end gap-2 border-t border-[#DEDAD4] pt-3">
                                         <button
                                             type="button"
                                             onClick={() =>
@@ -586,7 +586,7 @@ export default function SearchForm({
                                             onClick={() =>
                                                 setShowCalendar(false)
                                             }
-                                            className="rounded-sm border border-[#C4773D] bg-gradient-to-b from-[#D68D56] to-[#C4773D] px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:from-[#C4773D] hover:to-[#AD6331] disabled:cursor-not-allowed disabled:opacity-50"
+                                            className="rounded-sm border border-[#D9630B] bg-[#F07818] px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-[#D9630B] disabled:cursor-not-allowed disabled:opacity-50"
                                         >
                                             Terapkan
                                         </button>

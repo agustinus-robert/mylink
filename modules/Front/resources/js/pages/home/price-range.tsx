@@ -25,23 +25,23 @@ export default function PriceRange({
     const hasFilter = minPrice !== '' || maxPrice !== '';
 
     const inputClass =
-        'w-full min-w-0 border-0 bg-transparent p-0 text-xs text-[#665548] outline-none placeholder:text-[#B5A99D] focus:ring-0';
+        'w-full min-w-0 border-0 bg-transparent p-0 text-xs font-medium text-[#292522] outline-none placeholder:text-[#A39B92] focus:ring-0';
 
     return (
-        <div className="border-b border-[#EAE2D9] bg-white px-3 py-3">
+        <div className="border-b border-[#DEDAD4] bg-white px-3 py-3">
             {/* Header */}
             <div className="mb-3 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <div className="flex size-8 items-center justify-center rounded-sm border border-[#E8C3A3] bg-[#FFF1E5]">
-                        <SlidersHorizontal className="size-4 text-[#C4773D]" />
+                    <div className="flex size-8 items-center justify-center rounded-sm border border-[#D9630B] bg-[#F07818] shadow-sm">
+                        <SlidersHorizontal className="size-4 text-white" />
                     </div>
 
                     <div>
-                        <h3 className="text-xs font-bold text-[#665548]">
+                        <h3 className="text-xs font-bold text-[#292522]">
                             Rentang Harga
                         </h3>
 
-                        <p className="text-[10px] text-[#A99B8D]">
+                        <p className="text-[10px] text-[#77716B]">
                             Tentukan batas harga produk
                         </p>
                     </div>
@@ -54,7 +54,7 @@ export default function PriceRange({
                             setMinPrice('');
                             setMaxPrice('');
                         }}
-                        className="flex items-center gap-1 rounded-sm px-2 py-1 text-[10px] font-semibold text-[#C4773D] transition hover:bg-[#FFF1E5] hover:text-[#A95E2D]"
+                        className="flex items-center gap-1 rounded-sm px-2 py-1 text-[10px] font-bold text-[#E66B0B] transition hover:bg-[#FFF0E2] hover:text-[#D9630B]"
                     >
                         <RotateCcw className="size-3" />
                         Reset
@@ -65,12 +65,12 @@ export default function PriceRange({
             {/* Price Inputs */}
             <div className="grid grid-cols-2 gap-2">
                 <div>
-                    <label className="mb-1.5 block text-[10px] font-semibold text-[#928477]">
+                    <label className="mb-1.5 block text-[10px] font-bold text-[#625B54]">
                         Harga Minimum
                     </label>
 
-                    <div className="flex h-10 items-center rounded-sm border border-[#EAE2D9] bg-[#FAF8F5] px-2 transition focus-within:border-[#D69B70] focus-within:bg-white focus-within:ring-1 focus-within:ring-[#F5DCC7]">
-                        <span className="mr-2 text-xs font-semibold text-[#C4773D]">
+                    <div className="flex h-10 items-center rounded-sm border border-[#DEDAD4] bg-[#F5F4F1] px-2 transition focus-within:border-[#F07818] focus-within:bg-white focus-within:ring-1 focus-within:ring-[#F07818]/30">
+                        <span className="mr-2 text-xs font-bold text-[#F07818]">
                             Rp
                         </span>
 
@@ -88,12 +88,12 @@ export default function PriceRange({
                 </div>
 
                 <div>
-                    <label className="mb-1.5 block text-[10px] font-semibold text-[#928477]">
+                    <label className="mb-1.5 block text-[10px] font-bold text-[#625B54]">
                         Harga Maksimum
                     </label>
 
-                    <div className="flex h-10 items-center rounded-sm border border-[#EAE2D9] bg-[#FAF8F5] px-2 transition focus-within:border-[#D69B70] focus-within:bg-white focus-within:ring-1 focus-within:ring-[#F5DCC7]">
-                        <span className="mr-2 text-xs font-semibold text-[#C4773D]">
+                    <div className="flex h-10 items-center rounded-sm border border-[#DEDAD4] bg-[#F5F4F1] px-2 transition focus-within:border-[#F07818] focus-within:bg-white focus-within:ring-1 focus-within:ring-[#F07818]/30">
+                        <span className="mr-2 text-xs font-bold text-[#F07818]">
                             Rp
                         </span>
 
@@ -114,9 +114,9 @@ export default function PriceRange({
             {/* Active Filter Indicator */}
             {hasFilter && (
                 <div className="mt-2 flex items-center gap-1.5">
-                    <span className="size-1.5 rounded-full bg-[#C4773D]" />
+                    <span className="size-1.5 rounded-full bg-[#F07818]" />
 
-                    <span className="text-[10px] text-[#A99B8D]">
+                    <span className="text-[10px] font-semibold text-[#77716B]">
                         Filter harga aktif
                     </span>
                 </div>
