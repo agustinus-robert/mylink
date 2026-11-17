@@ -7,6 +7,8 @@ use App\Models\WhoIs;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
@@ -95,6 +97,83 @@ class Product extends Model
             ->when($dateTo, function ($q, $dateTo) {
                 $q->whereDate('created_at', '<=', $dateTo);
             });
+    }
+
+    public function scopeKeyword($query, $keyword = null, $searchType = null){
+        $condition = $searchType === 'keyword' && filled($keyword);
+
+        return $query->when($condition, function($query) use ($keyword){
+            $query->where('name', 'like', "%{$keyword}");
+        });
+    }
+
+    public function scopeCategory($query, $categoryIds = [], $searchType = null){
+        $condition = $searchType === 'category' && !empty($categoryIds);
+
+        return $query->when($condition, function($query) use ($categoryIds){
+            $query->whereIn('category_id', $categoryIds);
+        });
+    }
+
+    public function scopeSubCategory($query, $subCategoryId = null){
+        $condition = filled($subCategoryId);
+
+        return $query->when($condition, function($query) use ($subCategoryId){
+            $query->where('sub_category_id', $subCategoryId);
+        });
+    }
+
+    public function scopeProvince($query, $province = null){
+        $condition = filled($province);
+
+        return $query->when($condition, function($query) use ($province){
+            $query->whereHas('detail.location.district', function($district) use ($province){
+                $district->where('province_id', $province);
+            });
+        });
+    }
+
+    public function scopeRegency($query, $regency = null){
+        $condition = filled($regency);
+
+        return $query->when($condition, function($query) use ($regency){
+            $query->whereHas('detail.location', function($location) use ($regency){
+                $location->where('district_id', $regency);
+            });
+        });
+    }
+
+    public function scopeTopics($query, $topics){
+        $condition = !empty($topics);
+
+        return $query->when($condition, function($query) use ($topics){
+            $query->whereHas('topics', function($query) use ($topics){
+                $query->where(function($query) use ($topics){
+                    foreach($topics as $topic){
+                        $query->orWhereRaw(
+                            "FIND_IN_SET(?, REPLACE(name, ', ', ','))",
+                            [$topic]
+                        );
+                    }
+                });
+            });
+        });
+    }
+
+    public function scopeDateFrom($query, $date){
+        $condition = filled($date);
+
+        return $query->when($condition, function($query) use ($date){
+            $query->where('created_at', '>=', $date);
+        });
+    }
+
+    public function scopeDateTo($query, $date){
+        $condition = filled($date);
+
+        return $query->when($condition, function ($query) use ($date){
+            $query->where('created_at', '<=', $date);
+        });
     }
 
     public function scopeArchived($query, ?bool $archived)
