@@ -1,6 +1,6 @@
 import React from 'react';
 import { createInertiaApp } from '@inertiajs/react';
-
+import 'leaflet/dist/leaflet.css';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 
