@@ -55,7 +55,8 @@ class DatabaseSeeder extends Seeder
             RoleSeeders::class,
             PermissionSeeders::class,
             RolePermissionSeeders::class,
-            RoleUserSeeders::class
+            RoleUserSeeders::class,
+            WordNetSeeder::class
         ]);
     }
 }

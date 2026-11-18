@@ -32,7 +32,7 @@ export default function PriceRange({
             {/* Header */}
             <div className="mb-3 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <div className="flex size-8 items-center justify-center rounded-sm border border-[#D9630B] bg-[#F07818] shadow-sm">
+                    <div className="flex size-8 items-center justify-center rounded-sm border border-blue-400 bg-blue-500 shadow-sm">
                         <SlidersHorizontal className="size-4 text-white" />
                     </div>
 
@@ -69,8 +69,8 @@ export default function PriceRange({
                         Harga Minimum
                     </label>
 
-                    <div className="flex h-10 items-center rounded-sm border border-[#DEDAD4] bg-[#F5F4F1] px-2 transition focus-within:border-[#F07818] focus-within:bg-white focus-within:ring-1 focus-within:ring-[#F07818]/30">
-                        <span className="mr-2 text-xs font-bold text-[#F07818]">
+                    <div className="flex h-10 items-center rounded-sm border border-[#DEDAD4] bg-[#F5F4F1] px-2 transition focus-within:border-blue-400 focus-within:bg-white focus-within:ring-1 focus-within:ring-[#F07818]/30">
+                        <span className="mr-2 text-xs font-bold text-blue-400">
                             Rp
                         </span>
 
@@ -92,8 +92,8 @@ export default function PriceRange({
                         Harga Maksimum
                     </label>
 
-                    <div className="flex h-10 items-center rounded-sm border border-[#DEDAD4] bg-[#F5F4F1] px-2 transition focus-within:border-[#F07818] focus-within:bg-white focus-within:ring-1 focus-within:ring-[#F07818]/30">
-                        <span className="mr-2 text-xs font-bold text-[#F07818]">
+                    <div className="flex h-10 items-center rounded-sm border border-[#DEDAD4] bg-[#F5F4F1] px-2 transition focus-within:border-blue-400 focus-within:bg-white focus-within:ring-1 focus-within:ring-[#F07818]/30">
+                        <span className="mr-2 text-xs font-bold text-blue-500">
                             Rp
                         </span>
 

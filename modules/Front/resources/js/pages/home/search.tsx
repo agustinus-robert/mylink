@@ -154,15 +154,135 @@ export default function Searching(props: SearchingProps) {
                 <div className="mx-auto w-full">
                     {/* Search Bar */}
                     <div className="sticky top-0 z-40 border-b border-[#DEDAD4] bg-white shadow-[0_2px_8px_rgba(40,30,20,0.08)]">
-                        <Brands />
+                        {/* <Brands /> */}
 
-                        <div className="px-3 py-3">
+                        <div className="relative isolate overflow-hidden bg-blue-500 px-4 py-7">
+                            {/* Dekorasi salju */}
+                            <div className="pointer-events-none absolute inset-0 overflow-hidden">
+                                <div
+                                    className="absolute top-2 left-[3%] size-8 opacity-20"
+                                    style={{
+                                        backgroundImage: "url('/snow.svg')",
+                                        backgroundSize: 'contain',
+                                        transform: 'rotate(-15deg)',
+                                    }}
+                                />
+
+                                <div
+                                    className="absolute top-8 left-[17%] size-6 opacity-10"
+                                    style={{
+                                        backgroundImage: "url('/snow.svg')",
+                                        backgroundSize: 'contain',
+                                        transform: 'rotate(12deg)',
+                                    }}
+                                />
+
+                                <div
+                                    className="absolute top-1 left-[30%] size-7 opacity-25"
+                                    style={{
+                                        backgroundImage: "url('/snow.svg')",
+                                        backgroundSize: 'contain',
+                                        transform: 'rotate(25deg)',
+                                    }}
+                                />
+
+                                <div
+                                    className="absolute top-9 left-[45%] size-8 opacity-15"
+                                    style={{
+                                        backgroundImage: "url('/snow.svg')",
+                                        backgroundSize: 'contain',
+                                        transform: 'rotate(-10deg)',
+                                    }}
+                                />
+
+                                <div
+                                    className="absolute top-2 left-[59%] size-6 opacity-20"
+                                    style={{
+                                        backgroundImage: "url('/snow.svg')",
+                                        backgroundSize: 'contain',
+                                        transform: 'rotate(18deg)',
+                                    }}
+                                />
+
+                                <div
+                                    className="absolute top-7 left-[74%] size-8 opacity-10"
+                                    style={{
+                                        backgroundImage: "url('/snow.svg')",
+                                        backgroundSize: 'contain',
+                                        transform: 'rotate(-20deg)',
+                                    }}
+                                />
+
+                                <div
+                                    className="absolute top-1 right-[3%] size-9 opacity-20"
+                                    style={{
+                                        backgroundImage: "url('/snow.svg')",
+                                        backgroundSize: 'contain',
+                                        transform: 'rotate(15deg)',
+                                    }}
+                                />
+
+                                <div
+                                    className="absolute bottom-1 left-[8%] size-6 opacity-15"
+                                    style={{
+                                        backgroundImage: "url('/snow.svg')",
+                                        backgroundSize: 'contain',
+                                        transform: 'rotate(25deg)',
+                                    }}
+                                />
+
+                                <div
+                                    className="absolute bottom-2 left-[25%] size-8 opacity-20"
+                                    style={{
+                                        backgroundImage: "url('/snow.svg')",
+                                        backgroundSize: 'contain',
+                                        transform: 'rotate(-18deg)',
+                                    }}
+                                />
+
+                                <div
+                                    className="absolute bottom-0 left-[42%] size-6 opacity-10"
+                                    style={{
+                                        backgroundImage: "url('/snow.svg')",
+                                        backgroundSize: 'contain',
+                                        transform: 'rotate(10deg)',
+                                    }}
+                                />
+
+                                <div
+                                    className="absolute bottom-2 left-[65%] size-8 opacity-20"
+                                    style={{
+                                        backgroundImage: "url('/snow.svg')",
+                                        backgroundSize: 'contain',
+                                        transform: 'rotate(-25deg)',
+                                    }}
+                                />
+
+                                <div
+                                    className="absolute bottom-1 left-[82%] size-6 opacity-15"
+                                    style={{
+                                        backgroundImage: "url('/snow.svg')",
+                                        backgroundSize: 'contain',
+                                        transform: 'rotate(20deg)',
+                                    }}
+                                />
+
+                                <div
+                                    className="absolute right-[2%] bottom-5 size-7 opacity-25"
+                                    style={{
+                                        backgroundImage: "url('/snow.svg')",
+                                        backgroundSize: 'contain',
+                                        transform: 'rotate(-12deg)',
+                                    }}
+                                />
+                            </div>
+
                             <button
                                 type="button"
                                 onClick={() => setIsSearching(true)}
-                                className="flex h-11 w-full items-center gap-3 rounded-md border border-[#DAD5CE] bg-[#F5F4F1] px-3 text-left shadow-inner transition hover:border-[#F07818] hover:bg-white"
+                                className="relative z-10 flex h-11 w-full items-center gap-3 rounded-md border border-[#DAD5CE] bg-[#F5F4F1] px-3 text-left shadow-inner transition hover:border-blue-300 hover:bg-white"
                             >
-                                <Search className="size-5 shrink-0 text-[#F07818]" />
+                                <Search className="size-5 shrink-0 text-blue-400" />
 
                                 <span className="flex-1 truncate text-sm text-[#77716B]">
                                     {props.keyword ||
@@ -201,8 +321,8 @@ export default function Searching(props: SearchingProps) {
                                         onClick={() => toggleCategory(item.id)}
                                         className={`shrink-0 rounded-sm border px-3 py-1.5 text-xs font-bold transition ${
                                             active
-                                                ? 'border-[#F07818] bg-[#F07818] text-white shadow-sm'
-                                                : 'border-[#DEDAD4] bg-white text-[#625B54] hover:border-[#F07818] hover:text-[#E66B0B]'
+                                                ? 'border-blue-400 bg-blue-500 text-white shadow-sm'
+                                                : 'border-[#DEDAD4] bg-white text-[#625B54] hover:border-blue-500 hover:text-blue-400'
                                         }`}
                                     >
                                         {item.name}
@@ -234,8 +354,8 @@ export default function Searching(props: SearchingProps) {
                                         onClick={() => props.setSubCategory('')}
                                         className={`shrink-0 rounded-sm border px-3 py-1.5 text-xs font-bold transition ${
                                             props.subCategory === ''
-                                                ? 'border-[#F07818] bg-[#F07818] text-white shadow-sm'
-                                                : 'border-[#DEDAD4] bg-white text-[#625B54] hover:border-[#F07818] hover:text-[#E66B0B]'
+                                                ? 'border-blue-400 bg-blue-500 text-white shadow-sm'
+                                                : 'border-[#DEDAD4] bg-white text-[#625B54] hover:border-blue-500 hover:text-blue-400'
                                         }`}
                                     >
                                         Semua
@@ -256,8 +376,8 @@ export default function Searching(props: SearchingProps) {
                                                 }
                                                 className={`shrink-0 rounded-sm border px-3 py-1.5 text-xs font-bold transition ${
                                                     active
-                                                        ? 'border-[#F07818] bg-[#F07818] text-white shadow-sm'
-                                                        : 'border-[#DEDAD4] bg-white text-[#625B54] hover:border-[#F07818] hover:text-[#E66B0B]'
+                                                        ? 'border-blue-400 bg-blue-500 text-white shadow-sm'
+                                                        : 'border-[#DEDAD4] bg-white text-[#625B54] hover:border-blue-500 hover:text-blue-400'
                                                 }`}
                                             >
                                                 {item.name}
@@ -323,7 +443,7 @@ export default function Searching(props: SearchingProps) {
                         <button
                             type="button"
                             onClick={() => setIsSearching(false)}
-                            className="flex size-9 shrink-0 items-center justify-center rounded-sm border border-[#DEDAD4] bg-[#F5F4F1] text-[#E66B0B] transition hover:border-[#F07818] hover:bg-[#FFF0E2]"
+                            className="flex size-9 shrink-0 items-center justify-center rounded-sm border border-[#DEDAD4] bg-[#F5F4F1] text-blue-500 transition hover:border-[#F07818] hover:bg-[#FFF0E2]"
                         >
                             <ArrowLeft className="size-5" />
                         </button>
@@ -388,7 +508,7 @@ export default function Searching(props: SearchingProps) {
                             <button
                                 type="button"
                                 onClick={() => setIsSearching(false)}
-                                className="w-full rounded-sm border border-[#D9630B] bg-[#F07818] px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#D9630B] active:scale-[0.99]"
+                                className="w-full rounded-sm border border-blue-400 bg-blue-500 px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-blue-600 active:scale-[0.99]"
                             >
                                 Tampilkan Produk
                             </button>

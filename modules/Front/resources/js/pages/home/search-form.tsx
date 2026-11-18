@@ -252,8 +252,8 @@ export default function SearchForm({
             compact ? 'px-2 py-1.5 text-xs' : 'px-3 py-3 text-sm'
         } ${
             active
-                ? 'border-[#D9630B] bg-[#F07818] text-white shadow-sm'
-                : 'border-[#DEDAD4] bg-white text-[#625B54] hover:border-[#F07818] hover:text-[#E66B0B]'
+                ? 'border-blue-400 bg-blue-500 text-white shadow-sm'
+                : 'border-[#DEDAD4] bg-white text-[#625B54] hover:border-blue-500 hover:text-blue-500'
         }`;
 
     const buttonClass =
@@ -305,9 +305,9 @@ export default function SearchForm({
 
                     {/* Search Input + Autocomplete */}
                     <div ref={searchRef} className="relative">
-                        <div className="flex rounded-sm border border-[#DAD5CE] bg-white shadow-inner transition focus-within:border-[#F07818] focus-within:ring-1 focus-within:ring-[#F07818]/30">
+                        <div className="flex rounded-sm border border-[#DAD5CE] bg-white shadow-inner transition focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500/30">
                             <div className="flex items-center border-r border-[#DEDAD4] bg-[#F5F4F1] px-3">
-                                <Search className="size-4 text-[#F07818]" />
+                                <Search className="size-4 text-blue-500" />
                             </div>
 
                             <input
@@ -462,7 +462,7 @@ export default function SearchForm({
                                 Pilih kategori produk
                             </p>
 
-                            <span className="rounded-sm border border-[#F07818] bg-[#F07818] px-2 py-0.5 text-[10px] font-bold text-white">
+                            <span className="rounded-sm border border-blue-400 bg-blue-500 px-2 py-0.5 text-[10px] font-bold text-white">
                                 {category.length} dipilih
                             </span>
                         </div>
@@ -486,8 +486,8 @@ export default function SearchForm({
                                                 : 'px-3 py-1.5 text-xs'
                                         } ${
                                             active
-                                                ? 'border-[#D9630B] bg-[#F07818] text-white'
-                                                : 'border-[#DEDAD4] bg-white text-[#625B54] hover:border-[#F07818] hover:text-[#E66B0B]'
+                                                ? 'border-blue-400 bg-blue-500 text-white'
+                                                : 'border-blue-400 bg-white text-blue-400 hover:border-blue-400 hover:text-blue-500'
                                         }`}
                                     >
                                         {item.name}
@@ -519,11 +519,11 @@ export default function SearchForm({
                             <button
                                 type="button"
                                 onClick={() => setShowCalendar((prev) => !prev)}
-                                className={`flex w-full items-center gap-2 rounded-sm border border-[#DAD5CE] bg-white px-3 text-left text-sm text-[#625B54] shadow-inner transition-all duration-300 hover:border-[#F07818] ${
+                                className={`flex w-full items-center gap-2 rounded-sm border border-[#DAD5CE] bg-white px-3 text-left text-sm text-[#625B54] shadow-inner transition-all duration-300 hover:border-blue-500 ${
                                     compact ? 'h-8' : 'h-10'
                                 }`}
                             >
-                                <Calendar className="size-4 shrink-0 text-[#F07818]" />
+                                <Calendar className="size-4 shrink-0 text-blue-500" />
 
                                 <span className="flex-1 truncate">
                                     {dateLabel}

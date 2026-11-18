@@ -479,7 +479,7 @@ export default function Items({ products }: Props) {
             {/* Header */}
             <div className="flex items-center justify-between border-b border-[#DEDAD4] bg-white px-3 py-2">
                 <div className="flex items-center gap-2">
-                    <Hand className="size-4 text-[#F07818]" />
+                    <Hand className="size-4 text-blue-400" />
 
                     <div>
                         <h3 className="text-xs font-bold text-[#292522]">
@@ -508,7 +508,7 @@ export default function Items({ products }: Props) {
                         className={`flex h-7 items-center gap-1 rounded-sm border px-2 text-[9px] font-bold shadow-sm transition active:scale-95 disabled:cursor-wait disabled:opacity-50 ${
                             relatedFilter
                                 ? 'border-[#D9630B] bg-[#F07818] text-white'
-                                : 'border-[#DEDAD4] bg-white text-[#77716B] hover:border-[#F07818] hover:bg-[#FFF0E2] hover:text-[#D9630B]'
+                                : 'border-[#DEDAD4] bg-white text-[#77716B] hover:border-blue-400 hover:bg-blue-500 hover:text-white'
                         }`}
                     >
                         <Filter className="size-3" />
@@ -518,7 +518,7 @@ export default function Items({ products }: Props) {
                             {relatedFilter ? (
                                 <Check className="size-4 text-white" />
                             ) : (
-                                <X className="size-4 text-[#A39B92]" />
+                                <X className="size-4" />
                             )}
                         </div>
                     </button>
@@ -536,7 +536,7 @@ export default function Items({ products }: Props) {
                         aria-label={
                             sort === 'desc' ? 'Ascending' : 'Descending'
                         }
-                        className="flex size-7 items-center justify-center rounded-sm border border-[#DEDAD4] bg-white text-[#77716B] shadow-sm transition hover:border-[#F07818] hover:bg-[#FFF0E2] hover:text-[#D9630B] active:scale-95 disabled:cursor-wait disabled:opacity-50"
+                        className="flex size-7 items-center justify-center rounded-sm border border-[#DEDAD4] bg-white text-[#77716B] shadow-sm transition hover:border-blue-400 hover:bg-blue-500 hover:text-white active:scale-95 disabled:cursor-wait disabled:opacity-50"
                     >
                         {sort === 'desc' ? (
                             <ArrowDownWideNarrow className="size-4" />
@@ -615,7 +615,7 @@ export default function Items({ products }: Props) {
                                             }
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="flex items-center justify-center gap-1 rounded-sm border border-[#F07818] bg-[#FFF0E2] px-1.5 py-1 text-[9px] font-bold text-[#D9630B] transition hover:border-[#D9630B] hover:bg-[#F07818] hover:text-white"
+                                            className="flex items-center justify-center gap-1 rounded-sm border border-blue-500 bg-blue-400 px-1.5 py-1 text-[9px] font-bold text-white transition hover:border-blue-400 hover:bg-blue-700 hover:text-white"
                                         >
                                             <ShoppingBag className="size-3" />
                                             LIHAT PRODUK

@@ -51,7 +51,7 @@
     <body class="font-sans antialiased">
         <div @class([
             'mx-auto min-h-200 w-full rounded',
-            'max-w-[400px]' => request()->routeIs(
+            'max-w-[410px]' => request()->routeIs(
                 'home',
                 'topik',
                 'sender',

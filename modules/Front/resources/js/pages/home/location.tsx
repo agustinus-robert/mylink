@@ -43,7 +43,7 @@ export default function Location({
     );
 
     const selectClass =
-        'h-9 w-full rounded-sm border border-[#DEDAD4] bg-white px-2 text-xs font-medium text-[#292522] shadow-inner outline-none transition focus:border-[#F07818] focus:ring-1 focus:ring-[#F07818]/30 disabled:cursor-not-allowed disabled:bg-[#F0EEEA] disabled:text-[#A39B92]';
+        'h-9 w-full rounded-sm border border-blue-500 bg-white px-2 text-xs font-medium text-[#292522] shadow-inner outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-[#F07818]/30 disabled:cursor-not-allowed disabled:bg-[#F0EEEA] disabled:text-[#A39B92]';
 
     return (
         <div className="border-t border-[#DEDAD4] bg-[#F5F4F1]">
@@ -56,7 +56,7 @@ export default function Location({
                 }`}
             >
                 <div className="flex min-w-0 items-center gap-2">
-                    <div className="flex size-8 shrink-0 items-center justify-center rounded-sm border border-[#D9630B] bg-[#F07818] shadow-sm">
+                    <div className="flex size-8 shrink-0 items-center justify-center rounded-sm border border-blue-400 bg-blue-500 shadow-sm">
                         <MapPin className="size-4 text-white" />
                     </div>
 
@@ -75,7 +75,7 @@ export default function Location({
                 </div>
 
                 <ChevronDown
-                    className={`size-4 shrink-0 text-[#F07818] transition-transform duration-300 ${
+                    className={`size-4 shrink-0 text-blue-500 transition-transform duration-300 ${
                         isOpen ? 'rotate-180' : ''
                     }`}
                 />
