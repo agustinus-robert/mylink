@@ -156,7 +156,7 @@ export default function Searching(props: SearchingProps) {
                     <div className="sticky top-0 z-40 border-b border-[#DEDAD4] bg-white shadow-[0_2px_8px_rgba(40,30,20,0.08)]">
                         {/* <Brands /> */}
 
-                        <div className="relative isolate overflow-hidden bg-blue-500 px-4 py-7">
+                        <div className="relative isolate overflow-hidden bg-blue-500 px-4 py-5">
                             {/* Dekorasi salju */}
                             <div className="pointer-events-none absolute inset-0 overflow-hidden">
                                 <div
